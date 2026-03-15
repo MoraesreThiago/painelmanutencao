@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Wand2, Loader2 } from 'lucide-react';
 import type { Equipamento, Colaborador } from '@/types/database';
 
 const OcorrenciaForm = () => {
@@ -22,6 +22,7 @@ const OcorrenciaForm = () => {
   const isEdit = !!id;
 
   const [loading, setLoading] = useState(false);
+  const [improving, setImproving] = useState(false);
   const [equipamentos, setEquipamentos] = useState<Equipamento[]>([]);
   const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
   const [tagSearch, setTagSearch] = useState('');
@@ -136,6 +137,28 @@ const OcorrenciaForm = () => {
   };
 
   const set = (key: string, value: any) => setForm(f => ({ ...f, [key]: value }));
+
+  const handleImproveDescription = async () => {
+    if (!form.descricao.trim()) { toast.error('Digite uma descrição primeiro'); return; }
+    setImproving(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/improve-description`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ descricao: form.descricao }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erro ao melhorar descrição');
+      if (data.improved) {
+        set('descricao', data.improved);
+        toast.success('Descrição aprimorada pela IA!');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao processar com IA');
+    } finally {
+      setImproving(false);
+    }
+  };
 
   return (
     <Layout>
@@ -264,7 +287,22 @@ const OcorrenciaForm = () => {
           </Card>
 
           <Card>
-            <CardHeader><CardTitle className="text-base">Descrição</CardTitle></CardHeader>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">Descrição</CardTitle>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleImproveDescription}
+                  disabled={improving || !form.descricao.trim()}
+                  className="gap-1.5"
+                >
+                  {improving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                  {improving ? 'Melhorando...' : 'Melhorar com IA'}
+                </Button>
+              </div>
+            </CardHeader>
             <CardContent>
               <Textarea value={form.descricao} onChange={e => set('descricao', e.target.value)} placeholder="Descreva a ocorrência..." rows={4} required className="touch-target" />
             </CardContent>
