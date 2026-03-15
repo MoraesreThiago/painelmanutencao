@@ -11,8 +11,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import type { Equipamento } from '@/types/database';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Equipamentos = () => {
+  const { profile } = useAuth();
+  const isAdmin = profile?.perfil === 'administrador';
   const [items, setItems] = useState<Equipamento[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -68,7 +71,7 @@ const Equipamentos = () => {
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-bold">Equipamentos</h1>
-          <Button onClick={openNew} className="touch-target"><Plus className="h-5 w-5 mr-2" /> Novo</Button>
+          {isAdmin && <Button onClick={openNew} className="touch-target"><Plus className="h-5 w-5 mr-2" /> Novo</Button>}
         </div>
 
         <div className="relative">
@@ -94,10 +97,12 @@ const Equipamentos = () => {
                       <Badge className={e.status === 'Ativo' ? 'bg-status-realizada text-primary-foreground' : 'bg-muted text-muted-foreground'}>{e.status}</Badge>
                     </div>
                   </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => openEdit(e)} className="touch-target"><Edit className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(e.id)} className="touch-target text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => openEdit(e)} className="touch-target"><Edit className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(e.id)} className="touch-target text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
