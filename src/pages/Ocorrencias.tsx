@@ -19,6 +19,8 @@ const statusColors: Record<string, string> = {
 
 const Ocorrencias = () => {
   const navigate = useNavigate();
+  const { profile } = useAuth();
+  const isAdmin = profile?.perfil === 'administrador';
   const [ocorrencias, setOcorrencias] = useState<Ocorrencia[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
