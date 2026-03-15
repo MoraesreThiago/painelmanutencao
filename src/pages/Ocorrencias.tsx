@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit } from 'lucide-react';
 import type { Ocorrencia } from '@/types/database';
+import { useAuth } from '@/contexts/AuthContext';
 
 const statusColors: Record<string, string> = {
   Pendente: 'bg-status-pendente text-primary-foreground',
