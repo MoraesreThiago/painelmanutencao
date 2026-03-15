@@ -185,13 +185,17 @@ const OcorrenciaForm = () => {
               </div>
               <div>
                 <Label>Área *</Label>
-                <Select value={form.area} onValueChange={v => set('area', v)}>
-                  <SelectTrigger className="touch-target mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Elétrica">Elétrica</SelectItem>
-                    <SelectItem value="Mecânica">Mecânica</SelectItem>
-                  </SelectContent>
-                </Select>
+                {isAdmin ? (
+                  <Select value={form.area} onValueChange={v => set('area', v)}>
+                    <SelectTrigger className="touch-target mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Elétrica">Elétrica</SelectItem>
+                      <SelectItem value="Mecânica">Mecânica</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input value={form.area} disabled className="touch-target mt-1" />
+                )}
               </div>
               {isEdit && (
                 <div>

@@ -74,14 +74,18 @@ const Ocorrencias = () => {
                   <SelectItem value="Realizada">Realizada</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={filterArea} onValueChange={setFilterArea}>
-                <SelectTrigger className="touch-target"><SelectValue placeholder="Área" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todas as Áreas</SelectItem>
-                  <SelectItem value="Elétrica">Elétrica</SelectItem>
-                  <SelectItem value="Mecânica">Mecânica</SelectItem>
-                </SelectContent>
-              </Select>
+              {isAdmin ? (
+                <Select value={filterArea} onValueChange={setFilterArea}>
+                  <SelectTrigger className="touch-target"><SelectValue placeholder="Área" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todas as Áreas</SelectItem>
+                    <SelectItem value="Elétrica">Elétrica</SelectItem>
+                    <SelectItem value="Mecânica">Mecânica</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input value={profile?.area || ''} disabled className="touch-target" />
+              )}
               <Select value={filterTurno} onValueChange={setFilterTurno}>
                 <SelectTrigger className="touch-target"><SelectValue placeholder="Turno" /></SelectTrigger>
                 <SelectContent>
