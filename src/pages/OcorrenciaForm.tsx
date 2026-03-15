@@ -30,7 +30,7 @@ const OcorrenciaForm = () => {
 
   const [form, setForm] = useState({
     data_ocorrencia: new Date().toISOString().split('T')[0],
-    horario: 'D',
+    horario: 'Dia',
     turno: 'A',
     colaborador_id: '',
     tag: '',
