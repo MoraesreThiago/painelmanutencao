@@ -116,7 +116,7 @@ const Ocorrencias = () => {
                       <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-muted-foreground">
                         <span>{new Date(o.data_ocorrencia).toLocaleDateString('pt-BR')}</span>
                         <span>•</span>
-                        <span>{o.horario === 'D' ? 'Diurno' : 'Noturno'}</span>
+                        <span>{o.horario}</span>
                         {o.colaboradores?.nome && <><span>•</span><span>{o.colaboradores.nome}</span></>}
                         {o.gerar_os && <Badge className="bg-primary text-primary-foreground text-xs">OS</Badge>}
                       </div>

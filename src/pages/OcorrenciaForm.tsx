@@ -30,7 +30,7 @@ const OcorrenciaForm = () => {
 
   const [form, setForm] = useState({
     data_ocorrencia: new Date().toISOString().split('T')[0],
-    horario: 'D',
+    horario: 'Dia',
     turno: 'A',
     colaborador_id: '',
     tag: '',
@@ -159,8 +159,8 @@ const OcorrenciaForm = () => {
                 <Select value={form.horario} onValueChange={v => set('horario', v)}>
                   <SelectTrigger className="touch-target mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="D">Diurno</SelectItem>
-                    <SelectItem value="N">Noturno</SelectItem>
+                    <SelectItem value="Dia">Dia</SelectItem>
+                    <SelectItem value="Amanhecida">Amanhecida</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
