@@ -54,7 +54,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
     if (data.user) {
       await (supabase as any).from('profiles').insert({ id: data.user.id, nome, email, perfil, area });
-      await (supabase as any).from('user_roles').insert({ user_id: data.user.id, role: perfil });
     }
   };
 
