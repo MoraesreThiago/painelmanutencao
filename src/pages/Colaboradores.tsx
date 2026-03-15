@@ -11,8 +11,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import type { Colaborador } from '@/types/database';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Colaboradores = () => {
+  const { profile } = useAuth();
+  const isAdmin = profile?.perfil === 'administrador';
   const [items, setItems] = useState<Colaborador[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
