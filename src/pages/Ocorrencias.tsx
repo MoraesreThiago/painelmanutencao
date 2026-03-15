@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit } from 'lucide-react';
 import type { Ocorrencia } from '@/types/database';
+import { useAuth } from '@/contexts/AuthContext';
 
 const statusColors: Record<string, string> = {
   Pendente: 'bg-status-pendente text-primary-foreground',
@@ -19,6 +20,8 @@ const statusColors: Record<string, string> = {
 
 const Ocorrencias = () => {
   const navigate = useNavigate();
+  const { profile } = useAuth();
+  const isAdmin = profile?.perfil === 'administrador';
   const [ocorrencias, setOcorrencias] = useState<Ocorrencia[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -72,14 +75,18 @@ const Ocorrencias = () => {
                   <SelectItem value="Realizada">Realizada</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={filterArea} onValueChange={setFilterArea}>
-                <SelectTrigger className="touch-target"><SelectValue placeholder="Área" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todas as Áreas</SelectItem>
-                  <SelectItem value="Elétrica">Elétrica</SelectItem>
-                  <SelectItem value="Mecânica">Mecânica</SelectItem>
-                </SelectContent>
-              </Select>
+              {isAdmin ? (
+                <Select value={filterArea} onValueChange={setFilterArea}>
+                  <SelectTrigger className="touch-target"><SelectValue placeholder="Área" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todas as Áreas</SelectItem>
+                    <SelectItem value="Elétrica">Elétrica</SelectItem>
+                    <SelectItem value="Mecânica">Mecânica</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input value={profile?.area || ''} disabled className="touch-target" />
+              )}
               <Select value={filterTurno} onValueChange={setFilterTurno}>
                 <SelectTrigger className="touch-target"><SelectValue placeholder="Turno" /></SelectTrigger>
                 <SelectContent>

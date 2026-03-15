@@ -17,7 +17,8 @@ import type { Equipamento, Colaborador } from '@/types/database';
 const OcorrenciaForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isAdmin = profile?.perfil === 'administrador';
   const isEdit = !!id;
 
   const [loading, setLoading] = useState(false);
@@ -36,7 +37,7 @@ const OcorrenciaForm = () => {
     tag: '',
     equipamento: '',
     local: '',
-    area: 'Elétrica',
+    area: profile?.area || 'Elétrica',
     tipo_ocorrencia: '',
     descricao: '',
     status: 'Pendente',
@@ -184,13 +185,17 @@ const OcorrenciaForm = () => {
               </div>
               <div>
                 <Label>Área *</Label>
-                <Select value={form.area} onValueChange={v => set('area', v)}>
-                  <SelectTrigger className="touch-target mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Elétrica">Elétrica</SelectItem>
-                    <SelectItem value="Mecânica">Mecânica</SelectItem>
-                  </SelectContent>
-                </Select>
+                {isAdmin ? (
+                  <Select value={form.area} onValueChange={v => set('area', v)}>
+                    <SelectTrigger className="touch-target mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Elétrica">Elétrica</SelectItem>
+                      <SelectItem value="Mecânica">Mecânica</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input value={form.area} disabled className="touch-target mt-1" />
+                )}
               </div>
               {isEdit && (
                 <div>
