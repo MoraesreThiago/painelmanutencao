@@ -287,7 +287,22 @@ const OcorrenciaForm = () => {
           </Card>
 
           <Card>
-            <CardHeader><CardTitle className="text-base">Descrição</CardTitle></CardHeader>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">Descrição</CardTitle>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleImproveDescription}
+                  disabled={improving || !form.descricao.trim()}
+                  className="gap-1.5"
+                >
+                  {improving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                  {improving ? 'Melhorando...' : 'Melhorar com IA'}
+                </Button>
+              </div>
+            </CardHeader>
             <CardContent>
               <Textarea value={form.descricao} onChange={e => set('descricao', e.target.value)} placeholder="Descreva a ocorrência..." rows={4} required className="touch-target" />
             </CardContent>
