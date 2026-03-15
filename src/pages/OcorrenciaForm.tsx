@@ -17,7 +17,8 @@ import type { Equipamento, Colaborador } from '@/types/database';
 const OcorrenciaForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isAdmin = profile?.perfil === 'administrador';
   const isEdit = !!id;
 
   const [loading, setLoading] = useState(false);
