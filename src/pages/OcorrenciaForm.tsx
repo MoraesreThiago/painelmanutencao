@@ -37,7 +37,7 @@ const OcorrenciaForm = () => {
     tag: '',
     equipamento: '',
     local: '',
-    area: 'Elétrica',
+    area: profile?.area || 'Elétrica',
     tipo_ocorrencia: '',
     descricao: '',
     status: 'Pendente',
