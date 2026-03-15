@@ -97,10 +97,12 @@ const Equipamentos = () => {
                       <Badge className={e.status === 'Ativo' ? 'bg-status-realizada text-primary-foreground' : 'bg-muted text-muted-foreground'}>{e.status}</Badge>
                     </div>
                   </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => openEdit(e)} className="touch-target"><Edit className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(e.id)} className="touch-target text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => openEdit(e)} className="touch-target"><Edit className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(e.id)} className="touch-target text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
