@@ -138,6 +138,28 @@ const OcorrenciaForm = () => {
 
   const set = (key: string, value: any) => setForm(f => ({ ...f, [key]: value }));
 
+  const handleImproveDescription = async () => {
+    if (!form.descricao.trim()) { toast.error('Digite uma descrição primeiro'); return; }
+    setImproving(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/improve-description`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ descricao: form.descricao }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erro ao melhorar descrição');
+      if (data.improved) {
+        set('descricao', data.improved);
+        toast.success('Descrição aprimorada pela IA!');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao processar com IA');
+    } finally {
+      setImproving(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="max-w-3xl mx-auto space-y-4">
