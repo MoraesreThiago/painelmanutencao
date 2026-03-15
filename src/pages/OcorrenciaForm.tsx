@@ -159,8 +159,8 @@ const OcorrenciaForm = () => {
                 <Select value={form.horario} onValueChange={v => set('horario', v)}>
                   <SelectTrigger className="touch-target mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="D">Diurno</SelectItem>
-                    <SelectItem value="N">Noturno</SelectItem>
+                    <SelectItem value="Dia">Dia</SelectItem>
+                    <SelectItem value="Amanhecida">Amanhecida</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
