@@ -22,6 +22,7 @@ const OcorrenciaForm = () => {
   const isEdit = !!id;
 
   const [loading, setLoading] = useState(false);
+  const [improving, setImproving] = useState(false);
   const [equipamentos, setEquipamentos] = useState<Equipamento[]>([]);
   const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
   const [tagSearch, setTagSearch] = useState('');
