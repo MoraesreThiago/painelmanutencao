@@ -14,16 +14,224 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      colaboradores: {
+        Row: {
+          area: string
+          cargo: string | null
+          created_at: string | null
+          id: string
+          nome: string
+          status: string | null
+          turno: string
+          updated_at: string | null
+        }
+        Insert: {
+          area: string
+          cargo?: string | null
+          created_at?: string | null
+          id?: string
+          nome: string
+          status?: string | null
+          turno: string
+          updated_at?: string | null
+        }
+        Update: {
+          area?: string
+          cargo?: string | null
+          created_at?: string | null
+          id?: string
+          nome?: string
+          status?: string | null
+          turno?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      equipamentos: {
+        Row: {
+          area: string | null
+          created_at: string | null
+          equipamento: string
+          id: string
+          local: string | null
+          status: string | null
+          tag: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          area?: string | null
+          created_at?: string | null
+          equipamento: string
+          id?: string
+          local?: string | null
+          status?: string | null
+          tag?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          area?: string | null
+          created_at?: string | null
+          equipamento?: string
+          id?: string
+          local?: string | null
+          status?: string | null
+          tag?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      ocorrencias: {
+        Row: {
+          area: string
+          colaborador_id: string | null
+          created_at: string | null
+          created_by: string | null
+          data_ocorrencia: string
+          descricao: string
+          equipamento: string | null
+          gerar_os: boolean | null
+          horario: string
+          houve_parada: boolean | null
+          id: string
+          local: string | null
+          numero_os: string | null
+          observacao_os: string | null
+          prioridade_os: string | null
+          status: string | null
+          status_integracao_os: string | null
+          tag: string | null
+          tempo_parada: string | null
+          tipo_manutencao_os: string | null
+          tipo_ocorrencia: string | null
+          tipo_parada: string | null
+          turno: string
+          updated_at: string | null
+        }
+        Insert: {
+          area: string
+          colaborador_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          data_ocorrencia: string
+          descricao: string
+          equipamento?: string | null
+          gerar_os?: boolean | null
+          horario: string
+          houve_parada?: boolean | null
+          id?: string
+          local?: string | null
+          numero_os?: string | null
+          observacao_os?: string | null
+          prioridade_os?: string | null
+          status?: string | null
+          status_integracao_os?: string | null
+          tag?: string | null
+          tempo_parada?: string | null
+          tipo_manutencao_os?: string | null
+          tipo_ocorrencia?: string | null
+          tipo_parada?: string | null
+          turno: string
+          updated_at?: string | null
+        }
+        Update: {
+          area?: string
+          colaborador_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          data_ocorrencia?: string
+          descricao?: string
+          equipamento?: string | null
+          gerar_os?: boolean | null
+          horario?: string
+          houve_parada?: boolean | null
+          id?: string
+          local?: string | null
+          numero_os?: string | null
+          observacao_os?: string | null
+          prioridade_os?: string | null
+          status?: string | null
+          status_integracao_os?: string | null
+          tag?: string | null
+          tempo_parada?: string | null
+          tipo_manutencao_os?: string | null
+          tipo_ocorrencia?: string | null
+          tipo_parada?: string | null
+          turno?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ocorrencias_colaborador_id_fkey"
+            columns: ["colaborador_id"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          area: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          nome: string | null
+          perfil: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          area?: string | null
+          created_at?: string | null
+          email?: string | null
+          id: string
+          nome?: string | null
+          perfil?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          area?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          nome?: string | null
+          perfil?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "administrador" | "manutencao_eletrica" | "manutencao_mecanica"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +358,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["administrador", "manutencao_eletrica", "manutencao_mecanica"],
+    },
   },
 } as const
