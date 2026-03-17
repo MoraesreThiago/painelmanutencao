@@ -66,9 +66,9 @@ const Login = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="login" className="touch-target">Entrar</TabsTrigger>
-              <TabsTrigger value="signup" className="touch-target">Cadastrar</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-4 h-12">
+              <TabsTrigger value="login">Entrar</TabsTrigger>
+              <TabsTrigger value="signup">Cadastrar</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login">
@@ -103,22 +103,14 @@ const Login = () => {
                 </div>
                 <div>
                   <Label>Perfil</Label>
-                  <Select value={signupPerfil} onValueChange={setSignupPerfil}>
+                  <Select value={signupPerfil} onValueChange={(val) => {
+                    setSignupPerfil(val);
+                    setSignupArea(val === 'manutencao_eletrica' ? 'Elétrica' : 'Mecânica');
+                  }}>
                     <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione o perfil" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="administrador">Administrador</SelectItem>
                       <SelectItem value="manutencao_eletrica">Manutenção Elétrica</SelectItem>
                       <SelectItem value="manutencao_mecanica">Manutenção Mecânica</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Área</Label>
-                  <Select value={signupArea} onValueChange={setSignupArea}>
-                    <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione a área" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Elétrica">Elétrica</SelectItem>
-                      <SelectItem value="Mecânica">Mecânica</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
