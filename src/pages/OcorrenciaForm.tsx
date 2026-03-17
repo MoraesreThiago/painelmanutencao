@@ -43,7 +43,7 @@ const OcorrenciaForm = () => {
     const now = new Date();
     const horario = getHorarioByTime();
     // Reference: 2026-03-17 is cycle day 0
-    const ref = new Date(2026, 2, 17); // March 17, 2026
+    const ref = new Date(2025, 2, 17); // March 17, 2025 = cycle day 0 (D dia / C amanhecida)
     const diffDays = Math.floor((now.getTime() - ref.getTime()) / 86400000);
     const cycleDay = ((diffDays % 8) + 8) % 8;
     const diaShifts =       ['D', 'D', 'B', 'B', 'C', 'C', 'A', 'A'];
