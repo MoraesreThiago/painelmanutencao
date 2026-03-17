@@ -36,14 +36,25 @@ const OcorrenciaForm = () => {
     const h = now.getHours();
     const m = now.getMinutes();
     const totalMin = h * 60 + m;
-    // 07:10 = 430min, 19:10 = 1150min
     return (totalMin >= 430 && totalMin < 1150) ? 'Dia' : 'Amanhecida';
+  };
+
+  const getTurnoByDate = () => {
+    const now = new Date();
+    const horario = getHorarioByTime();
+    // Reference: 2026-03-17 is cycle day 0
+    const ref = new Date(2026, 2, 17); // March 17, 2026
+    const diffDays = Math.floor((now.getTime() - ref.getTime()) / 86400000);
+    const cycleDay = ((diffDays % 8) + 8) % 8;
+    const diaShifts =       ['D', 'D', 'B', 'B', 'C', 'C', 'A', 'A'];
+    const amanhecidaShifts = ['C', 'C', 'A', 'A', 'D', 'D', 'B', 'B'];
+    return horario === 'Dia' ? diaShifts[cycleDay] : amanhecidaShifts[cycleDay];
   };
 
   const [form, setForm] = useState({
     data_ocorrencia: new Date().toISOString().split('T')[0],
     horario: getHorarioByTime(),
-    turno: 'A',
+    turno: getTurnoByDate(),
     colaborador_id: '',
     tag: '',
     equipamento: '',
