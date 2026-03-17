@@ -130,7 +130,7 @@ const Historico = () => {
             {selected && (
               <div className="space-y-3 text-sm">
                 <div className="grid grid-cols-2 gap-2">
-                  <div><span className="text-muted-foreground">Data:</span> {new Date(selected.data_ocorrencia).toLocaleDateString('pt-BR')}</div>
+                  <div><span className="text-muted-foreground">Data:</span> {selected.data_ocorrencia.split('-').reverse().join('/')}</div>
                   <div><span className="text-muted-foreground">Horário:</span> {selected.horario}</div>
                   <div><span className="text-muted-foreground">Turno:</span> {selected.turno}</div>
                   <div><span className="text-muted-foreground">Área:</span> {selected.area}</div>

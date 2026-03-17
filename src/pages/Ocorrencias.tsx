@@ -121,7 +121,7 @@ const Ocorrencias = () => {
                       </div>
                       <p className="text-sm text-muted-foreground truncate">{o.descricao}</p>
                       <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-muted-foreground">
-                        <span>{new Date(o.data_ocorrencia).toLocaleDateString('pt-BR')}</span>
+                        <span>{o.data_ocorrencia.split('-').reverse().join('/')}</span>
                         <span>•</span>
                         <span>{o.horario}</span>
                         {o.colaboradores?.nome && <><span>•</span><span>{o.colaboradores.nome}</span></>}
