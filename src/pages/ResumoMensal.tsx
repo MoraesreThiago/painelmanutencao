@@ -109,11 +109,17 @@ const ResumoMensal = () => {
           <Card>
             <CardHeader><CardTitle className="text-base">Equipamentos com Mais Ocorrências</CardTitle></CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={topEquipamentos} layout="vertical">
+              <ResponsiveContainer width="100%" height={Math.max(200, topEquipamentos.length * 45)}>
+                <BarChart data={topEquipamentos} layout="vertical" margin={{ left: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" width={150} fontSize={12} />
+                  <XAxis type="number" allowDecimals={false} />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    width={180}
+                    fontSize={11}
+                    tickFormatter={(v: string) => v.length > 25 ? v.slice(0, 23) + '…' : v}
+                  />
                   <Tooltip />
                   <Bar dataKey="value" fill="hsl(152,55%,42%)" radius={[0, 4, 4, 0]} />
                 </BarChart>
