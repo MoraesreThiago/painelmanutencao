@@ -74,6 +74,13 @@ const OcorrenciaForm = () => {
     tipo_manutencao_os: '',
   });
 
+  // Sync area from profile when it loads (profile may be null at mount time)
+  useEffect(() => {
+    if (profile?.area && !isEdit) {
+      setForm(prev => ({ ...prev, area: profile.area! }));
+    }
+  }, [profile, isEdit]);
+
   useEffect(() => {
     const loadData = async () => {
       const [eqs, { data: cols }] = await Promise.all([
