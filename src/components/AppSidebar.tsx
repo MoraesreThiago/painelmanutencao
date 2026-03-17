@@ -73,13 +73,16 @@ export function AppSidebar() {
 
       <SidebarFooter>
         {profile && !collapsed && (
-          <div className="mx-3 mb-2 rounded-lg bg-primary/10 border border-primary/20 p-3">
-            <p className="font-semibold text-sm text-foreground truncate">{profile.nome || profile.email}</p>
+          <div className="mx-3 mb-1 rounded-lg border border-sidebar-border bg-sidebar-accent/50 px-3 py-2.5 flex items-center gap-2">
+            <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+              <Users className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <p className="font-medium text-sm text-foreground truncate">{profile.nome || profile.email}</p>
           </div>
         )}
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut} className="text-destructive hover:bg-destructive/10 rounded-lg border border-destructive/20 bg-destructive/5 justify-center">
+            <SidebarMenuButton onClick={signOut} className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 justify-center">
               <LogOut className="h-4 w-4 shrink-0" />
               {!collapsed && <span>Sair</span>}
             </SidebarMenuButton>
