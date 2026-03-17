@@ -109,7 +109,7 @@ const Historico = () => {
               <tbody>
                 {filtered.map(o => (
                   <tr key={o.id} className="border-b hover:bg-muted/30">
-                    <td className="p-3">{new Date(o.data_ocorrencia).toLocaleDateString('pt-BR')}</td>
+                    <td className="p-3">{o.data_ocorrencia.split('-').reverse().join('/')}</td>
                     <td className="p-3">{o.tag || '-'}</td>
                     <td className="p-3">{o.equipamento || '-'}</td>
                     <td className="p-3">{o.area}</td>
@@ -130,7 +130,7 @@ const Historico = () => {
             {selected && (
               <div className="space-y-3 text-sm">
                 <div className="grid grid-cols-2 gap-2">
-                  <div><span className="text-muted-foreground">Data:</span> {new Date(selected.data_ocorrencia).toLocaleDateString('pt-BR')}</div>
+                  <div><span className="text-muted-foreground">Data:</span> {selected.data_ocorrencia.split('-').reverse().join('/')}</div>
                   <div><span className="text-muted-foreground">Horário:</span> {selected.horario}</div>
                   <div><span className="text-muted-foreground">Turno:</span> {selected.turno}</div>
                   <div><span className="text-muted-foreground">Área:</span> {selected.area}</div>
