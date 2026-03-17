@@ -131,6 +131,22 @@ const ResumoMensal = () => {
             </CardContent>
           </Card>
         )}
+
+        {topLocais.length > 0 && (
+          <Card>
+            <CardHeader><CardTitle className="text-base">Locais com Mais Chamados</CardTitle></CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie data={topLocais} cx="50%" cy="50%" innerRadius={45} outerRadius={85} dataKey="value" label={({ name, value }) => `${name.length > 18 ? name.slice(0, 16) + '…' : name}: ${value}`}>
+                    {topLocais.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </Layout>
   );
