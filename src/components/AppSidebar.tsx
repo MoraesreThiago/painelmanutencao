@@ -72,20 +72,20 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3">
-        {profile && (
-          <div className={`mb-2 rounded-lg bg-primary/10 border border-primary/20 ${collapsed ? 'p-2 flex justify-center' : 'p-3'}`}>
-            {!collapsed ? (
-              <div>
-                <p className="font-semibold text-sm text-foreground truncate">{profile.nome || profile.email}</p>
-                <p className="text-xs text-primary font-medium">{profile.area || profile.perfil}</p>
-              </div>
-            ) : (
-              <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
-                {(profile.nome || profile.email || '?')[0].toUpperCase()}
-              </div>
-            )}
+        {profile && !collapsed && (
+          <div className="mb-2 rounded-lg bg-primary/10 border border-primary/20 p-3">
+            <p className="font-semibold text-sm text-foreground truncate">{profile.nome || profile.email}</p>
           </div>
         )}
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={signOut} className="text-destructive hover:bg-destructive/10">
+              <LogOut className="mr-2 h-5 w-5" />
+              {!collapsed && <span>Sair</span>}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={signOut} className="text-destructive hover:bg-destructive/10">
