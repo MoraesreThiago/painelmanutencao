@@ -332,6 +332,7 @@ const OcorrenciaForm = () => {
                         {profile?.area === 'Elétrica' && <SelectItem value="Elétrica">Elétrica</SelectItem>}
                         {profile?.area === 'Elétrica' && <SelectItem value="Instrumentação">Instrumentação</SelectItem>}
                         {profile?.area === 'Mecânica' && <SelectItem value="Mecânica">Mecânica</SelectItem>}
+                        {profile?.area === 'Mecânica' && <SelectItem value="Instrumentação">Instrumentação</SelectItem>}
                         {profile?.perfil === 'administrador' && (
                           <>
                             <SelectItem value="Elétrica">Elétrica</SelectItem>
