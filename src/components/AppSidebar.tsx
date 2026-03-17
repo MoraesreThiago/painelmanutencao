@@ -71,15 +71,15 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-3">
+      <SidebarFooter>
         {profile && !collapsed && (
-          <div className="mb-2 rounded-lg bg-primary/10 border border-primary/20 p-3">
+          <div className="mx-3 mb-2 rounded-lg bg-primary/10 border border-primary/20 p-3">
             <p className="font-semibold text-sm text-foreground truncate">{profile.nome || profile.email}</p>
           </div>
         )}
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut} className="text-destructive hover:bg-destructive/10 justify-center">
+            <SidebarMenuButton onClick={signOut} className="text-destructive hover:bg-destructive/10">
               <LogOut className="h-4 w-4 shrink-0" />
               {!collapsed && <span>Sair</span>}
             </SidebarMenuButton>
