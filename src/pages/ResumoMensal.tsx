@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import type { Ocorrencia } from '@/types/database';
+import { useAuth } from '@/contexts/AuthContext';
 
 const COLORS = ['hsl(215,65%,42%)', 'hsl(152,55%,42%)', 'hsl(38,92%,50%)', 'hsl(25,95%,53%)', 'hsl(340,65%,50%)'];
 
