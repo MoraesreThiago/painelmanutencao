@@ -191,9 +191,13 @@ const OcorrenciaForm = () => {
     if (!form.descricao.trim()) { toast.error('Digite uma descrição primeiro'); return; }
     setImproving(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/improve-description`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token || ''}`,
+        },
         body: JSON.stringify({ descricao: form.descricao }),
       });
       const data = await res.json();
