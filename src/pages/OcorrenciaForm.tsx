@@ -125,6 +125,7 @@ const OcorrenciaForm = () => {
 
   const tagSuggestions = equipamentos.filter(e => e.tag?.toLowerCase().includes(tagSearch.toLowerCase()) && tagSearch.length > 0);
   const eqSuggestions = equipamentos.filter(e => e.equipamento.toLowerCase().includes(eqSearch.toLowerCase()) && eqSearch.length > 0);
+  const localSuggestions = [...new Set(equipamentos.map(e => e.local).filter((l): l is string => !!l && l.toLowerCase().includes(localSearch.toLowerCase()) && localSearch.length > 0))];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
