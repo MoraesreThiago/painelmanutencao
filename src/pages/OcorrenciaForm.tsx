@@ -123,7 +123,12 @@ const OcorrenciaForm = () => {
   }, [id, isEdit]);
 
   const selectEquipamento = (eq: Equipamento) => {
-    setForm(f => ({ ...f, tag: eq.tag || '', equipamento: eq.equipamento, local: eq.local || '', area: eq.area || f.area }));
+    setForm(f => ({
+      ...f,
+      tag: eq.tag || '',
+      equipamento: eq.equipamento,
+      local: eq.local || '',
+    }));
     setTagSearch(eq.tag || '');
     setEqSearch(eq.equipamento);
     setLocalSearch(eq.local || '');
