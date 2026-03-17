@@ -67,8 +67,8 @@ const Login = () => {
         <CardContent>
           <Tabs defaultValue="login">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="login" className="touch-target">Entrar</TabsTrigger>
-              <TabsTrigger value="signup" className="touch-target">Cadastrar</TabsTrigger>
+              <TabsTrigger value="login" className="touch-target data-[state=active]:shadow-none">Entrar</TabsTrigger>
+              <TabsTrigger value="signup" className="touch-target data-[state=active]:shadow-none">Cadastrar</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login">
