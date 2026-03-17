@@ -48,14 +48,11 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
-        <div className="px-4 py-4">
-          {!collapsed && (
-            <div className="flex items-center gap-2">
-              <Wrench className="h-7 w-7 text-primary" />
-              <span className="font-bold text-lg text-foreground">ManutençãoPro</span>
-            </div>
-          )}
-          {collapsed && <Wrench className="h-7 w-7 text-primary mx-auto" />}
+        <div className={`flex items-center gap-2 ${collapsed ? 'justify-center px-2 py-4' : 'px-4 py-4'}`}>
+          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
+            <Wrench className="h-5 w-5 text-primary-foreground" />
+          </div>
+          {!collapsed && <span className="font-bold text-lg text-foreground">ManutençãoPro</span>}
         </div>
 
         <SidebarGroup>
@@ -75,9 +72,18 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3">
-        {!collapsed && profile && (
-          <div className="mb-2 px-2 text-xs text-muted-foreground truncate">
-            {profile.nome || profile.email}
+        {profile && (
+          <div className={`mb-2 rounded-lg bg-primary/10 border border-primary/20 ${collapsed ? 'p-2 flex justify-center' : 'p-3'}`}>
+            {!collapsed ? (
+              <div>
+                <p className="font-semibold text-sm text-foreground truncate">{profile.nome || profile.email}</p>
+                <p className="text-xs text-primary font-medium">{profile.area || profile.perfil}</p>
+              </div>
+            ) : (
+              <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
+                {(profile.nome || profile.email || '?')[0].toUpperCase()}
+              </div>
+            )}
           </div>
         )}
         <SidebarMenu>
