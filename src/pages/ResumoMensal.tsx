@@ -10,6 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 const COLORS = ['hsl(215,65%,42%)', 'hsl(152,55%,42%)', 'hsl(38,92%,50%)', 'hsl(25,95%,53%)', 'hsl(340,65%,50%)'];
 
 const ResumoMensal = () => {
+  const { profile } = useAuth();
+  const isAdmin = profile?.perfil === 'administrador';
   const [ocorrencias, setOcorrencias] = useState<Ocorrencia[]>([]);
   const [month, setMonth] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; });
 
@@ -19,15 +21,20 @@ const ResumoMensal = () => {
     const lastDay = new Date(year, mo, 0).getDate();
     const end = `${year}-${String(mo).padStart(2, '0')}-${lastDay}`;
 
+    // RLS already filters by area for non-admin users
     (supabase as any).from('ocorrencias').select('*').gte('data_ocorrencia', start).lte('data_ocorrencia', end)
       .then(({ data }: any) => setOcorrencias((data || []) as Ocorrencia[]));
   }, [month]);
 
   const total = ocorrencias.length;
-  const porArea = ['Elétrica', 'Mecânica'].map(a => ({ name: a, value: ocorrencias.filter(o => o.area === a).length }));
   const porTurno = ['A', 'B', 'C', 'D', 'ADM'].map(t => ({ name: `Turno ${t}`, value: ocorrencias.filter(o => o.turno === t).length }));
   const paradas = ocorrencias.filter(o => o.houve_parada);
   const pendentes = ocorrencias.filter(o => o.status === 'Pendente').length;
+
+  // Only show "Por Área" chart for admins (non-admins only see their own area)
+  const porArea = isAdmin
+    ? ['Elétrica', 'Mecânica'].map(a => ({ name: a, value: ocorrencias.filter(o => o.area === a).length }))
+    : null;
 
   const eqCount: Record<string, number> = {};
   ocorrencias.forEach(o => { if (o.equipamento) eqCount[o.equipamento] = (eqCount[o.equipamento] || 0) + 1; });
