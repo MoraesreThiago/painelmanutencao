@@ -31,9 +31,18 @@ const OcorrenciaForm = () => {
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [showEqSuggestions, setShowEqSuggestions] = useState(false);
 
+  const getHorarioByTime = () => {
+    const now = new Date();
+    const h = now.getHours();
+    const m = now.getMinutes();
+    const totalMin = h * 60 + m;
+    // 07:10 = 430min, 19:10 = 1150min
+    return (totalMin >= 430 && totalMin < 1150) ? 'Dia' : 'Amanhecida';
+  };
+
   const [form, setForm] = useState({
     data_ocorrencia: new Date().toISOString().split('T')[0],
-    horario: 'Dia',
+    horario: getHorarioByTime(),
     turno: 'A',
     colaborador_id: '',
     tag: '',
