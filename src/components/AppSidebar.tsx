@@ -72,9 +72,18 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3">
-        {!collapsed && profile && (
-          <div className="mb-2 px-2 text-xs text-muted-foreground truncate">
-            {profile.nome || profile.email}
+        {profile && (
+          <div className={`mb-2 rounded-lg bg-primary/10 border border-primary/20 ${collapsed ? 'p-2 flex justify-center' : 'p-3'}`}>
+            {!collapsed ? (
+              <div>
+                <p className="font-semibold text-sm text-foreground truncate">{profile.nome || profile.email}</p>
+                <p className="text-xs text-primary font-medium">{profile.area || profile.perfil}</p>
+              </div>
+            ) : (
+              <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
+                {(profile.nome || profile.email || '?')[0].toUpperCase()}
+              </div>
+            )}
           </div>
         )}
         <SidebarMenu>
