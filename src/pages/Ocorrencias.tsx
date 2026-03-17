@@ -31,7 +31,7 @@ const Ocorrencias = () => {
 
   const load = async () => {
     setLoading(true);
-    let query = (supabase as any).from('ocorrencias').select('*, colaboradores(nome)').order('created_at', { ascending: false });
+    let query = (supabase as any).from('ocorrencias').select('*, colaboradores(nome)').order('data_ocorrencia', { ascending: false });
     if (filterStatus !== 'todos') query = query.eq('status', filterStatus);
     if (filterArea !== 'todos') query = query.eq('area', filterArea);
     if (filterTurno !== 'todos') query = query.eq('turno', filterTurno);

@@ -61,31 +61,37 @@ const Historico = () => {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <Label className="text-xs">De</Label>
+                <Label className="text-xs">Data inicial</Label>
                 <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="touch-target mt-1" />
               </div>
               <div>
-                <Label className="text-xs">Até</Label>
+                <Label className="text-xs">Data final</Label>
                 <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="touch-target mt-1" />
               </div>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="touch-target"><SelectValue placeholder="Status" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="Pendente">Pendente</SelectItem>
-                  <SelectItem value="Liberado">Liberado</SelectItem>
-                  <SelectItem value="Em andamento">Em andamento</SelectItem>
-                  <SelectItem value="Realizada">Realizada</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={filterArea} onValueChange={setFilterArea}>
-                <SelectTrigger className="touch-target"><SelectValue placeholder="Área" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todas</SelectItem>
-                  <SelectItem value="Elétrica">Elétrica</SelectItem>
-                  <SelectItem value="Mecânica">Mecânica</SelectItem>
-                </SelectContent>
-              </Select>
+              <div>
+                <Label className="text-xs">Status</Label>
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Status" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    <SelectItem value="Pendente">Pendente</SelectItem>
+                    <SelectItem value="Liberado">Liberado</SelectItem>
+                    <SelectItem value="Em andamento">Em andamento</SelectItem>
+                    <SelectItem value="Realizada">Realizada</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">Área</Label>
+                <Select value={filterArea} onValueChange={setFilterArea}>
+                  <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Área" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todas</SelectItem>
+                    <SelectItem value="Elétrica">Elétrica</SelectItem>
+                    <SelectItem value="Mecânica">Mecânica</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
