@@ -352,46 +352,6 @@ const OcorrenciaForm = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader><CardTitle className="text-base">Ordem de Serviço</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Switch checked={form.gerar_os} onCheckedChange={v => set('gerar_os', v)} />
-                <Label>Gerar Ordem de Serviço?</Label>
-              </div>
-              {form.gerar_os && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Prioridade</Label>
-                    <Select value={form.prioridade_os} onValueChange={v => set('prioridade_os', v)}>
-                      <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Baixa">Baixa</SelectItem>
-                        <SelectItem value="Média">Média</SelectItem>
-                        <SelectItem value="Alta">Alta</SelectItem>
-                        <SelectItem value="Urgente">Urgente</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Tipo de Manutenção</Label>
-                    <Select value={form.tipo_manutencao_os} onValueChange={v => set('tipo_manutencao_os', v)}>
-                      <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Corretiva">Corretiva</SelectItem>
-                        <SelectItem value="Preventiva">Preventiva</SelectItem>
-                        <SelectItem value="Preditiva">Preditiva</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <Label>Observação da OS</Label>
-                    <Textarea value={form.observacao_os} onChange={e => set('observacao_os', e.target.value)} rows={3} className="touch-target mt-1" />
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
 
           <div className="flex gap-3 pb-6">
             <Button type="button" variant="outline" onClick={() => navigate('/ocorrencias')} className="touch-target flex-1">Cancelar</Button>
