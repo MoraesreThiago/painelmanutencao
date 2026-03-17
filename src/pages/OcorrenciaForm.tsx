@@ -42,15 +42,26 @@ const OcorrenciaForm = () => {
   };
 
   const getTurnoByDate = () => {
-    const now = new Date();
+    const SEQ = ['A', 'D', 'B', 'C'];
+    const REF_DATE = '2026-02-18';
+    const REF_DIA = 'A';
+    const REF_NOITE = 'B';
+
     const horario = getHorarioByTime();
-    // Reference: 2026-03-17 is cycle day 0
-    const ref = new Date(2025, 2, 17); // March 17, 2025 = cycle day 0 (D dia / C amanhecida)
-    const diffDays = Math.floor((now.getTime() - ref.getTime()) / 86400000);
-    const cycleDay = ((diffDays % 8) + 8) % 8;
-    const diaShifts =       ['D', 'D', 'B', 'B', 'C', 'C', 'A', 'A'];
-    const amanhecidaShifts = ['C', 'C', 'A', 'A', 'D', 'D', 'B', 'B'];
-    return horario === 'Dia' ? diaShifts[cycleDay] : amanhecidaShifts[cycleDay];
+    const now = new Date();
+    const todayISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    const parseISO = (iso: string) => {
+      const [y, m, d] = iso.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    };
+    const deltaDays = Math.floor((parseISO(todayISO).getTime() - parseISO(REF_DATE).getTime()) / 86400000);
+    const steps = Math.floor(deltaDays / 2);
+    const refTurno = horario === 'Dia' ? REF_DIA : REF_NOITE;
+    const refIndex = SEQ.indexOf(refTurno);
+    let idx = (refIndex + steps) % SEQ.length;
+    if (idx < 0) idx += SEQ.length;
+    return SEQ[idx];
   };
 
   const [form, setForm] = useState({
