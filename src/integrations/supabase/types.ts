@@ -169,6 +169,72 @@ export type Database = {
           },
         ]
       }
+      ocorrencias_importacao: {
+        Row: {
+          area: string | null
+          colaborador_id_match: string | null
+          created_at: string | null
+          data_ocorrencia: string
+          descricao_original: string | null
+          equipamento_id_match: string | null
+          equipamento_original: string | null
+          horario: string | null
+          id: string
+          local_original: string | null
+          match_por_tag: boolean | null
+          observacao_importacao: string | null
+          responsavel_original: string | null
+          status_original: string | null
+          tag_original: string | null
+          tempo_parada_min: number | null
+          tempo_parada_original: string | null
+          tipo_servico_original: string | null
+          turno: string | null
+        }
+        Insert: {
+          area?: string | null
+          colaborador_id_match?: string | null
+          created_at?: string | null
+          data_ocorrencia: string
+          descricao_original?: string | null
+          equipamento_id_match?: string | null
+          equipamento_original?: string | null
+          horario?: string | null
+          id?: string
+          local_original?: string | null
+          match_por_tag?: boolean | null
+          observacao_importacao?: string | null
+          responsavel_original?: string | null
+          status_original?: string | null
+          tag_original?: string | null
+          tempo_parada_min?: number | null
+          tempo_parada_original?: string | null
+          tipo_servico_original?: string | null
+          turno?: string | null
+        }
+        Update: {
+          area?: string | null
+          colaborador_id_match?: string | null
+          created_at?: string | null
+          data_ocorrencia?: string
+          descricao_original?: string | null
+          equipamento_id_match?: string | null
+          equipamento_original?: string | null
+          horario?: string | null
+          id?: string
+          local_original?: string | null
+          match_por_tag?: boolean | null
+          observacao_importacao?: string | null
+          responsavel_original?: string | null
+          status_original?: string | null
+          tag_original?: string | null
+          tempo_parada_min?: number | null
+          tempo_parada_original?: string | null
+          tipo_servico_original?: string | null
+          turno?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           area: string | null
