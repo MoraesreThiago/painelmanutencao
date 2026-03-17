@@ -225,7 +225,15 @@ const OcorrenciaForm = () => {
           <h1 className="text-2xl font-bold">{isEdit ? 'Editar Ocorrência' : 'Nova Ocorrência'}</h1>
         </div>
 
+        {locked && (
+          <Alert variant="destructive" className="border-destructive/30 bg-destructive/5">
+            <Lock className="h-4 w-4" />
+            <AlertDescription>Esta ocorrência foi criada há mais de 24 horas e não pode mais ser editada.</AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
+          <fieldset disabled={locked} className="space-y-4">
           <Card>
             <CardHeader><CardTitle className="text-base">Informações Gerais</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
