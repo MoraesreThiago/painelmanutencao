@@ -30,6 +30,8 @@ const OcorrenciaForm = () => {
   const [eqSearch, setEqSearch] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [showEqSuggestions, setShowEqSuggestions] = useState(false);
+  const [localSearch, setLocalSearch] = useState('');
+  const [showLocalSuggestions, setShowLocalSuggestions] = useState(false);
 
   const getHorarioByTime = () => {
     const now = new Date();
@@ -106,6 +108,7 @@ const OcorrenciaForm = () => {
           });
           setTagSearch(data.tag || '');
           setEqSearch(data.equipamento || '');
+          setLocalSearch(data.local || '');
         }
       }
     };
@@ -116,12 +119,14 @@ const OcorrenciaForm = () => {
     setForm(f => ({ ...f, tag: eq.tag || '', equipamento: eq.equipamento, local: eq.local || '', area: eq.area || f.area }));
     setTagSearch(eq.tag || '');
     setEqSearch(eq.equipamento);
+    setLocalSearch(eq.local || '');
     setShowTagSuggestions(false);
     setShowEqSuggestions(false);
   };
 
   const tagSuggestions = equipamentos.filter(e => e.tag?.toLowerCase().includes(tagSearch.toLowerCase()) && tagSearch.length > 0);
   const eqSuggestions = equipamentos.filter(e => e.equipamento.toLowerCase().includes(eqSearch.toLowerCase()) && eqSearch.length > 0);
+  const localSuggestions = [...new Set(equipamentos.map(e => e.local).filter((l): l is string => !!l && l.toLowerCase().includes(localSearch.toLowerCase()) && localSearch.length > 0))];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -273,9 +278,18 @@ const OcorrenciaForm = () => {
                   </div>
                 )}
               </div>
-              <div>
+              <div className="relative">
                 <Label>Local</Label>
-                <Input value={form.local} onChange={e => set('local', e.target.value)} className="touch-target mt-1" />
+                <Input value={localSearch || form.local} onChange={e => { setLocalSearch(e.target.value); set('local', e.target.value); setShowLocalSuggestions(true); }} onFocus={() => setShowLocalSuggestions(true)} onBlur={() => setTimeout(() => setShowLocalSuggestions(false), 200)} placeholder="Digite o local" className="touch-target mt-1" />
+                {showLocalSuggestions && localSearch.length > 0 && localSuggestions.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-card border rounded-md shadow-lg max-h-48 overflow-auto">
+                    {localSuggestions.map((loc, i) => (
+                      <button key={i} type="button" className="w-full text-left px-3 py-2 hover:bg-muted text-sm" onMouseDown={() => { set('local', loc); setLocalSearch(loc); setShowLocalSuggestions(false); }}>
+                        {loc}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <Label>Tipo de Ocorrência</Label>
