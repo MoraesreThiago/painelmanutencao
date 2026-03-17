@@ -118,6 +118,7 @@ const OcorrenciaForm = () => {
     setForm(f => ({ ...f, tag: eq.tag || '', equipamento: eq.equipamento, local: eq.local || '', area: eq.area || f.area }));
     setTagSearch(eq.tag || '');
     setEqSearch(eq.equipamento);
+    setLocalSearch(eq.local || '');
     setShowTagSuggestions(false);
     setShowEqSuggestions(false);
   };
