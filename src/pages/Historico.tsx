@@ -109,7 +109,7 @@ const Historico = () => {
               <tbody>
                 {filtered.map(o => (
                   <tr key={o.id} className="border-b hover:bg-muted/30">
-                    <td className="p-3">{new Date(o.data_ocorrencia).toLocaleDateString('pt-BR')}</td>
+                    <td className="p-3">{o.data_ocorrencia.split('-').reverse().join('/')}</td>
                     <td className="p-3">{o.tag || '-'}</td>
                     <td className="p-3">{o.equipamento || '-'}</td>
                     <td className="p-3">{o.area}</td>
