@@ -404,12 +404,20 @@ const OcorrenciaForm = () => {
           </Card>
 
 
-          <div className="flex gap-3 pb-6">
-            <Button type="button" variant="outline" onClick={() => navigate('/ocorrencias')} className="touch-target flex-1">Cancelar</Button>
-            <Button type="submit" disabled={loading} className="touch-target flex-1">
-              <Save className="h-5 w-5 mr-2" /> {loading ? 'Salvando...' : 'Salvar'}
-            </Button>
-          </div>
+          {!locked && (
+            <div className="flex gap-3 pb-6">
+              <Button type="button" variant="outline" onClick={() => navigate('/ocorrencias')} className="touch-target flex-1">Cancelar</Button>
+              <Button type="submit" disabled={loading} className="touch-target flex-1">
+                <Save className="h-5 w-5 mr-2" /> {loading ? 'Salvando...' : 'Salvar'}
+              </Button>
+            </div>
+          )}
+          {locked && (
+            <div className="flex gap-3 pb-6">
+              <Button type="button" variant="outline" onClick={() => navigate('/ocorrencias')} className="touch-target flex-1">Voltar</Button>
+            </div>
+          )}
+          </fieldset>
         </form>
       </div>
     </Layout>
