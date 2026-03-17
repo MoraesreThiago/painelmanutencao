@@ -27,7 +27,7 @@ const ResumoMensal = () => {
   }, [month]);
 
   const total = ocorrencias.length;
-  const porTurno = ['A', 'B', 'C', 'D', 'ADM'].map(t => ({ name: `Turno ${t}`, value: ocorrencias.filter(o => o.turno === t).length }));
+  const porTurno = ['A', 'B', 'C', 'D'].map(t => ({ name: `Turno ${t}`, value: ocorrencias.filter(o => o.turno === t).length }));
   const paradas = ocorrencias.filter(o => o.houve_parada);
   const pendentes = ocorrencias.filter(o => o.status === 'Pendente').length;
 
