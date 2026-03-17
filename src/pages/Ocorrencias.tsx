@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Edit } from 'lucide-react';
+import { Plus, Search, Edit, Lock } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Ocorrencia } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -130,9 +131,25 @@ const Ocorrencias = () => {
                     </div>
                     <div className="flex flex-col items-end gap-2 shrink-0">
                       <Badge className={statusColors[o.status] || 'bg-muted'}>{o.status}</Badge>
-                      <Button variant="ghost" size="sm" onClick={() => navigate(`/ocorrencias/${o.id}`)} className="touch-target">
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      {(() => {
+                        const isLocked = !isAdmin && o.created_at && (Date.now() - new Date(o.created_at).getTime() > 24 * 60 * 60 * 1000);
+                        return isLocked ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground">
+                                  <Lock className="h-4 w-4" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>Edição bloqueada após 24h</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <Button variant="ghost" size="sm" onClick={() => navigate(`/ocorrencias/${o.id}`)} className="touch-target">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        );
+                      })()}
                     </div>
                   </div>
                 </CardContent>

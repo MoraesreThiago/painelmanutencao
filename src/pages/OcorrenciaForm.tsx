@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, Wand2, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Wand2, Loader2, Lock } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import type { Equipamento, Colaborador } from '@/types/database';
 import { fetchAllEquipamentos } from '@/lib/fetchAllEquipamentos';
 
@@ -23,6 +24,7 @@ const OcorrenciaForm = () => {
   const isEdit = !!id;
 
   const [loading, setLoading] = useState(false);
+  const [locked, setLocked] = useState(false);
   const [improving, setImproving] = useState(false);
   const [equipamentos, setEquipamentos] = useState<Equipamento[]>([]);
   const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
@@ -104,6 +106,10 @@ const OcorrenciaForm = () => {
       if (isEdit) {
         const { data } = await (supabase as any).from('ocorrencias').select('*').eq('id', id).single();
         if (data) {
+          // Check 24h lock for non-admins
+          if (!isAdmin && data.created_at && (Date.now() - new Date(data.created_at).getTime() > 24 * 60 * 60 * 1000)) {
+            setLocked(true);
+          }
           setForm({
             data_ocorrencia: data.data_ocorrencia,
             horario: data.horario,
@@ -219,7 +225,15 @@ const OcorrenciaForm = () => {
           <h1 className="text-2xl font-bold">{isEdit ? 'Editar Ocorrência' : 'Nova Ocorrência'}</h1>
         </div>
 
+        {locked && (
+          <Alert variant="destructive" className="border-destructive/30 bg-destructive/5">
+            <Lock className="h-4 w-4" />
+            <AlertDescription>Esta ocorrência foi criada há mais de 24 horas e não pode mais ser editada.</AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
+          <fieldset disabled={locked} className="space-y-4">
           <Card>
             <CardHeader><CardTitle className="text-base">Informações Gerais</CardTitle></CardHeader>
             <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -390,12 +404,20 @@ const OcorrenciaForm = () => {
           </Card>
 
 
-          <div className="flex gap-3 pb-6">
-            <Button type="button" variant="outline" onClick={() => navigate('/ocorrencias')} className="touch-target flex-1">Cancelar</Button>
-            <Button type="submit" disabled={loading} className="touch-target flex-1">
-              <Save className="h-5 w-5 mr-2" /> {loading ? 'Salvando...' : 'Salvar'}
-            </Button>
-          </div>
+          {!locked && (
+            <div className="flex gap-3 pb-6">
+              <Button type="button" variant="outline" onClick={() => navigate('/ocorrencias')} className="touch-target flex-1">Cancelar</Button>
+              <Button type="submit" disabled={loading} className="touch-target flex-1">
+                <Save className="h-5 w-5 mr-2" /> {loading ? 'Salvando...' : 'Salvar'}
+              </Button>
+            </div>
+          )}
+          {locked && (
+            <div className="flex gap-3 pb-6">
+              <Button type="button" variant="outline" onClick={() => navigate('/ocorrencias')} className="touch-target flex-1">Voltar</Button>
+            </div>
+          )}
+          </fieldset>
         </form>
       </div>
     </Layout>
