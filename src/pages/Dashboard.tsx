@@ -9,10 +9,14 @@ import { Layout } from '@/components/Layout';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 
-const TURNO_SEQUENCE = ['A', 'D', 'B', 'C'];
+const DIA_SEQUENCE = ['A', 'D', 'B', 'C'];
+const AMAN_SEQUENCE = ['B', 'C', 'A', 'D'];
 const REFERENCE_DATE = new Date(2026, 1, 18); // 18/02/2026
-const REFERENCE_DIA = 'A';
-const REFERENCE_AMANHECIDA = 'B';
+
+function getSlotIndex(diffDays: number): number {
+  const cycleDay = ((diffDays % 8) + 8) % 8;
+  return Math.floor(cycleDay / 2);
+}
 
 function getCurrentAndPreviousTurno(): { currentTurno: string; currentHorario: string; previousTurno: string; previousHorario: string } {
   const now = new Date();
@@ -20,44 +24,27 @@ function getCurrentAndPreviousTurno(): { currentTurno: string; currentHorario: s
   const minutes = now.getMinutes();
   const currentTime = hours * 60 + minutes;
 
-  // Dia: 07:10-19:10, Amanhecida: 19:10-07:10
-  const isDia = currentTime >= 430 && currentTime < 1150; // 7*60+10=430, 19*60+10=1150
+  const isDia = currentTime >= 430 && currentTime < 1150; // 07:10-19:10
 
-  // Calculate days since reference
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const diffMs = today.getTime() - REFERENCE_DATE.getTime();
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-  // Each turno lasts 2 days, sequence repeats every 8 days
-  const cycleDay = ((diffDays % 8) + 8) % 8;
-  const seqIndex = Math.floor(cycleDay / 2);
-
-  const diaIdx = seqIndex;
-  const amanhecidaIdx = (seqIndex + 1) % 4;
-
-  const diaRefIdx = TURNO_SEQUENCE.indexOf(REFERENCE_DIA);
-  const currentDiaTurno = TURNO_SEQUENCE[(diaIdx + diaRefIdx) % 4];
-  const currentAmanhecidaTurno = TURNO_SEQUENCE[(amanhecidaIdx + diaRefIdx) % 4];
+  const todaySlot = getSlotIndex(diffDays);
+  const yesterdaySlot = getSlotIndex(diffDays - 1);
 
   if (isDia) {
-    // Current is Dia, previous is last night's Amanhecida
-    // Last night's Amanhecida started yesterday at 19:10
-    const yesterdayCycleDay = (((diffDays - 1) % 8) + 8) % 8;
-    const yesterdaySeqIdx = Math.floor(yesterdayCycleDay / 2);
-    const yesterdayAmanhecidaIdx = (yesterdaySeqIdx + 1) % 4;
-    const prevTurno = TURNO_SEQUENCE[(yesterdayAmanhecidaIdx + diaRefIdx) % 4];
     return {
-      currentTurno: currentDiaTurno,
+      currentTurno: DIA_SEQUENCE[todaySlot],
       currentHorario: 'Dia',
-      previousTurno: prevTurno,
+      previousTurno: AMAN_SEQUENCE[yesterdaySlot],
       previousHorario: 'Amanhecida',
     };
   } else {
-    // Current is Amanhecida, previous is today's Dia
     return {
-      currentTurno: currentAmanhecidaTurno,
+      currentTurno: AMAN_SEQUENCE[todaySlot],
       currentHorario: 'Amanhecida',
-      previousTurno: currentDiaTurno,
+      previousTurno: DIA_SEQUENCE[todaySlot],
       previousHorario: 'Dia',
     };
   }
