@@ -131,9 +131,29 @@ const Ocorrencias = () => {
                     </div>
                     <div className="flex flex-col items-end gap-2 shrink-0">
                       <Badge className={statusColors[o.status] || 'bg-muted'}>{o.status}</Badge>
-                      <Button variant="ghost" size="sm" onClick={() => navigate(`/ocorrencias/${o.id}`)} className="touch-target">
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      {(() => {
+                        const createdAt = new Date(o.created_at || o.data_ocorrencia);
+                        const expired = (Date.now() - createdAt.getTime()) > 24 * 60 * 60 * 1000;
+                        const canEdit = isAdmin || !expired;
+                        return canEdit ? (
+                          <Button variant="ghost" size="sm" onClick={() => navigate(`/ocorrencias/${o.id}`)} className="touch-target">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        ) : (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground/50 cursor-not-allowed">
+                                  <Lock className="h-4 w-4" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Edição bloqueada após 24h</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        );
+                      })()}
                     </div>
                   </div>
                 </CardContent>
