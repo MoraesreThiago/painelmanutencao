@@ -108,6 +108,7 @@ const OcorrenciaForm = () => {
           });
           setTagSearch(data.tag || '');
           setEqSearch(data.equipamento || '');
+          setLocalSearch(data.local || '');
         }
       }
     };
