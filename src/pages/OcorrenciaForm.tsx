@@ -30,6 +30,8 @@ const OcorrenciaForm = () => {
   const [eqSearch, setEqSearch] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [showEqSuggestions, setShowEqSuggestions] = useState(false);
+  const [localSearch, setLocalSearch] = useState('');
+  const [showLocalSuggestions, setShowLocalSuggestions] = useState(false);
 
   const getHorarioByTime = () => {
     const now = new Date();
