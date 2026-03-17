@@ -329,8 +329,16 @@ const OcorrenciaForm = () => {
                     <Select value={form.tipo_parada} onValueChange={v => set('tipo_parada', v)}>
                       <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Elétrica">Elétrica</SelectItem>
-                        <SelectItem value="Instrumentação">Instrumentação</SelectItem>
+                        {profile?.area === 'Elétrica' && <SelectItem value="Elétrica">Elétrica</SelectItem>}
+                        {profile?.area === 'Elétrica' && <SelectItem value="Instrumentação">Instrumentação</SelectItem>}
+                        {profile?.area === 'Mecânica' && <SelectItem value="Mecânica">Mecânica</SelectItem>}
+                        {profile?.perfil === 'administrador' && (
+                          <>
+                            <SelectItem value="Elétrica">Elétrica</SelectItem>
+                            <SelectItem value="Instrumentação">Instrumentação</SelectItem>
+                            <SelectItem value="Mecânica">Mecânica</SelectItem>
+                          </>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
