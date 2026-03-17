@@ -14,6 +14,7 @@ const ResumoMensal = () => {
   const isAdmin = profile?.perfil === 'administrador';
   const [ocorrencias, setOcorrencias] = useState<Ocorrencia[]>([]);
   const [month, setMonth] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; });
+  const [selectedTurno, setSelectedTurno] = useState<string | null>(null);
 
   useEffect(() => {
     const [year, mo] = month.split('-').map(Number);
@@ -21,33 +22,44 @@ const ResumoMensal = () => {
     const lastDay = new Date(year, mo, 0).getDate();
     const end = `${year}-${String(mo).padStart(2, '0')}-${lastDay}`;
 
-    // RLS already filters by area for non-admin users
     (supabase as any).from('ocorrencias').select('*').gte('data_ocorrencia', start).lte('data_ocorrencia', end)
-      .then(({ data }: any) => setOcorrencias((data || []) as Ocorrencia[]));
+      .then(({ data }: any) => { setOcorrencias((data || []) as Ocorrencia[]); setSelectedTurno(null); });
   }, [month]);
 
   const total = ocorrencias.length;
-  const porTurno = ['A', 'B', 'C', 'D'].map(t => ({ name: `Turno ${t}`, value: ocorrencias.filter(o => o.turno === t).length }));
+  const porTurno = ['A', 'B', 'C', 'D'].map(t => ({ name: `Turno ${t}`, turno: t, value: ocorrencias.filter(o => o.turno === t).length }));
   const paradas = ocorrencias.filter(o => o.houve_parada);
   const pendentes = ocorrencias.filter(o => o.status === 'Pendente').length;
 
-  // Only show "Por Área" chart for admins (non-admins only see their own area)
   const porArea = isAdmin
     ? ['Elétrica', 'Mecânica'].map(a => ({ name: a, value: ocorrencias.filter(o => o.area === a).length }))
     : null;
 
+  // Filtered data based on selected turno
+  const filteredOcorrencias = selectedTurno
+    ? ocorrencias.filter(o => o.turno === selectedTurno)
+    : ocorrencias;
+
   const eqCount: Record<string, number> = {};
-  ocorrencias.forEach(o => { if (o.equipamento) eqCount[o.equipamento] = (eqCount[o.equipamento] || 0) + 1; });
+  filteredOcorrencias.forEach(o => { if (o.equipamento) eqCount[o.equipamento] = (eqCount[o.equipamento] || 0) + 1; });
   const topEquipamentos = Object.entries(eqCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, value]) => ({ name, value }));
 
   const localCount: Record<string, number> = {};
-  ocorrencias.forEach(o => { if (o.local) localCount[o.local] = (localCount[o.local] || 0) + 1; });
+  filteredOcorrencias.forEach(o => { if (o.local) localCount[o.local] = (localCount[o.local] || 0) + 1; });
   const topLocais = Object.entries(localCount).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, value]) => ({ name, value }));
 
   const months = Array.from({ length: 12 }, (_, i) => {
     const d = new Date(); d.setMonth(d.getMonth() - i);
     return { value: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, label: d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) };
   });
+
+  const handleTurnoClick = (data: any) => {
+    if (!data?.activePayload?.[0]) return;
+    const turno = data.activePayload[0].payload.turno;
+    setSelectedTurno(prev => prev === turno ? null : turno);
+  };
+
+  const filterLabel = selectedTurno ? ` — Turno ${selectedTurno}` : '';
 
   return (
     <Layout>
@@ -94,15 +106,32 @@ const ResumoMensal = () => {
           )}
 
           <Card>
-            <CardHeader><CardTitle className="text-base">Por Turno</CardTitle></CardHeader>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">Por Turno</CardTitle>
+                {selectedTurno && (
+                  <button onClick={() => setSelectedTurno(null)} className="text-xs text-primary hover:underline">
+                    Limpar filtro
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">Clique em uma barra para filtrar locais e equipamentos</p>
+            </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={porTurno}>
+                <BarChart data={porTurno} onClick={handleTurnoClick} className="cursor-pointer">
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" fontSize={12} />
                   <YAxis allowDecimals={false} />
                   <Tooltip />
-                  <Bar dataKey="value" fill="hsl(215,65%,42%)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                    {porTurno.map((entry) => (
+                      <Cell
+                        key={entry.turno}
+                        fill={selectedTurno === entry.turno ? 'hsl(215,65%,32%)' : selectedTurno ? 'hsl(215,30%,75%)' : 'hsl(215,65%,42%)'}
+                      />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -110,7 +139,7 @@ const ResumoMensal = () => {
 
           {topLocais.length > 0 && (
             <Card>
-              <CardHeader><CardTitle className="text-base">Locais com Mais Chamados</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-base">Locais com Mais Chamados{filterLabel}</CardTitle></CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
@@ -127,7 +156,7 @@ const ResumoMensal = () => {
 
         {topEquipamentos.length > 0 && (
           <Card>
-            <CardHeader><CardTitle className="text-base">Equipamentos com Mais Ocorrências</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-base">Equipamentos com Mais Ocorrências{filterLabel}</CardTitle></CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={Math.max(200, topEquipamentos.length * 45)}>
                 <BarChart data={topEquipamentos} layout="vertical" margin={{ left: 20 }}>
