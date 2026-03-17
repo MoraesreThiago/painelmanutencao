@@ -54,11 +54,11 @@ const OcorrenciaForm = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const [{ data: eqs }, { data: cols }] = await Promise.all([
-        (supabase as any).from('equipamentos').select('*').order('tag'),
+      const [eqs, { data: cols }] = await Promise.all([
+        fetchAllEquipamentos(),
         (supabase as any).from('colaboradores').select('*').eq('status', 'Ativo').order('nome'),
       ]);
-      setEquipamentos((eqs || []) as Equipamento[]);
+      setEquipamentos(eqs);
       setColaboradores((cols || []) as Colaborador[]);
 
       if (isEdit) {
