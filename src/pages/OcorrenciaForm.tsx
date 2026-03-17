@@ -227,7 +227,6 @@ const OcorrenciaForm = () => {
                   </SelectContent>
                 </Select>
               </div>
-              </div>
               {isEdit && (
                 <div>
                   <Label>Status</Label>
