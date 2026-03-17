@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Wand2, Loader2 } from 'lucide-react';
 import type { Equipamento, Colaborador } from '@/types/database';
+import { fetchAllEquipamentos } from '@/lib/fetchAllEquipamentos';
 
 const OcorrenciaForm = () => {
   const { id } = useParams();
@@ -53,11 +54,11 @@ const OcorrenciaForm = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const [{ data: eqs }, { data: cols }] = await Promise.all([
-        (supabase as any).from('equipamentos').select('*').order('tag'),
+      const [eqs, { data: cols }] = await Promise.all([
+        fetchAllEquipamentos(),
         (supabase as any).from('colaboradores').select('*').eq('status', 'Ativo').order('nome'),
       ]);
-      setEquipamentos((eqs || []) as Equipamento[]);
+      setEquipamentos(eqs);
       setColaboradores((cols || []) as Colaborador[]);
 
       if (isEdit) {

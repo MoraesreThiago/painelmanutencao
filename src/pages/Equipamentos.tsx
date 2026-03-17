@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import type { Equipamento } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
+import { fetchAllEquipamentos } from '@/lib/fetchAllEquipamentos';
 
 const Equipamentos = () => {
   const { profile } = useAuth();
@@ -25,9 +26,14 @@ const Equipamentos = () => {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await (supabase as any).from('equipamentos').select('*').order('tag');
-    setItems((data || []) as Equipamento[]);
-    setLoading(false);
+    try {
+      const data = await fetchAllEquipamentos();
+      setItems(data);
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao carregar equipamentos');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
