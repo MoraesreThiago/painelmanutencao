@@ -105,6 +105,10 @@ const OcorrenciaForm = () => {
       if (isEdit) {
         const { data } = await (supabase as any).from('ocorrencias').select('*').eq('id', id).single();
         if (data) {
+          // Check 24h lock for non-admins
+          if (!isAdmin && data.created_at && (Date.now() - new Date(data.created_at).getTime() > 24 * 60 * 60 * 1000)) {
+            setLocked(true);
+          }
           setForm({
             data_ocorrencia: data.data_ocorrencia,
             horario: data.horario,
