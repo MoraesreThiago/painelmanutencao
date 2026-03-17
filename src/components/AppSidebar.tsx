@@ -86,15 +86,6 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={signOut} className="text-destructive hover:bg-destructive/10">
-              <LogOut className="mr-2 h-5 w-5" />
-              {!collapsed && <span>Sair</span>}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   );
 }
