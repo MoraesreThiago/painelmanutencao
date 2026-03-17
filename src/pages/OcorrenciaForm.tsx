@@ -260,7 +260,7 @@ const OcorrenciaForm = () => {
                   <div className="absolute z-50 w-full mt-1 bg-card border rounded-md shadow-lg max-h-48 overflow-auto">
                     {eqSuggestions.map(eq => (
                       <button key={eq.id} type="button" className="w-full text-left px-3 py-2 hover:bg-muted text-sm" onMouseDown={() => selectEquipamento(eq)}>
-                        <span className="font-medium">{eq.equipamento}</span> — {eq.tag}
+                        <span className="font-medium">{eq.equipamento}</span>{eq.tag ? ` — ${eq.tag}` : ''}
                       </button>
                     ))}
                   </div>
