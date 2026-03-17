@@ -40,6 +40,10 @@ const ResumoMensal = () => {
   ocorrencias.forEach(o => { if (o.equipamento) eqCount[o.equipamento] = (eqCount[o.equipamento] || 0) + 1; });
   const topEquipamentos = Object.entries(eqCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, value]) => ({ name, value }));
 
+  const localCount: Record<string, number> = {};
+  ocorrencias.forEach(o => { if (o.local) localCount[o.local] = (localCount[o.local] || 0) + 1; });
+  const topLocais = Object.entries(localCount).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, value]) => ({ name, value }));
+
   const months = Array.from({ length: 12 }, (_, i) => {
     const d = new Date(); d.setMonth(d.getMonth() - i);
     return { value: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, label: d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) };
@@ -123,6 +127,22 @@ const ResumoMensal = () => {
                   <Tooltip />
                   <Bar dataKey="value" fill="hsl(152,55%,42%)" radius={[0, 4, 4, 0]} />
                 </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
+
+        {topLocais.length > 0 && (
+          <Card>
+            <CardHeader><CardTitle className="text-base">Locais com Mais Chamados</CardTitle></CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie data={topLocais} cx="50%" cy="50%" innerRadius={45} outerRadius={85} dataKey="value" label={({ name, value }) => `${name.length > 18 ? name.slice(0, 16) + '…' : name}: ${value}`}>
+                    {topLocais.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
