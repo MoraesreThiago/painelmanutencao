@@ -100,13 +100,29 @@ const ResumoMensal = () => {
                 <BarChart data={porTurno}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" fontSize={12} />
-                  <YAxis />
+                  <YAxis allowDecimals={false} />
                   <Tooltip />
                   <Bar dataKey="value" fill="hsl(215,65%,42%)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
+
+          {topLocais.length > 0 && (
+            <Card>
+              <CardHeader><CardTitle className="text-base">Locais com Mais Chamados</CardTitle></CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie data={topLocais} cx="50%" cy="50%" innerRadius={40} outerRadius={75} dataKey="value" label={({ name, value }) => `${name.length > 15 ? name.slice(0, 13) + '…' : name}: ${value}`}>
+                      {topLocais.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {topEquipamentos.length > 0 && (
