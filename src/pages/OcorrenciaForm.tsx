@@ -153,6 +153,8 @@ const OcorrenciaForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.colaborador_id) { toast.error('Colaborador é obrigatório'); return; }
+    if (!form.tipo_ocorrencia) { toast.error('Tipo de Ocorrência é obrigatório'); return; }
     if (!form.descricao.trim()) { toast.error('Descrição é obrigatória'); return; }
     setLoading(true);
 
