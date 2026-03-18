@@ -253,7 +253,7 @@ const OcorrenciaForm = () => {
                 </Select>
               </div>
               <div>
-                <Label>Colaborador</Label>
+                <Label>Colaborador *</Label>
                 <Select value={form.colaborador_id} onValueChange={v => set('colaborador_id', v)}>
                   <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>
