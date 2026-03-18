@@ -354,7 +354,8 @@ const OcorrenciaForm = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <Textarea value={form.descricao} onChange={e => set('descricao', e.target.value)} placeholder="Descreva a ocorrência..." rows={4} required className="touch-target" />
+              <Textarea value={form.descricao} onChange={e => set('descricao', e.target.value.slice(0, 2000))} placeholder="Descreva a ocorrência..." rows={4} required className="touch-target" maxLength={2000} />
+              <p className="text-xs text-muted-foreground text-right mt-1">{form.descricao.length}/2000</p>
             </CardContent>
           </Card>
 
