@@ -153,6 +153,8 @@ const OcorrenciaForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.colaborador_id) { toast.error('Colaborador é obrigatório'); return; }
+    if (!form.tipo_ocorrencia) { toast.error('Tipo de Ocorrência é obrigatório'); return; }
     if (!form.descricao.trim()) { toast.error('Descrição é obrigatória'); return; }
     setLoading(true);
 
@@ -251,7 +253,7 @@ const OcorrenciaForm = () => {
                 </Select>
               </div>
               <div>
-                <Label>Colaborador</Label>
+                <Label>Colaborador *</Label>
                 <Select value={form.colaborador_id} onValueChange={v => set('colaborador_id', v)}>
                   <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>
@@ -319,7 +321,7 @@ const OcorrenciaForm = () => {
                 )}
               </div>
               <div>
-                <Label>Tipo de Ocorrência</Label>
+                <Label>Tipo de Ocorrência *</Label>
                 <Select value={form.tipo_ocorrencia} onValueChange={v => set('tipo_ocorrencia', v)}>
                   <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>
