@@ -1,0 +1,3 @@
+UPDATE profiles SET email = 'admin@manutencaopro.com', nome = 'Administrador' WHERE id = 'b7b62447-2283-4837-9cf2-724d21a04658';
+UPDATE profiles SET email = 'eletrica@manutencaopro.com', nome = 'Manutenção Elétrica' WHERE id = '38dfcd76-d4bb-41fc-ac56-c650701ef679';
+UPDATE profiles SET email = 'mecanica@manutencaopro.com', nome = 'Manutenção Mecânica' WHERE id = '00745356-aa22-4631-b466-124a5f6ab914';
