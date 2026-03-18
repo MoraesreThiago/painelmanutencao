@@ -321,7 +321,7 @@ const OcorrenciaForm = () => {
                 )}
               </div>
               <div>
-                <Label>Tipo de Ocorrência</Label>
+                <Label>Tipo de Ocorrência *</Label>
                 <Select value={form.tipo_ocorrencia} onValueChange={v => set('tipo_ocorrencia', v)}>
                   <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>
