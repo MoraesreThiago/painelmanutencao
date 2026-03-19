@@ -172,6 +172,7 @@ const OcorrenciaForm = () => {
     const payload: any = {
       ...form,
       colaborador_id: form.colaborador_id || null,
+      area_responsavel: form.area_responsavel || null,
       tipo_parada: form.houve_parada ? form.tipo_parada : null,
       tempo_parada: form.houve_parada && form.tempo_parada ? `${form.tempo_parada} minutes` : null,
       prioridade_os: form.gerar_os ? form.prioridade_os : null,
