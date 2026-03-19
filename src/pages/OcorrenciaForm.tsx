@@ -287,6 +287,17 @@ const OcorrenciaForm = () => {
                   </Select>
                 </div>
               )}
+              <div>
+                <Label>Área Responsável</Label>
+                <Select value={form.area_responsavel} onValueChange={v => set('area_responsavel', v)}>
+                  <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione (opcional)" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Elétrica">Elétrica</SelectItem>
+                    <SelectItem value="Mecânica">Mecânica</SelectItem>
+                    <SelectItem value="Instrumentação">Instrumentação</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardContent>
           </Card>
 
