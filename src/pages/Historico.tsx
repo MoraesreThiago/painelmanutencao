@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Search, Eye } from 'lucide-react';
+import { Search } from 'lucide-react';
 import type { Ocorrencia } from '@/types/database';
 
 const statusColors: Record<string, string> = {
@@ -98,35 +98,31 @@ const Historico = () => {
 
         {loading ? (
           <div className="flex justify-center py-8"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>
+        ) : filtered.length === 0 ? (
+          <p className="text-center text-muted-foreground py-8">Nenhuma ocorrência encontrada.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="text-left p-3">Data</th>
-                  <th className="text-left p-3">TAG</th>
-                  <th className="text-left p-3">Equipamento</th>
-                  <th className="text-left p-3">Área</th>
-                  <th className="text-left p-3">Status</th>
-                  <th className="text-left p-3">Turno</th>
-                  <th className="p-3"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(o => (
-                  <tr key={o.id} className="border-b hover:bg-muted/30">
-                    <td className="p-3">{o.data_ocorrencia.split('-').reverse().join('/')}</td>
-                    <td className="p-3">{o.tag || '-'}</td>
-                    <td className="p-3">{o.equipamento || '-'}</td>
-                    <td className="p-3">{o.area}</td>
-                    <td className="p-3"><Badge className={statusColors[o.status] || 'bg-muted'}>{o.status}</Badge></td>
-                    <td className="p-3">{o.turno}</td>
-                    <td className="p-3"><Button variant="ghost" size="sm" onClick={() => setSelected(o)} className="touch-target"><Eye className="h-4 w-4" /></Button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhuma ocorrência encontrada.</p>}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map(o => (
+              <Card
+                key={o.id}
+                className="cursor-pointer transition-shadow hover:shadow-md hover:border-primary/40 active:scale-[0.98]"
+                onClick={() => setSelected(o)}
+              >
+                <CardContent className="p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">{o.data_ocorrencia.split('-').reverse().join('/')}</span>
+                    <Badge className={statusColors[o.status] || 'bg-muted'}>{o.status}</Badge>
+                  </div>
+                  <p className="font-medium text-sm leading-snug line-clamp-2">{o.equipamento || o.tag || 'Sem equipamento'}</p>
+                  {o.tag && o.equipamento && <span className="text-xs text-muted-foreground">TAG: {o.tag}</span>}
+                  <p className="text-xs text-muted-foreground line-clamp-2">{o.descricao}</p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                    <span>{o.turno}</span>
+                    {o.colaboradores?.nome && <span>{o.colaboradores.nome}</span>}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
 
