@@ -23,16 +23,14 @@ const Historico = () => {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Ocorrencia | null>(null);
   const [search, setSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState('todos');
-  const [filterArea, setFilterArea] = useState('todos');
+  const [filterHorario, setFilterHorario] = useState('todos');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
   const load = async () => {
     setLoading(true);
     let query = (supabase as any).from('ocorrencias').select('*, colaboradores(nome)').order('data_ocorrencia', { ascending: false });
-    if (filterStatus !== 'todos') query = query.eq('status', filterStatus);
-    if (filterArea !== 'todos') query = query.eq('area', filterArea);
+    if (filterHorario !== 'todos') query = query.eq('horario', filterHorario);
     if (dateFrom) query = query.gte('data_ocorrencia', dateFrom);
     if (dateTo) query = query.lte('data_ocorrencia', dateTo);
     const { data } = await query;
@@ -40,7 +38,7 @@ const Historico = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [filterStatus, filterArea, dateFrom, dateTo]);
+  useEffect(() => { load(); }, [filterHorario, dateFrom, dateTo]);
 
   const filtered = items.filter(o => {
     if (!search) return true;
@@ -59,7 +57,7 @@ const Historico = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input placeholder="Buscar por TAG, equipamento, colaborador..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 touch-target" />
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <div>
                 <Label className="text-xs">Data inicial</Label>
                 <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="touch-target mt-1" />
@@ -69,26 +67,13 @@ const Historico = () => {
                 <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="touch-target mt-1" />
               </div>
               <div>
-                <Label className="text-xs">Status</Label>
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Status" /></SelectTrigger>
+                <Label className="text-xs">Horário</Label>
+                <Select value={filterHorario} onValueChange={setFilterHorario}>
+                  <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Horário" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todos">Todos</SelectItem>
-                    <SelectItem value="Pendente">Pendente</SelectItem>
-                    <SelectItem value="Liberado">Liberado</SelectItem>
-                    <SelectItem value="Em andamento">Em andamento</SelectItem>
-                    <SelectItem value="Realizada">Realizada</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-xs">Área</Label>
-                <Select value={filterArea} onValueChange={setFilterArea}>
-                  <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Área" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todas</SelectItem>
-                    <SelectItem value="Elétrica">Elétrica</SelectItem>
-                    <SelectItem value="Mecânica">Mecânica</SelectItem>
+                    <SelectItem value="Dia">Dia</SelectItem>
+                    <SelectItem value="Amanhecida">Amanhecida</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
