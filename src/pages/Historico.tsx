@@ -23,8 +23,7 @@ const Historico = () => {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Ocorrencia | null>(null);
   const [search, setSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState('todos');
-  const [filterArea, setFilterArea] = useState('todos');
+  const [filterHorario, setFilterHorario] = useState('todos');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
