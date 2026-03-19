@@ -64,8 +64,17 @@ const OcorrenciaForm = () => {
     return SEQ[idx];
   };
 
+  const getDataOcorrencia = () => {
+    const now = new Date();
+    const totalMin = now.getHours() * 60 + now.getMinutes();
+    const ref = totalMin >= 430
+      ? now
+      : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    return `${ref.getFullYear()}-${String(ref.getMonth() + 1).padStart(2, '0')}-${String(ref.getDate()).padStart(2, '0')}`;
+  };
+
   const [form, setForm] = useState({
-    data_ocorrencia: new Date().toISOString().split('T')[0],
+    data_ocorrencia: getDataOcorrencia(),
     horario: getHorarioByTime(),
     turno: getTurnoByDate(),
     colaborador_id: '',
