@@ -38,7 +38,7 @@ const Historico = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [filterStatus, filterArea, dateFrom, dateTo]);
+  useEffect(() => { load(); }, [filterHorario, dateFrom, dateTo]);
 
   const filtered = items.filter(o => {
     if (!search) return true;
