@@ -71,10 +71,14 @@ const Dashboard = () => {
       const { count: pendentes } = await (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true }).eq('status', 'Pendente');
       setStats({ total: total || 0, pendentes: pendentes || 0 });
 
-      // Get today's date for filtering previous turno ocorrencias
-      const today = new Date();
-      const todayStr = today.toISOString().split('T')[0];
-      const yesterdayStr = new Date(today.getTime() - 86400000).toISOString().split('T')[0];
+      // A partir das 07:10 considera o dia atual; antes disso, o dia anterior
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      const referenceDate = currentMinutes >= 430
+        ? new Date(now.getFullYear(), now.getMonth(), now.getDate())
+        : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      const todayStr = referenceDate.toISOString().split('T')[0];
+      const yesterdayStr = new Date(referenceDate.getTime() - 86400000).toISOString().split('T')[0];
 
       const { data } = await (supabase as any)
         .from('ocorrencias')
