@@ -84,7 +84,7 @@ const OcorrenciaForm = () => {
     area: profile?.area || 'Elétrica',
     tipo_ocorrencia: '',
     descricao: '',
-    status: 'Pendente',
+    status: 'Liberado',
     houve_parada: false,
     tipo_parada: '',
     tempo_parada: '',
