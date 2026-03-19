@@ -92,6 +92,7 @@ const OcorrenciaForm = () => {
     prioridade_os: '',
     observacao_os: '',
     tipo_manutencao_os: '',
+    area_responsavel: '',
   });
 
   // Sync area from profile when it loads (profile may be null at mount time)
@@ -132,6 +133,7 @@ const OcorrenciaForm = () => {
             prioridade_os: data.prioridade_os || '',
             observacao_os: data.observacao_os || '',
             tipo_manutencao_os: data.tipo_manutencao_os || '',
+            area_responsavel: data.area_responsavel || '',
           });
           setTagSearch(data.tag || '');
           setEqSearch(data.equipamento || '');
@@ -170,6 +172,7 @@ const OcorrenciaForm = () => {
     const payload: any = {
       ...form,
       colaborador_id: form.colaborador_id || null,
+      area_responsavel: form.area_responsavel || null,
       tipo_parada: form.houve_parada ? form.tipo_parada : null,
       tempo_parada: form.houve_parada && form.tempo_parada ? `${form.tempo_parada} minutes` : null,
       prioridade_os: form.gerar_os ? form.prioridade_os : null,
@@ -284,6 +287,17 @@ const OcorrenciaForm = () => {
                   </Select>
                 </div>
               )}
+              <div>
+                <Label>Área Responsável</Label>
+                <Select value={form.area_responsavel} onValueChange={v => set('area_responsavel', v)}>
+                  <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione (opcional)" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Elétrica">Elétrica</SelectItem>
+                    <SelectItem value="Mecânica">Mecânica</SelectItem>
+                    <SelectItem value="Instrumentação">Instrumentação</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardContent>
           </Card>
 

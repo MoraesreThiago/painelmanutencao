@@ -83,6 +83,7 @@ export type Database = {
       ocorrencias: {
         Row: {
           area: string
+          area_responsavel: string | null
           colaborador_id: string | null
           created_at: string | null
           created_by: string | null
@@ -109,6 +110,7 @@ export type Database = {
         }
         Insert: {
           area: string
+          area_responsavel?: string | null
           colaborador_id?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -135,6 +137,7 @@ export type Database = {
         }
         Update: {
           area?: string
+          area_responsavel?: string | null
           colaborador_id?: string | null
           created_at?: string | null
           created_by?: string | null
