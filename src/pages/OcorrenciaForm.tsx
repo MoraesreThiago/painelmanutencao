@@ -134,6 +134,7 @@ const OcorrenciaForm = () => {
             observacao_os: data.observacao_os || '',
             tipo_manutencao_os: data.tipo_manutencao_os || '',
             area_responsavel: data.area_responsavel || '',
+          });
           setTagSearch(data.tag || '');
           setEqSearch(data.equipamento || '');
           setLocalSearch(data.local || '');
