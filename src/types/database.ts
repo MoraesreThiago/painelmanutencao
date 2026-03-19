@@ -40,6 +40,7 @@ export interface Ocorrencia {
   equipamento: string | null;
   local: string | null;
   area: string;
+  area_responsavel: string | null;
   tipo_ocorrencia: string | null;
   descricao: string;
   status: string;

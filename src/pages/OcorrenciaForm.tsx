@@ -92,6 +92,7 @@ const OcorrenciaForm = () => {
     prioridade_os: '',
     observacao_os: '',
     tipo_manutencao_os: '',
+    area_responsavel: '',
   });
 
   // Sync area from profile when it loads (profile may be null at mount time)
