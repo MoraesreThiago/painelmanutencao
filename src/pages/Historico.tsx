@@ -30,8 +30,7 @@ const Historico = () => {
   const load = async () => {
     setLoading(true);
     let query = (supabase as any).from('ocorrencias').select('*, colaboradores(nome)').order('data_ocorrencia', { ascending: false });
-    if (filterStatus !== 'todos') query = query.eq('status', filterStatus);
-    if (filterArea !== 'todos') query = query.eq('area', filterArea);
+    if (filterHorario !== 'todos') query = query.eq('horario', filterHorario);
     if (dateFrom) query = query.gte('data_ocorrencia', dateFrom);
     if (dateTo) query = query.lte('data_ocorrencia', dateTo);
     const { data } = await query;
