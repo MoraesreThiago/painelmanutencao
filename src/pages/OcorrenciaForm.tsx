@@ -273,20 +273,18 @@ const OcorrenciaForm = () => {
                   </SelectContent>
                 </Select>
               </div>
-              {isEdit && (
-                <div>
-                  <Label>Status</Label>
-                  <Select value={form.status} onValueChange={v => set('status', v)}>
-                    <SelectTrigger className="touch-target mt-1"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Pendente">Pendente</SelectItem>
-                      <SelectItem value="Liberado">Liberado</SelectItem>
-                      <SelectItem value="Em andamento">Em andamento</SelectItem>
-                      <SelectItem value="Realizada">Realizada</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+              <div>
+                <Label>Status</Label>
+                <Select value={form.status} onValueChange={v => set('status', v)}>
+                  <SelectTrigger className="touch-target mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pendente">Pendente</SelectItem>
+                    <SelectItem value="Liberado">Liberado</SelectItem>
+                    <SelectItem value="Em andamento">Em andamento</SelectItem>
+                    <SelectItem value="Realizada">Realizada</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div>
                 <Label>Área Responsável</Label>
                 <Select value={form.area_responsavel} onValueChange={v => set('area_responsavel', v)}>
