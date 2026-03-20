@@ -253,6 +253,17 @@ const MotoresEletricos = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
+                    <Label>Carcaça</Label>
+                    <Input value={form.carcaca} onChange={e => setForm({ ...form, carcaca: e.target.value })} placeholder="Ex: 254T" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Fabricante</Label>
+                    <Input value={form.fabricante} onChange={e => setForm({ ...form, fabricante: e.target.value })} placeholder="Ex: WEG" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     <Label>Potência</Label>
                     <Input value={form.potencia} onChange={e => setForm({ ...form, potencia: e.target.value })} placeholder="Ex: 75 CV" />
                   </div>
