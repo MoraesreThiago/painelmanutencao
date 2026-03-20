@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Search, RotateCcw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { isLeaderOrAbove } from '@/lib/roles';
 import { format } from 'date-fns';
 
 interface MotorEletrico {
