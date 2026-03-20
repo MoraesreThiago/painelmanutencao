@@ -68,11 +68,12 @@ const MotoresEletricos = () => {
     load();
   };
 
-  const filtered = items.filter(m =>
-    m.tag.toLowerCase().includes(search.toLowerCase()) ||
-    m.motor.toLowerCase().includes(search.toLowerCase()) ||
-    m.numero_nf.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = items.filter(m => {
+    const q = search.toLowerCase();
+    return (m.tag || '').toLowerCase().includes(q) ||
+      (m.motor || '').toLowerCase().includes(q) ||
+      (m.numero_nf || '').toLowerCase().includes(q);
+  });
 
   return (
     <Layout>
