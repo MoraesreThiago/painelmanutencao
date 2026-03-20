@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -8,10 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2, Search, RotateCcw } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, RotateCcw, ChevronsUpDown, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface MotorEletrico {
   id: string;
@@ -30,6 +33,13 @@ interface MotorEletrico {
   updated_at: string;
 }
 
+interface Equipamento {
+  tag: string | null;
+  equipamento: string | null;
+  area: string | null;
+  local: string | null;
+}
+
 const emptyForm = {
   tag: '', motor: '', potencia: '', numero_nf: '', data_saida: '',
   destino: '', motivo: '', status_retorno: 'Pendente', data_retorno: '', area: 'Elétrica',
@@ -41,11 +51,14 @@ const MotoresEletricos = () => {
   const userArea = profile?.area || 'Elétrica';
 
   const [items, setItems] = useState<MotorEletrico[]>([]);
+  const [equipamentos, setEquipamentos] = useState<Equipamento[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<MotorEletrico | null>(null);
   const [form, setForm] = useState({ ...emptyForm, area: userArea });
+  const [tagPopoverOpen, setTagPopoverOpen] = useState(false);
+  const [tagSearch, setTagSearch] = useState('');
 
   const load = async () => {
     setLoading(true);
@@ -57,11 +70,43 @@ const MotoresEletricos = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  const loadEquipamentos = async () => {
+    const { data } = await (supabase as any)
+      .from('vw_equipamentos_app')
+      .select('tag, equipamento, area, local')
+      .order('tag');
+    setEquipamentos((data || []) as Equipamento[]);
+  };
+
+  useEffect(() => {
+    load();
+    loadEquipamentos();
+  }, []);
+
+  const filteredEquipamentos = useMemo(() => {
+    if (!tagSearch) return equipamentos.slice(0, 50);
+    const q = tagSearch.toLowerCase();
+    return equipamentos.filter(e =>
+      (e.tag?.toLowerCase().includes(q)) ||
+      (e.equipamento?.toLowerCase().includes(q))
+    ).slice(0, 50);
+  }, [equipamentos, tagSearch]);
+
+  const selectEquipamento = (eq: Equipamento) => {
+    setForm(prev => ({
+      ...prev,
+      tag: eq.tag || '',
+      motor: eq.equipamento || '',
+      area: isAdmin ? (eq.area || prev.area) : prev.area,
+    }));
+    setTagPopoverOpen(false);
+    setTagSearch('');
+  };
 
   const openNew = () => {
     setEditing(null);
     setForm({ ...emptyForm, area: userArea });
+    setTagSearch('');
     setDialogOpen(true);
   };
 
@@ -79,7 +124,7 @@ const MotoresEletricos = () => {
 
   const handleSave = async () => {
     if (!form.tag.trim() || !form.motor.trim() || !form.numero_nf.trim() || !form.data_saida) {
-      toast.error('Tag, Motor, Nota Fiscal e Data de Saída são obrigatórios');
+      toast.error('Tag, Equipamento, Nota Fiscal e Data de Saída são obrigatórios');
       return;
     }
     const payload: any = {
@@ -97,10 +142,10 @@ const MotoresEletricos = () => {
     try {
       if (editing) {
         await (supabase as any).from('motores_eletricos').update(payload).eq('id', editing.id);
-        toast.success('Motor atualizado!');
+        toast.success('Registro atualizado!');
       } else {
         await (supabase as any).from('motores_eletricos').insert(payload);
-        toast.success('Motor cadastrado!');
+        toast.success('Serviço externo registrado!');
       }
       setDialogOpen(false);
       load();
@@ -108,9 +153,9 @@ const MotoresEletricos = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Deseja excluir este motor?')) return;
+    if (!confirm('Deseja excluir este registro?')) return;
     await (supabase as any).from('motores_eletricos').delete().eq('id', id);
-    toast.success('Motor excluído!');
+    toast.success('Registro excluído!');
     load();
   };
 
@@ -134,59 +179,102 @@ const MotoresEletricos = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Motores Elétricos</h1>
-            <p className="text-sm text-muted-foreground mt-1">Controle de saída e retorno de motores</p>
+            <h1 className="text-2xl font-bold text-foreground">Serviço Externo — Motores</h1>
+            <p className="text-sm text-muted-foreground mt-1">Registro de motores enviados para serviço externo</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={openNew}><Plus className="mr-2 h-4 w-4" />Novo Motor</Button>
+              <Button onClick={openNew}><Plus className="mr-2 h-4 w-4" />Registrar Serviço</Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editing ? 'Editar Motor' : 'Cadastrar Motor'}</DialogTitle>
+                <DialogTitle>{editing ? 'Editar Registro' : 'Registrar Serviço Externo'}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-2">
+                {/* Tag + Equipamento (linked) */}
+                <div className="space-y-2">
+                  <Label>Equipamento (Tag) *</Label>
+                  <Popover open={tagPopoverOpen} onOpenChange={setTagPopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={tagPopoverOpen}
+                        className="w-full justify-between font-normal"
+                      >
+                        {form.tag
+                          ? `${form.tag} — ${form.motor}`
+                          : 'Selecione o equipamento...'}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Buscar por tag ou equipamento..."
+                          value={tagSearch}
+                          onValueChange={setTagSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>Nenhum equipamento encontrado.</CommandEmpty>
+                          <CommandGroup>
+                            {filteredEquipamentos.map((eq) => (
+                              <CommandItem
+                                key={eq.tag}
+                                value={eq.tag || ''}
+                                onSelect={() => selectEquipamento(eq)}
+                              >
+                                <Check className={cn("mr-2 h-4 w-4", form.tag === eq.tag ? "opacity-100" : "opacity-0")} />
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{eq.tag}</span>
+                                  <span className="text-xs text-muted-foreground">{eq.equipamento}</span>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Tag *</Label>
-                    <Input value={form.tag} onChange={e => setForm({ ...form, tag: e.target.value })} placeholder="Ex: MT-001" />
-                  </div>
                   <div className="space-y-2">
                     <Label>Potência</Label>
                     <Input value={form.potencia} onChange={e => setForm({ ...form, potencia: e.target.value })} placeholder="Ex: 75 CV" />
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Motor *</Label>
-                  <Input value={form.motor} onChange={e => setForm({ ...form, motor: e.target.value })} placeholder="Descrição do motor" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Nº Nota Fiscal *</Label>
                     <Input value={form.numero_nf} onChange={e => setForm({ ...form, numero_nf: e.target.value })} placeholder="Número da NF" />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Data de Saída *</Label>
                     <Input type="date" value={form.data_saida} onChange={e => setForm({ ...form, data_saida: e.target.value })} />
                   </div>
+                  <div className="space-y-2">
+                    <Label>Destino</Label>
+                    <Input value={form.destino} onChange={e => setForm({ ...form, destino: e.target.value })} placeholder="Para onde foi enviado" />
+                  </div>
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Destino</Label>
-                  <Input value={form.destino} onChange={e => setForm({ ...form, destino: e.target.value })} placeholder="Para onde foi enviado" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Motivo</Label>
+                  <Label>Motivo / Serviço *</Label>
                   <Select value={form.motivo || ''} onValueChange={v => setForm({ ...form, motivo: v })}>
-                    <SelectTrigger><SelectValue placeholder="Selecione o motivo" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Selecione o serviço" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Rebobinar">Rebobinar</SelectItem>
                       <SelectItem value="Troca de rolamento">Troca de rolamento</SelectItem>
                       <SelectItem value="Reparo geral">Reparo geral</SelectItem>
-                      <SelectItem value="Troca">Troca</SelectItem>
+                      <SelectItem value="Balanceamento">Balanceamento</SelectItem>
+                      <SelectItem value="Troca de eixo">Troca de eixo</SelectItem>
                       <SelectItem value="Outro">Outro</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Status de Retorno</Label>
@@ -203,6 +291,7 @@ const MotoresEletricos = () => {
                     <Input type="date" value={form.data_retorno} onChange={e => setForm({ ...form, data_retorno: e.target.value })} />
                   </div>
                 </div>
+
                 {isAdmin && (
                   <div className="space-y-2">
                     <Label>Área</Label>
@@ -215,8 +304,9 @@ const MotoresEletricos = () => {
                     </Select>
                   </div>
                 )}
+
                 <Button className="w-full" onClick={handleSave}>
-                  {editing ? 'Salvar alterações' : 'Cadastrar'}
+                  {editing ? 'Salvar alterações' : 'Registrar'}
                 </Button>
               </div>
             </DialogContent>
@@ -227,7 +317,7 @@ const MotoresEletricos = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Buscar por tag, motor ou NF..."
+            placeholder="Buscar por tag, equipamento ou NF..."
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -238,7 +328,7 @@ const MotoresEletricos = () => {
             <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
           </div>
         ) : filtered.length === 0 ? (
-          <Card><CardContent className="py-12 text-center text-muted-foreground">Nenhum motor encontrado.</CardContent></Card>
+          <Card><CardContent className="py-12 text-center text-muted-foreground">Nenhum registro encontrado.</CardContent></Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {filtered.map(m => (
@@ -259,7 +349,7 @@ const MotoresEletricos = () => {
                   <p><span className="font-medium text-muted-foreground">NF:</span> {m.numero_nf}</p>
                   <p><span className="font-medium text-muted-foreground">Saída:</span> {format(new Date(m.data_saida + 'T12:00:00'), 'dd/MM/yyyy')}</p>
                   {m.destino && <p><span className="font-medium text-muted-foreground">Destino:</span> {m.destino}</p>}
-                  {m.motivo && <p><span className="font-medium text-muted-foreground">Motivo:</span> {m.motivo}</p>}
+                  {m.motivo && <p><span className="font-medium text-muted-foreground">Serviço:</span> {m.motivo}</p>}
                   {m.data_retorno && <p><span className="font-medium text-muted-foreground">Retorno:</span> {format(new Date(m.data_retorno + 'T12:00:00'), 'dd/MM/yyyy')}</p>}
 
                   <div className="flex gap-2 pt-2 border-t">
