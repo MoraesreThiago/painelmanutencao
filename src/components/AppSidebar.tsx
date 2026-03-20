@@ -70,6 +70,11 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
+          <SidebarGroupLabel>Serviços</SidebarGroupLabel>
+          <SidebarGroupContent>{renderItems(servicesItems)}</SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
           <SidebarGroupLabel>Relatórios</SidebarGroupLabel>
           <SidebarGroupContent>{renderItems(reportsItems)}</SidebarGroupContent>
         </SidebarGroup>
