@@ -20,6 +20,10 @@ const managementItems = [
   { title: "Equipamentos", url: "/equipamentos", icon: Settings },
 ];
 
+const servicesItems = [
+  { title: "Motores Elétricos", url: "/motores-eletricos", icon: CircuitBoard },
+];
+
 const reportsItems = [
   { title: "Resumo Mensal", url: "/resumo-mensal", icon: BarChart3 },
   { title: "Automações", url: "/automacoes", icon: Zap },
