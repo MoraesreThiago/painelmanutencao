@@ -110,8 +110,8 @@ const MotorEletricoForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.tag.trim() || !form.motor.trim() || !form.numero_nf.trim() || !form.data_saida) {
-      toast.error('Equipamento, Nota Fiscal e Data de Saída são obrigatórios');
+    if (!form.tag.trim() || !form.motor.trim() || !form.data_saida) {
+      toast.error('Equipamento e Data de Saída são obrigatórios');
       return;
     }
     setLoading(true);
