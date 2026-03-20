@@ -80,6 +80,57 @@ export type Database = {
         }
         Relationships: []
       }
+      motores_eletricos: {
+        Row: {
+          area: string
+          created_at: string | null
+          created_by: string | null
+          data_retorno: string | null
+          data_saida: string
+          destino: string | null
+          id: string
+          motivo: string | null
+          motor: string
+          numero_nf: string
+          potencia: string | null
+          status_retorno: string
+          tag: string
+          updated_at: string | null
+        }
+        Insert: {
+          area: string
+          created_at?: string | null
+          created_by?: string | null
+          data_retorno?: string | null
+          data_saida: string
+          destino?: string | null
+          id?: string
+          motivo?: string | null
+          motor: string
+          numero_nf: string
+          potencia?: string | null
+          status_retorno?: string
+          tag: string
+          updated_at?: string | null
+        }
+        Update: {
+          area?: string
+          created_at?: string | null
+          created_by?: string | null
+          data_retorno?: string | null
+          data_saida?: string
+          destino?: string | null
+          id?: string
+          motivo?: string | null
+          motor?: string
+          numero_nf?: string
+          potencia?: string | null
+          status_retorno?: string
+          tag?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ocorrencias: {
         Row: {
           area: string
