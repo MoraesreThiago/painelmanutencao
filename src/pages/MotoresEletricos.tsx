@@ -22,6 +22,8 @@ interface MotorEletrico {
   motor: string;
   potencia: string | null;
   identificacao_motor: string | null;
+  carcaca: string | null;
+  fabricante: string | null;
   numero_nf: string;
   data_saida: string;
   destino: string | null;
