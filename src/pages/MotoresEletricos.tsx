@@ -137,6 +137,8 @@ const MotoresEletricos = () => {
       motor: form.motor.trim(),
       potencia: form.potencia.trim() || null,
       identificacao_motor: form.identificacao_motor.trim() || null,
+      carcaca: form.carcaca.trim() || null,
+      fabricante: form.fabricante.trim() || null,
       numero_nf: form.numero_nf.trim(),
       data_saida: form.data_saida,
       destino: form.destino.trim() || null,
