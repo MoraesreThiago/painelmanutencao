@@ -26,8 +26,11 @@ function getCurrentAndPreviousTurno(): { currentTurno: string; currentHorario: s
 
   const isDia = currentTime >= 430 && currentTime < 1150; // 07:10-19:10
 
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diffMs = today.getTime() - REFERENCE_DATE.getTime();
+  // Dia operacional: antes das 07:10 ainda pertence ao dia anterior
+  const operationalDate = currentTime >= 430
+    ? new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const diffMs = operationalDate.getTime() - REFERENCE_DATE.getTime();
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
   const todaySlot = getSlotIndex(diffDays);
