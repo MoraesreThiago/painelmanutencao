@@ -241,6 +241,11 @@ const MotoresEletricos = () => {
                   </Popover>
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Identificação do Motor (MO)</Label>
+                  <Input value={form.identificacao_motor} onChange={e => setForm({ ...form, identificacao_motor: e.target.value })} placeholder="Ex: MO0000201" />
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Potência</Label>
