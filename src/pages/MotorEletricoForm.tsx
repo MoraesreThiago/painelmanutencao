@@ -67,7 +67,7 @@ const MotorEletricoForm = () => {
           setForm({
             tag: data.tag,
             motor: data.motor,
-            identificacao_motor: data.identificacao_motor || '',
+            identificacao_motor: (data.identificacao_motor || '').replace(/^MO/i, ''),
             carcaca: data.carcaca || '',
             fabricante: data.fabricante || '',
             potencia: data.potencia || '',
