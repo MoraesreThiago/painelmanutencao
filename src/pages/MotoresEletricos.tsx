@@ -35,7 +35,7 @@ interface MotorEletrico {
 const MotoresEletricos = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const isAdmin = profile?.perfil === 'administrador';
+  const canDelete = isLeaderOrAbove(profile);
 
   const [items, setItems] = useState<MotorEletrico[]>([]);
   const [loading, setLoading] = useState(true);
