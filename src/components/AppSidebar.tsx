@@ -69,10 +69,12 @@ export function AppSidebar() {
           <SidebarGroupContent>{renderItems(managementItems)}</SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Serviços</SidebarGroupLabel>
-          <SidebarGroupContent>{renderItems(servicesItems)}</SidebarGroupContent>
-        </SidebarGroup>
+        {(profile?.area === 'Elétrica' || profile?.perfil === 'administrador') && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Serviços</SidebarGroupLabel>
+            <SidebarGroupContent>{renderItems(servicesItems)}</SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         <SidebarGroup>
           <SidebarGroupLabel>Relatórios</SidebarGroupLabel>
