@@ -140,7 +140,7 @@ const MotoresEletricos = () => {
                     <Button size="sm" variant="ghost" onClick={() => navigate(`/motores-eletricos/${m.id}`)}>
                       <Edit className="h-3.5 w-3.5" />
                     </Button>
-                    {isAdmin && (
+                    {canDelete && (
                       <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => handleDelete(m.id)}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>

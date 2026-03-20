@@ -90,7 +90,10 @@ export function AppSidebar() {
             <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
               <Users className="h-3.5 w-3.5 text-primary" />
             </div>
-            <p className="font-medium text-sm text-foreground truncate">{profile.nome || profile.email}</p>
+            <div className="min-w-0">
+              <p className="font-medium text-sm text-foreground truncate">{profile.nome || profile.email}</p>
+              <p className="text-[11px] text-muted-foreground truncate">{getRoleLabel(profile.perfil)}</p>
+            </div>
           </div>
         )}
         <SidebarMenu>

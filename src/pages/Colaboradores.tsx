@@ -12,10 +12,11 @@ import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import type { Colaborador } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
+import { canManageColaboradores } from '@/lib/roles';
 
 const Colaboradores = () => {
   const { profile } = useAuth();
-  const isAdmin = profile?.perfil === 'administrador';
+  const canManage = canManageColaboradores(profile);
   const [items, setItems] = useState<Colaborador[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
