@@ -249,7 +249,7 @@ const MotorEletricoForm = () => {
                 <Input value={form.destino} onChange={e => set('destino', e.target.value)} placeholder="Para onde foi enviado" className="touch-target mt-1" />
               </div>
               <div>
-                <Label>Nº Nota Fiscal *</Label>
+                <Label>Nº Nota Fiscal</Label>
                 <Input value={form.numero_nf} onChange={e => set('numero_nf', e.target.value)} placeholder="Número da NF" className="touch-target mt-1" />
               </div>
               <div>
