@@ -9,7 +9,7 @@ export const fetchAllEquipamentos = async () => {
   for (let from = 0; ; from += PAGE_SIZE) {
     const to = from + PAGE_SIZE - 1;
     const { data, error } = await (supabase as any)
-      .from('vw_equipamentos_app')
+      .from('equipamentos')
       .select('*')
       .order('tag', { ascending: true })
       .range(from, to);
