@@ -9,8 +9,8 @@ export const fetchAllEquipamentos = async () => {
   for (let from = 0; ; from += PAGE_SIZE) {
     const to = from + PAGE_SIZE - 1;
     const { data, error } = await (supabase as any)
-      .from('equipamentos')
-      .select('*')
+      .from('vw_equipamentos_consolidados')
+      .select('tag, equipamento, area, status, local_exemplo, updated_at')
       .order('tag', { ascending: true })
       .range(from, to);
 
@@ -18,7 +18,7 @@ export const fetchAllEquipamentos = async () => {
       throw error;
     }
 
-    const batch = (data || []) as Equipamento[];
+    const batch = (data || []).map((d: any) => ({ ...d, local: d.local_exemplo })) as Equipamento[];
     items.push(...batch);
 
     if (batch.length < PAGE_SIZE) {
