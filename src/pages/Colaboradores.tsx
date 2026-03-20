@@ -91,7 +91,7 @@ const Colaboradores = () => {
                       <Badge className={c.status === 'Ativo' ? 'bg-status-realizada text-primary-foreground' : 'bg-muted text-muted-foreground'}>{c.status}</Badge>
                     </div>
                   </div>
-                  {isAdmin && (
+                  {canManage && (
                     <div className="flex gap-1">
                       <Button variant="ghost" size="sm" onClick={() => openEdit(c)} className="touch-target"><Edit className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => handleDelete(c.id)} className="touch-target text-destructive"><Trash2 className="h-4 w-4" /></Button>
