@@ -22,6 +22,8 @@ interface MotorEletrico {
   motor: string;
   potencia: string | null;
   identificacao_motor: string | null;
+  carcaca: string | null;
+  fabricante: string | null;
   numero_nf: string;
   data_saida: string;
   destino: string | null;
@@ -42,8 +44,8 @@ interface Equipamento {
 }
 
 const emptyForm = {
-  tag: '', motor: '', potencia: '', identificacao_motor: '', numero_nf: '', data_saida: '',
-  destino: '', motivo: '', status_retorno: 'Pendente', data_retorno: '', area: 'Elétrica',
+  tag: '', motor: '', potencia: '', identificacao_motor: '', carcaca: '', fabricante: '',
+  numero_nf: '', data_saida: '', destino: '', motivo: '', status_retorno: 'Pendente', data_retorno: '', area: 'Elétrica',
 };
 
 const MotoresEletricos = () => {
@@ -116,6 +118,7 @@ const MotoresEletricos = () => {
     setForm({
       tag: m.tag, motor: m.motor, potencia: m.potencia || '',
       identificacao_motor: m.identificacao_motor || '',
+      carcaca: m.carcaca || '', fabricante: m.fabricante || '',
       numero_nf: m.numero_nf, data_saida: m.data_saida,
       destino: m.destino || '', motivo: m.motivo || '',
       status_retorno: m.status_retorno, data_retorno: m.data_retorno || '',
@@ -134,6 +137,8 @@ const MotoresEletricos = () => {
       motor: form.motor.trim(),
       potencia: form.potencia.trim() || null,
       identificacao_motor: form.identificacao_motor.trim() || null,
+      carcaca: form.carcaca.trim() || null,
+      fabricante: form.fabricante.trim() || null,
       numero_nf: form.numero_nf.trim(),
       data_saida: form.data_saida,
       destino: form.destino.trim() || null,
@@ -248,6 +253,17 @@ const MotoresEletricos = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
+                    <Label>Carcaça</Label>
+                    <Input value={form.carcaca} onChange={e => setForm({ ...form, carcaca: e.target.value })} placeholder="Ex: 254T" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Fabricante</Label>
+                    <Input value={form.fabricante} onChange={e => setForm({ ...form, fabricante: e.target.value })} placeholder="Ex: WEG" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     <Label>Potência</Label>
                     <Input value={form.potencia} onChange={e => setForm({ ...form, potencia: e.target.value })} placeholder="Ex: 75 CV" />
                   </div>
@@ -354,6 +370,8 @@ const MotoresEletricos = () => {
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   {m.identificacao_motor && <p><span className="font-medium text-muted-foreground">MO:</span> {m.identificacao_motor}</p>}
+                  {m.carcaca && <p><span className="font-medium text-muted-foreground">Carcaça:</span> {m.carcaca}</p>}
+                  {m.fabricante && <p><span className="font-medium text-muted-foreground">Fabricante:</span> {m.fabricante}</p>}
                   {m.potencia && <p><span className="font-medium text-muted-foreground">Potência:</span> {m.potencia}</p>}
                   <p><span className="font-medium text-muted-foreground">NF:</span> {m.numero_nf}</p>
                   <p><span className="font-medium text-muted-foreground">Saída:</span> {format(new Date(m.data_saida + 'T12:00:00'), 'dd/MM/yyyy')}</p>
