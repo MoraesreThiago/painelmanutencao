@@ -26,6 +26,7 @@ const MotorEletricoForm = () => {
   const { user, profile } = useAuth();
   const isAdmin = profile?.perfil === 'administrador';
   const canChangeArea = isLeaderOrAbove(profile);
+  const isEdit = !!id;
 
   const [loading, setLoading] = useState(false);
   const [equipamentos, setEquipamentos] = useState<Equipamento[]>([]);
