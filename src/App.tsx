@@ -14,6 +14,7 @@ import Historico from "./pages/Historico";
 import ResumoMensal from "./pages/ResumoMensal";
 import Automacoes from "./pages/Automacoes";
 import MotoresEletricos from "./pages/MotoresEletricos";
+import MotorEletricoForm from "./pages/MotorEletricoForm";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
