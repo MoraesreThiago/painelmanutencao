@@ -41,7 +41,7 @@ interface Equipamento {
 }
 
 const emptyForm = {
-  tag: '', motor: '', potencia: '', numero_nf: '', data_saida: '',
+  tag: '', motor: '', potencia: '', identificacao_motor: '', numero_nf: '', data_saida: '',
   destino: '', motivo: '', status_retorno: 'Pendente', data_retorno: '', area: 'Elétrica',
 };
 
