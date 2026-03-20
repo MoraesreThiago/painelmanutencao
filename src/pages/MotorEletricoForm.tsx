@@ -279,7 +279,7 @@ const MotorEletricoForm = () => {
                 <Input type="date" value={form.data_retorno} onChange={e => set('data_retorno', e.target.value)} className="touch-target mt-1" />
               </div>
 
-              {isAdmin && (
+              {canChangeArea && (
                 <div>
                   <Label>Área</Label>
                   <Select value={form.area} onValueChange={v => set('area', v)}>
