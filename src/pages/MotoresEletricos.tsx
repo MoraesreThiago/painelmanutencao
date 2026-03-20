@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Search, RotateCcw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -40,6 +41,7 @@ const MotoresEletricos = () => {
   const [items, setItems] = useState<MotorEletrico[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -53,9 +55,14 @@ const MotoresEletricos = () => {
 
   useEffect(() => { load(); }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Deseja excluir este registro?')) return;
-    await (supabase as any).from('motores_eletricos').delete().eq('id', id);
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    const { error } = await (supabase as any).from('motores_eletricos').delete().eq('id', deleteId);
+    setDeleteId(null);
+    if (error) {
+      toast.error('Erro ao excluir: ' + error.message);
+      return;
+    }
     toast.success('Registro excluído!');
     load();
   };
@@ -141,7 +148,7 @@ const MotoresEletricos = () => {
                       <Edit className="h-3.5 w-3.5" />
                     </Button>
                     {canDelete && (
-                      <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => handleDelete(m.id)}>
+                      <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => setDeleteId(m.id)}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     )}
@@ -152,6 +159,19 @@ const MotoresEletricos = () => {
           </div>
         )}
       </div>
+
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir registro</AlertDialogTitle>
+            <AlertDialogDescription>Deseja excluir este registro de serviço externo? Esta ação não pode ser desfeita.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 };
