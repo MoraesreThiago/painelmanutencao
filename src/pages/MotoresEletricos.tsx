@@ -55,9 +55,14 @@ const MotoresEletricos = () => {
 
   useEffect(() => { load(); }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Deseja excluir este registro?')) return;
-    await (supabase as any).from('motores_eletricos').delete().eq('id', id);
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    const { error } = await (supabase as any).from('motores_eletricos').delete().eq('id', deleteId);
+    setDeleteId(null);
+    if (error) {
+      toast.error('Erro ao excluir: ' + error.message);
+      return;
+    }
     toast.success('Registro excluído!');
     load();
   };
