@@ -71,7 +71,7 @@ const MotorEletricoForm = () => {
             carcaca: data.carcaca || '',
             fabricante: data.fabricante || '',
             potencia: data.potencia || '',
-            numero_nf: data.numero_nf,
+            numero_nf: data.numero_nf || '',
             data_saida: data.data_saida,
             destino: data.destino || '',
             motivo: data.motivo || '',
