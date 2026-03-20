@@ -166,6 +166,7 @@ const OcorrenciaForm = () => {
     if (!form.colaborador_id) { toast.error('Colaborador é obrigatório'); return; }
     if (!form.tipo_ocorrencia) { toast.error('Tipo de Ocorrência é obrigatório'); return; }
     if (!form.descricao.trim()) { toast.error('Descrição é obrigatória'); return; }
+    if (form.descricao.trim().length < 20) { toast.error('Descrição deve ter no mínimo 20 caracteres'); return; }
     setLoading(true);
 
     const payload: any = {
