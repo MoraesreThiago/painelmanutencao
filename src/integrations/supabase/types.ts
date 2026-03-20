@@ -83,11 +83,13 @@ export type Database = {
       motores_eletricos: {
         Row: {
           area: string
+          carcaca: string | null
           created_at: string | null
           created_by: string | null
           data_retorno: string | null
           data_saida: string
           destino: string | null
+          fabricante: string | null
           id: string
           identificacao_motor: string | null
           motivo: string | null
@@ -100,11 +102,13 @@ export type Database = {
         }
         Insert: {
           area: string
+          carcaca?: string | null
           created_at?: string | null
           created_by?: string | null
           data_retorno?: string | null
           data_saida: string
           destino?: string | null
+          fabricante?: string | null
           id?: string
           identificacao_motor?: string | null
           motivo?: string | null
@@ -117,11 +121,13 @@ export type Database = {
         }
         Update: {
           area?: string
+          carcaca?: string | null
           created_at?: string | null
           created_by?: string | null
           data_retorno?: string | null
           data_saida?: string
           destino?: string | null
+          fabricante?: string | null
           id?: string
           identificacao_motor?: string | null
           motivo?: string | null
