@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, FileText, History, Users, Wrench, BarChart3, Zap, LogOut, Settings
+  LayoutDashboard, FileText, History, Users, Wrench, BarChart3, Zap, LogOut, Settings, CircuitBoard
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
