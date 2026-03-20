@@ -119,7 +119,7 @@ const MotorEletricoForm = () => {
     const payload: any = {
       tag: form.tag.trim(),
       motor: form.motor.trim(),
-      identificacao_motor: form.identificacao_motor.trim() || null,
+      identificacao_motor: form.identificacao_motor.trim() ? `MO${form.identificacao_motor.trim()}` : null,
       carcaca: form.carcaca.trim() || null,
       fabricante: form.fabricante.trim() || null,
       potencia: form.potencia.trim() || null,
