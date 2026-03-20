@@ -118,6 +118,7 @@ const MotoresEletricos = () => {
     setForm({
       tag: m.tag, motor: m.motor, potencia: m.potencia || '',
       identificacao_motor: m.identificacao_motor || '',
+      carcaca: m.carcaca || '', fabricante: m.fabricante || '',
       numero_nf: m.numero_nf, data_saida: m.data_saida,
       destino: m.destino || '', motivo: m.motivo || '',
       status_retorno: m.status_retorno, data_retorno: m.data_retorno || '',
