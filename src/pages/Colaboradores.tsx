@@ -12,10 +12,11 @@ import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import type { Colaborador } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
+import { canManageColaboradores } from '@/lib/roles';
 
 const Colaboradores = () => {
   const { profile } = useAuth();
-  const isAdmin = profile?.perfil === 'administrador';
+  const canManage = canManageColaboradores(profile);
   const [items, setItems] = useState<Colaborador[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -66,7 +67,7 @@ const Colaboradores = () => {
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-bold">Colaboradores</h1>
-          {isAdmin && <Button onClick={openNew} className="touch-target"><Plus className="h-5 w-5 mr-2" /> Novo</Button>}
+          {canManage && <Button onClick={openNew} className="touch-target"><Plus className="h-5 w-5 mr-2" /> Novo</Button>}
         </div>
 
         <div className="relative">
@@ -90,7 +91,7 @@ const Colaboradores = () => {
                       <Badge className={c.status === 'Ativo' ? 'bg-status-realizada text-primary-foreground' : 'bg-muted text-muted-foreground'}>{c.status}</Badge>
                     </div>
                   </div>
-                  {isAdmin && (
+                  {canManage && (
                     <div className="flex gap-1">
                       <Button variant="ghost" size="sm" onClick={() => openEdit(c)} className="touch-target"><Edit className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => handleDelete(c.id)} className="touch-target text-destructive"><Trash2 className="h-4 w-4" /></Button>

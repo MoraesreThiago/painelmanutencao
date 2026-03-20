@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Search, RotateCcw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { isLeaderOrAbove } from '@/lib/roles';
 import { format } from 'date-fns';
 
 interface MotorEletrico {
@@ -34,7 +35,7 @@ interface MotorEletrico {
 const MotoresEletricos = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const isAdmin = profile?.perfil === 'administrador';
+  const canDelete = isLeaderOrAbove(profile);
 
   const [items, setItems] = useState<MotorEletrico[]>([]);
   const [loading, setLoading] = useState(true);
@@ -139,7 +140,7 @@ const MotoresEletricos = () => {
                     <Button size="sm" variant="ghost" onClick={() => navigate(`/motores-eletricos/${m.id}`)}>
                       <Edit className="h-3.5 w-3.5" />
                     </Button>
-                    {isAdmin && (
+                    {canDelete && (
                       <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => handleDelete(m.id)}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>

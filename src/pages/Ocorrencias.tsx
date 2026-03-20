@@ -11,6 +11,7 @@ import { Plus, Search, Edit, Lock } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Ocorrencia } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
+import { isAdmin as checkAdmin, canEditWithoutTimeLimit } from '@/lib/roles';
 
 const statusColors: Record<string, string> = {
   Pendente: 'bg-status-pendente text-primary-foreground',
@@ -22,7 +23,8 @@ const statusColors: Record<string, string> = {
 const Ocorrencias = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const isAdmin = profile?.perfil === 'administrador';
+  const isAdmin = checkAdmin(profile);
+  const canEditAnytime = canEditWithoutTimeLimit(profile);
   const [ocorrencias, setOcorrencias] = useState<Ocorrencia[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -134,7 +136,7 @@ const Ocorrencias = () => {
                       {(() => {
                         const createdAt = new Date(o.created_at || o.data_ocorrencia);
                         const expired = (Date.now() - createdAt.getTime()) > 24 * 60 * 60 * 1000;
-                        const canEdit = isAdmin || !expired;
+                        const canEdit = canEditAnytime || !expired;
                         return canEdit ? (
                           <Button variant="ghost" size="sm" onClick={() => navigate(`/ocorrencias/${o.id}`)} className="touch-target">
                             <Edit className="h-4 w-4" />

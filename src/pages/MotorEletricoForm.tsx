@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { isLeaderOrAbove } from '@/lib/roles';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,7 @@ const MotorEletricoForm = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const isAdmin = profile?.perfil === 'administrador';
+  const canChangeArea = isLeaderOrAbove(profile);
   const isEdit = !!id;
 
   const [loading, setLoading] = useState(false);
@@ -100,7 +102,7 @@ const MotorEletricoForm = () => {
       ...prev,
       tag: eq.tag || '',
       motor: eq.equipamento || '',
-      area: isAdmin ? (eq.area || prev.area) : prev.area,
+      area: canChangeArea ? (eq.area || prev.area) : prev.area,
     }));
     setTagSearch(eq.tag || '');
     setShowTagSuggestions(false);
@@ -277,7 +279,7 @@ const MotorEletricoForm = () => {
                 <Input type="date" value={form.data_retorno} onChange={e => set('data_retorno', e.target.value)} className="touch-target mt-1" />
               </div>
 
-              {isAdmin && (
+              {canChangeArea && (
                 <div>
                   <Label>Área</Label>
                   <Select value={form.area} onValueChange={v => set('area', v)}>

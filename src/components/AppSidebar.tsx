@@ -2,8 +2,8 @@ import {
   LayoutDashboard, FileText, History, Users, Wrench, BarChart3, Zap, LogOut, Settings, CircuitBoard
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { isAdmin, isLeaderOrAbove, isEletrica, canManageColaboradores, getRoleLabel } from "@/lib/roles";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, useSidebar,
@@ -64,12 +64,14 @@ export function AppSidebar() {
           <SidebarGroupContent>{renderItems(mainItems)}</SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Gestão</SidebarGroupLabel>
-          <SidebarGroupContent>{renderItems(managementItems)}</SidebarGroupContent>
-        </SidebarGroup>
+        {canManageColaboradores(profile) && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Gestão</SidebarGroupLabel>
+            <SidebarGroupContent>{renderItems(managementItems)}</SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
-        {(profile?.area === 'Elétrica' || profile?.perfil === 'administrador') && (
+        {(isEletrica(profile) || isAdmin(profile)) && (
           <SidebarGroup>
             <SidebarGroupLabel>Serviços</SidebarGroupLabel>
             <SidebarGroupContent>{renderItems(servicesItems)}</SidebarGroupContent>
@@ -88,7 +90,10 @@ export function AppSidebar() {
             <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
               <Users className="h-3.5 w-3.5 text-primary" />
             </div>
-            <p className="font-medium text-sm text-foreground truncate">{profile.nome || profile.email}</p>
+            <div className="min-w-0">
+              <p className="font-medium text-sm text-foreground truncate">{profile.nome || profile.email}</p>
+              <p className="text-[11px] text-muted-foreground truncate">{getRoleLabel(profile.perfil)}</p>
+            </div>
           </div>
         )}
         <SidebarMenu>
