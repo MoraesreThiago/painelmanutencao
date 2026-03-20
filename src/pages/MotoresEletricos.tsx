@@ -41,6 +41,7 @@ const MotoresEletricos = () => {
   const [items, setItems] = useState<MotorEletrico[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
