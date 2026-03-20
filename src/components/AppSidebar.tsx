@@ -64,12 +64,14 @@ export function AppSidebar() {
           <SidebarGroupContent>{renderItems(mainItems)}</SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Gestão</SidebarGroupLabel>
-          <SidebarGroupContent>{renderItems(managementItems)}</SidebarGroupContent>
-        </SidebarGroup>
+        {canManageColaboradores(profile) && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Gestão</SidebarGroupLabel>
+            <SidebarGroupContent>{renderItems(managementItems)}</SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
-        {(profile?.area === 'Elétrica' || profile?.perfil === 'administrador') && (
+        {(isEletrica(profile) || isAdmin(profile)) && (
           <SidebarGroup>
             <SidebarGroupLabel>Serviços</SidebarGroupLabel>
             <SidebarGroupContent>{renderItems(servicesItems)}</SidebarGroupContent>
