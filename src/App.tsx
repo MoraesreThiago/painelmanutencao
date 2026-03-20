@@ -13,6 +13,7 @@ import Equipamentos from "./pages/Equipamentos";
 import Historico from "./pages/Historico";
 import ResumoMensal from "./pages/ResumoMensal";
 import Automacoes from "./pages/Automacoes";
+import MotoresEletricos from "./pages/MotoresEletricos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/historico" element={<Historico />} />
             <Route path="/resumo-mensal" element={<ResumoMensal />} />
             <Route path="/automacoes" element={<Automacoes />} />
+            <Route path="/motores-eletricos" element={<MotoresEletricos />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

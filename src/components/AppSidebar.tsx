@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, FileText, History, Users, Wrench, BarChart3, Zap, LogOut, Settings
+  LayoutDashboard, FileText, History, Users, Wrench, BarChart3, Zap, LogOut, Settings, CircuitBoard
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -18,6 +18,10 @@ const mainItems = [
 const managementItems = [
   { title: "Colaboradores", url: "/colaboradores", icon: Users },
   { title: "Equipamentos", url: "/equipamentos", icon: Settings },
+];
+
+const servicesItems = [
+  { title: "Motores Elétricos", url: "/motores-eletricos", icon: CircuitBoard },
 ];
 
 const reportsItems = [
@@ -63,6 +67,11 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Gestão</SidebarGroupLabel>
           <SidebarGroupContent>{renderItems(managementItems)}</SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Serviços</SidebarGroupLabel>
+          <SidebarGroupContent>{renderItems(servicesItems)}</SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
