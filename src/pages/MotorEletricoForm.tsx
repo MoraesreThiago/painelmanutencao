@@ -123,7 +123,7 @@ const MotorEletricoForm = () => {
       carcaca: form.carcaca.trim() || null,
       fabricante: form.fabricante.trim() || null,
       potencia: form.potencia.trim() || null,
-      numero_nf: form.numero_nf.trim(),
+      numero_nf: form.numero_nf.trim() || null,
       data_saida: form.data_saida,
       destino: form.destino.trim() || null,
       motivo: form.motivo.trim() || null,
