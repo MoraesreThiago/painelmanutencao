@@ -290,10 +290,7 @@ const MotoresEletricos = () => {
                     <SelectTrigger><SelectValue placeholder="Selecione o serviço" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Rebobinar">Rebobinar</SelectItem>
-                      <SelectItem value="Troca de rolamento">Troca de rolamento</SelectItem>
                       <SelectItem value="Reparo geral">Reparo geral</SelectItem>
-                      <SelectItem value="Balanceamento">Balanceamento</SelectItem>
-                      <SelectItem value="Troca de eixo">Troca de eixo</SelectItem>
                       <SelectItem value="Outro">Outro</SelectItem>
                     </SelectContent>
                   </Select>
