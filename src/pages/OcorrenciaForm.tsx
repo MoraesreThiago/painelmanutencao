@@ -376,7 +376,7 @@ const OcorrenciaForm = () => {
             </CardHeader>
             <CardContent>
               <Textarea value={form.descricao} onChange={e => set('descricao', e.target.value.slice(0, 2000))} placeholder="Descreva a ocorrência..." rows={4} required className="touch-target" maxLength={2000} />
-              <p className="text-xs text-muted-foreground text-right mt-1">{form.descricao.length}/2000</p>
+              <p className={`text-xs text-right mt-1 ${form.descricao.length > 0 && form.descricao.trim().length < 20 ? 'text-destructive' : 'text-muted-foreground'}`}>{form.descricao.trim().length}/2000 (mín. 20)</p>
             </CardContent>
           </Card>
 
