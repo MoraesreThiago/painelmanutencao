@@ -94,7 +94,7 @@ export type Database = {
           identificacao_motor: string | null
           motivo: string | null
           motor: string
-          numero_nf: string
+          numero_nf: string | null
           potencia: string | null
           status_retorno: string
           tag: string
@@ -113,7 +113,7 @@ export type Database = {
           identificacao_motor?: string | null
           motivo?: string | null
           motor: string
-          numero_nf: string
+          numero_nf?: string | null
           potencia?: string | null
           status_retorno?: string
           tag: string
@@ -132,7 +132,7 @@ export type Database = {
           identificacao_motor?: string | null
           motivo?: string | null
           motor?: string
-          numero_nf?: string
+          numero_nf?: string | null
           potencia?: string | null
           status_retorno?: string
           tag?: string
