@@ -227,7 +227,7 @@ const MotoresEletricos = () => {
                                 <Check className={cn("mr-2 h-4 w-4", form.tag === eq.tag ? "opacity-100" : "opacity-0")} />
                                 <div className="flex flex-col">
                                   <span className="font-medium">{eq.tag}</span>
-                                  <span className="text-xs text-muted-foreground">{eq.equipamento}</span>
+                                  <span className="text-xs opacity-70">{eq.equipamento}</span>
                                 </div>
                               </CommandItem>
                             ))}
