@@ -13,6 +13,7 @@ import Equipamentos from "./pages/Equipamentos";
 import Historico from "./pages/Historico";
 import ResumoMensal from "./pages/ResumoMensal";
 import Automacoes from "./pages/Automacoes";
+import MotoresEletricos from "./pages/MotoresEletricos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
