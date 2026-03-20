@@ -44,8 +44,8 @@ interface Equipamento {
 }
 
 const emptyForm = {
-  tag: '', motor: '', potencia: '', identificacao_motor: '', numero_nf: '', data_saida: '',
-  destino: '', motivo: '', status_retorno: 'Pendente', data_retorno: '', area: 'Elétrica',
+  tag: '', motor: '', potencia: '', identificacao_motor: '', carcaca: '', fabricante: '',
+  numero_nf: '', data_saida: '', destino: '', motivo: '', status_retorno: 'Pendente', data_retorno: '', area: 'Elétrica',
 };
 
 const MotoresEletricos = () => {
