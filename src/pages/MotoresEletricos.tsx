@@ -21,6 +21,7 @@ interface MotorEletrico {
   tag: string;
   motor: string;
   potencia: string | null;
+  identificacao_motor: string | null;
   numero_nf: string;
   data_saida: string;
   destino: string | null;
@@ -41,7 +42,7 @@ interface Equipamento {
 }
 
 const emptyForm = {
-  tag: '', motor: '', potencia: '', numero_nf: '', data_saida: '',
+  tag: '', motor: '', potencia: '', identificacao_motor: '', numero_nf: '', data_saida: '',
   destino: '', motivo: '', status_retorno: 'Pendente', data_retorno: '', area: 'Elétrica',
 };
 
@@ -114,6 +115,7 @@ const MotoresEletricos = () => {
     setEditing(m);
     setForm({
       tag: m.tag, motor: m.motor, potencia: m.potencia || '',
+      identificacao_motor: m.identificacao_motor || '',
       numero_nf: m.numero_nf, data_saida: m.data_saida,
       destino: m.destino || '', motivo: m.motivo || '',
       status_retorno: m.status_retorno, data_retorno: m.data_retorno || '',
@@ -131,6 +133,7 @@ const MotoresEletricos = () => {
       tag: form.tag.trim(),
       motor: form.motor.trim(),
       potencia: form.potencia.trim() || null,
+      identificacao_motor: form.identificacao_motor.trim() || null,
       numero_nf: form.numero_nf.trim(),
       data_saida: form.data_saida,
       destino: form.destino.trim() || null,
@@ -227,7 +230,7 @@ const MotoresEletricos = () => {
                                 <Check className={cn("mr-2 h-4 w-4", form.tag === eq.tag ? "opacity-100" : "opacity-0")} />
                                 <div className="flex flex-col">
                                   <span className="font-medium">{eq.tag}</span>
-                                  <span className="text-xs text-muted-foreground">{eq.equipamento}</span>
+                                  <span className="text-xs opacity-70">{eq.equipamento}</span>
                                 </div>
                               </CommandItem>
                             ))}
@@ -236,6 +239,11 @@ const MotoresEletricos = () => {
                       </Command>
                     </PopoverContent>
                   </Popover>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Identificação do Motor (MO)</Label>
+                  <Input value={form.identificacao_motor} onChange={e => setForm({ ...form, identificacao_motor: e.target.value })} placeholder="Ex: MO0000201" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -345,6 +353,7 @@ const MotoresEletricos = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
+                  {m.identificacao_motor && <p><span className="font-medium text-muted-foreground">MO:</span> {m.identificacao_motor}</p>}
                   {m.potencia && <p><span className="font-medium text-muted-foreground">Potência:</span> {m.potencia}</p>}
                   <p><span className="font-medium text-muted-foreground">NF:</span> {m.numero_nf}</p>
                   <p><span className="font-medium text-muted-foreground">Saída:</span> {format(new Date(m.data_saida + 'T12:00:00'), 'dd/MM/yyyy')}</p>
