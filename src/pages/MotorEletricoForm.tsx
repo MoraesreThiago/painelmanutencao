@@ -67,7 +67,7 @@ const MotorEletricoForm = () => {
           setForm({
             tag: data.tag,
             motor: data.motor,
-            identificacao_motor: data.identificacao_motor || '',
+            identificacao_motor: (data.identificacao_motor || '').replace(/^MO/i, ''),
             carcaca: data.carcaca || '',
             fabricante: data.fabricante || '',
             potencia: data.potencia || '',
@@ -119,7 +119,7 @@ const MotorEletricoForm = () => {
     const payload: any = {
       tag: form.tag.trim(),
       motor: form.motor.trim(),
-      identificacao_motor: form.identificacao_motor.trim() || null,
+      identificacao_motor: form.identificacao_motor.trim() ? `MO${form.identificacao_motor.trim()}` : null,
       carcaca: form.carcaca.trim() || null,
       fabricante: form.fabricante.trim() || null,
       potencia: form.potencia.trim() || null,
@@ -204,8 +204,16 @@ const MotorEletricoForm = () => {
               )}
 
               <div>
-                <Label>Identificação do Motor (MO)</Label>
-                <Input value={form.identificacao_motor} onChange={e => set('identificacao_motor', e.target.value)} placeholder="Ex: MO0000201" className="touch-target mt-1" />
+                <Label>Identificação do Motor</Label>
+                <div className="flex mt-1">
+                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm font-medium">MO</span>
+                  <Input
+                    value={form.identificacao_motor}
+                    onChange={e => set('identificacao_motor', e.target.value.replace(/\D/g, ''))}
+                    placeholder="0000201"
+                    className="touch-target rounded-l-none"
+                  />
+                </div>
               </div>
               <div>
                 <Label>Potência</Label>
