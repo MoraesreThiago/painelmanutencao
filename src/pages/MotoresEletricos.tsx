@@ -353,6 +353,7 @@ const MotoresEletricos = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
+                  {m.identificacao_motor && <p><span className="font-medium text-muted-foreground">MO:</span> {m.identificacao_motor}</p>}
                   {m.potencia && <p><span className="font-medium text-muted-foreground">Potência:</span> {m.potencia}</p>}
                   <p><span className="font-medium text-muted-foreground">NF:</span> {m.numero_nf}</p>
                   <p><span className="font-medium text-muted-foreground">Saída:</span> {format(new Date(m.data_saida + 'T12:00:00'), 'dd/MM/yyyy')}</p>
