@@ -1,0 +1,1 @@
+ALTER TABLE public.motores_eletricos ADD COLUMN identificacao_motor text;

@@ -89,6 +89,7 @@ export type Database = {
           data_saida: string
           destino: string | null
           id: string
+          identificacao_motor: string | null
           motivo: string | null
           motor: string
           numero_nf: string
@@ -105,6 +106,7 @@ export type Database = {
           data_saida: string
           destino?: string | null
           id?: string
+          identificacao_motor?: string | null
           motivo?: string | null
           motor: string
           numero_nf: string
@@ -121,6 +123,7 @@ export type Database = {
           data_saida?: string
           destino?: string | null
           id?: string
+          identificacao_motor?: string | null
           motivo?: string | null
           motor?: string
           numero_nf?: string
