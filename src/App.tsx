@@ -39,6 +39,8 @@ const App = () => (
             <Route path="/resumo-mensal" element={<ResumoMensal />} />
             <Route path="/automacoes" element={<Automacoes />} />
             <Route path="/motores-eletricos" element={<MotoresEletricos />} />
+            <Route path="/motores-eletricos/novo" element={<MotorEletricoForm />} />
+            <Route path="/motores-eletricos/:id" element={<MotorEletricoForm />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
