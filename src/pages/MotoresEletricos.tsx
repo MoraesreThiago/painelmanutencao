@@ -148,7 +148,7 @@ const MotoresEletricos = () => {
                       <Edit className="h-3.5 w-3.5" />
                     </Button>
                     {canDelete && (
-                      <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => handleDelete(m.id)}>
+                      <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => setDeleteId(m.id)}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     )}
