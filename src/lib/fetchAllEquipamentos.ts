@@ -18,7 +18,7 @@ export const fetchAllEquipamentos = async () => {
       throw error;
     }
 
-    const batch = (data || []) as Equipamento[];
+    const batch = (data || []).map((d: any) => ({ ...d, local: d.local_exemplo })) as Equipamento[];
     items.push(...batch);
 
     if (batch.length < PAGE_SIZE) {
