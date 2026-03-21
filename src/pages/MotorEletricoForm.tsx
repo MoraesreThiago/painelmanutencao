@@ -59,7 +59,7 @@ const MotorEletricoForm = () => {
     const loadData = async () => {
       const { data: eqs } = await (supabase as any)
         .from('vw_equipamentos_app')
-        .select('tag, equipamento, area, local')
+        .select('tag, equipamento, area_fabrica, area_manutencao, local')
         .order('tag');
       setEquipamentos((eqs || []) as Equipamento[]);
 
@@ -102,7 +102,7 @@ const MotorEletricoForm = () => {
       ...prev,
       tag: eq.tag || '',
       motor: eq.equipamento || '',
-      area: canChangeArea ? (eq.area || prev.area) : prev.area,
+      area: canChangeArea ? (eq.area_manutencao || eq.area_fabrica || prev.area) : prev.area,
     }));
     setTagSearch(eq.tag || '');
     setShowTagSuggestions(false);
