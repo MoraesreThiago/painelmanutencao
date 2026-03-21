@@ -49,8 +49,7 @@ export type Database = {
       }
       equipamentos: {
         Row: {
-          area_fabrica: string | null
-          area_manutencao: string | null
+          area: string | null
           created_at: string | null
           equipamento: string
           id: string
@@ -60,8 +59,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          area_fabrica?: string | null
-          area_manutencao?: string | null
+          area?: string | null
           created_at?: string | null
           equipamento: string
           id?: string
@@ -71,8 +69,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          area_fabrica?: string | null
-          area_manutencao?: string | null
+          area?: string | null
           created_at?: string | null
           equipamento?: string
           id?: string
@@ -353,8 +350,7 @@ export type Database = {
     Views: {
       vw_equipamentos_app: {
         Row: {
-          area_fabrica: string | null
-          area_manutencao: string | null
+          area: string | null
           equipamento: string | null
           local: string | null
           qtd_registros_origem: number | null
@@ -367,7 +363,6 @@ export type Database = {
       vw_equipamentos_consolidados: {
         Row: {
           area: string | null
-          area_manutencao: string | null
           equipamento: string | null
           local_exemplo: string | null
           qtd_registros_origem: number | null
@@ -380,7 +375,6 @@ export type Database = {
       vw_equipamentos_mapeados: {
         Row: {
           area: string | null
-          area_manutencao: string | null
           consolidado_no_pai: boolean | null
           created_at: string | null
           equipamento: string | null

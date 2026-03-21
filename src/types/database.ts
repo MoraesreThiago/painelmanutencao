@@ -24,8 +24,7 @@ export interface Equipamento {
   tag: string | null;
   equipamento: string;
   local: string | null;
-  area_fabrica: string | null;
-  area_manutencao: string | null;
+  area: string | null;
   status: string;
   created_at: string;
   updated_at: string;
