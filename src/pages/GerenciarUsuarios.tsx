@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Plus, Users, Shield, Trash2 } from 'lucide-react';
+import { Plus, Users, Shield, Trash2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { getRoleLabel } from '@/lib/roles';
 
@@ -24,29 +24,38 @@ interface UserProfile {
 }
 
 const perfilAreaMap: Record<string, string> = {
-  administrador: '',
   manutencao_eletrica: 'Elétrica',
   manutencao_mecanica: 'Mecânica',
+  manutencao_instrumentacao: 'Instrumentação',
   lider_eletrica: 'Elétrica',
   lider_mecanica: 'Mecânica',
+  lider_instrumentacao: 'Instrumentação',
   supervisor_eletrica: 'Elétrica',
   supervisor_mecanica: 'Mecânica',
+  supervisor_instrumentacao: 'Instrumentação',
 };
+
+const creatablePerfis = [
+  { value: 'supervisor_eletrica', label: 'Supervisor Elétrica' },
+  { value: 'supervisor_mecanica', label: 'Supervisor Mecânica' },
+  { value: 'supervisor_instrumentacao', label: 'Supervisor Instrumentação' },
+  { value: 'lider_eletrica', label: 'Líder Elétrica' },
+  { value: 'lider_mecanica', label: 'Líder Mecânica' },
+  { value: 'lider_instrumentacao', label: 'Líder Instrumentação' },
+  { value: 'manutencao_eletrica', label: 'Manutenção Elétrica' },
+  { value: 'manutencao_mecanica', label: 'Manutenção Mecânica' },
+  { value: 'manutencao_instrumentacao', label: 'Manutenção Instrumentação' },
+];
 
 const GerenciarUsuarios = () => {
   const { profile } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editTarget, setEditTarget] = useState<UserProfile | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UserProfile | null>(null);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-    nome: '',
-    perfil: '',
-    area: '',
-  });
+  const [form, setForm] = useState({ email: '', password: '', nome: '', perfil: '', area: '' });
 
   const loadUsers = async () => {
     setLoading(true);
@@ -55,9 +64,7 @@ const GerenciarUsuarios = () => {
     setLoading(false);
   };
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
+  useEffect(() => { loadUsers(); }, []);
 
   if (!isAdmin(profile)) return <Navigate to="/dashboard" replace />;
 
@@ -70,6 +77,24 @@ const GerenciarUsuarios = () => {
     }
   };
 
+  const openCreate = () => {
+    setEditTarget(null);
+    setForm({ email: '', password: '', nome: '', perfil: '', area: '' });
+    setDialogOpen(true);
+  };
+
+  const openEdit = (u: UserProfile) => {
+    setEditTarget(u);
+    setForm({
+      email: u.email || '',
+      password: '',
+      nome: u.nome || '',
+      perfil: u.perfil || '',
+      area: u.area || '',
+    });
+    setDialogOpen(true);
+  };
+
   const handleCreate = async () => {
     if (!form.email || !form.password || !form.nome || !form.perfil) {
       toast.error('Preencha todos os campos obrigatórios');
@@ -79,40 +104,57 @@ const GerenciarUsuarios = () => {
       toast.error('A senha deve ter pelo menos 6 caracteres');
       return;
     }
-
-    const area = form.perfil === 'administrador' ? 'Administração' : form.area;
-    if (!area) {
-      toast.error('Área é obrigatória');
-      return;
-    }
+    const area = perfilAreaMap[form.perfil] || '';
+    if (!area) { toast.error('Área é obrigatória'); return; }
 
     setSaving(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
       const response = await supabase.functions.invoke('create-user', {
-        body: {
-          email: form.email,
-          password: form.password,
-          nome: form.nome,
-          perfil: form.perfil,
-          area,
-        },
+        body: { email: form.email, password: form.password, nome: form.nome, perfil: form.perfil, area },
       });
-
-      if (response.error) {
-        throw new Error(response.error.message || 'Erro ao criar usuário');
-      }
-
-      if (response.data?.error) {
-        throw new Error(response.data.error);
-      }
-
+      if (response.error) throw new Error(response.error.message || 'Erro ao criar usuário');
+      if (response.data?.error) throw new Error(response.data.error);
       toast.success('Usuário criado com sucesso!');
       setDialogOpen(false);
-      setForm({ email: '', password: '', nome: '', perfil: '', area: '' });
       loadUsers();
     } catch (err: any) {
       toast.error(err.message || 'Erro ao criar usuário');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEdit = async () => {
+    if (!editTarget || !form.nome || !form.perfil) {
+      toast.error('Preencha os campos obrigatórios');
+      return;
+    }
+
+    const isEditingAdmin = editTarget.perfil === 'administrador';
+    const newPerfil = isEditingAdmin ? 'administrador' : form.perfil;
+    const newArea = isEditingAdmin ? editTarget.area : (perfilAreaMap[form.perfil] || '');
+
+    setSaving(true);
+    try {
+      // Update profile
+      const { error: profileError } = await (supabase as any)
+        .from('profiles')
+        .update({ nome: form.nome, perfil: newPerfil, area: newArea })
+        .eq('id', editTarget.id);
+      if (profileError) throw profileError;
+
+      // Update role if perfil changed and not admin
+      if (!isEditingAdmin && newPerfil !== editTarget.perfil) {
+        await (supabase as any).from('user_roles').delete().eq('user_id', editTarget.id);
+        await (supabase as any).from('user_roles').insert({ user_id: editTarget.id, role: newPerfil });
+      }
+
+      toast.success('Usuário atualizado!');
+      setDialogOpen(false);
+      setEditTarget(null);
+      loadUsers();
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao atualizar usuário');
     } finally {
       setSaving(false);
     }
@@ -134,6 +176,9 @@ const GerenciarUsuarios = () => {
     }
   };
 
+  const isEditing = !!editTarget;
+  const isEditingAdmin = editTarget?.perfil === 'administrador';
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -141,7 +186,7 @@ const GerenciarUsuarios = () => {
           <h1 className="text-2xl font-bold">Gerenciar Usuários</h1>
           <p className="text-sm text-muted-foreground mt-1">Crie e gerencie os acessos ao sistema</p>
         </div>
-        <Button onClick={() => setDialogOpen(true)} className="touch-target">
+        <Button onClick={openCreate} className="touch-target">
           <Plus className="h-5 w-5 mr-2" /> Novo Usuário
         </Button>
       </div>
@@ -171,6 +216,9 @@ const GerenciarUsuarios = () => {
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="secondary">{getRoleLabel(u.perfil)}</Badge>
                   {u.area && <Badge variant="outline">{u.area}</Badge>}
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(u)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
                   {u.id !== profile?.id && (
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(u)}>
                       <Trash2 className="h-4 w-4" />
@@ -183,6 +231,7 @@ const GerenciarUsuarios = () => {
         </div>
       )}
 
+      {/* Delete confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={open => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -200,47 +249,59 @@ const GerenciarUsuarios = () => {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Create / Edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Criar Novo Usuário</DialogTitle>
+            <DialogTitle>{isEditing ? 'Editar Usuário' : 'Criar Novo Usuário'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <Label>Nome *</Label>
               <Input value={form.nome} onChange={e => set('nome', e.target.value)} placeholder="Nome completo" className="touch-target mt-1" />
             </div>
-            <div>
-              <Label>Email *</Label>
-              <Input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="email@exemplo.com" className="touch-target mt-1" />
-            </div>
-            <div>
-              <Label>Senha *</Label>
-              <Input type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="Mínimo 6 caracteres" className="touch-target mt-1" />
-            </div>
-            <div>
-              <Label>Perfil *</Label>
-              <Select value={form.perfil} onValueChange={v => set('perfil', v)}>
-                <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione o perfil" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="administrador">Administrador</SelectItem>
-                  <SelectItem value="lider_eletrica">Líder Elétrica</SelectItem>
-                  <SelectItem value="lider_mecanica">Líder Mecânica</SelectItem>
-                  <SelectItem value="supervisor_eletrica">Supervisor Elétrica</SelectItem>
-                  <SelectItem value="supervisor_mecanica">Supervisor Mecânica</SelectItem>
-                  <SelectItem value="manutencao_eletrica">Manutenção Elétrica</SelectItem>
-                  <SelectItem value="manutencao_mecanica">Manutenção Mecânica</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {form.perfil && form.perfil !== 'administrador' && (
+            {!isEditing && (
+              <>
+                <div>
+                  <Label>Email *</Label>
+                  <Input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="email@exemplo.com" className="touch-target mt-1" />
+                </div>
+                <div>
+                  <Label>Senha *</Label>
+                  <Input type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="Mínimo 6 caracteres" className="touch-target mt-1" />
+                </div>
+              </>
+            )}
+            {isEditingAdmin ? (
+              <div>
+                <Label>Perfil</Label>
+                <Input value="Administrador" disabled className="touch-target mt-1 bg-muted" />
+              </div>
+            ) : (
+              <div>
+                <Label>Perfil *</Label>
+                <Select value={form.perfil} onValueChange={v => set('perfil', v)}>
+                  <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione o perfil" /></SelectTrigger>
+                  <SelectContent>
+                    {creatablePerfis.map(p => (
+                      <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {form.perfil && !isEditingAdmin && (
               <div>
                 <Label>Área</Label>
                 <Input value={form.area} disabled className="touch-target mt-1 bg-muted" />
               </div>
             )}
-            <Button onClick={handleCreate} disabled={saving} className="w-full touch-target">
-              {saving ? 'Criando...' : 'Criar Usuário'}
+            <Button
+              onClick={isEditing ? handleEdit : handleCreate}
+              disabled={saving}
+              className="w-full touch-target"
+            >
+              {saving ? (isEditing ? 'Salvando...' : 'Criando...') : (isEditing ? 'Salvar Alterações' : 'Criar Usuário')}
             </Button>
           </div>
         </DialogContent>
