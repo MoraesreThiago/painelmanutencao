@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, FileText, History, Users, Wrench, BarChart3, Zap, LogOut, Settings, CircuitBoard
+  LayoutDashboard, FileText, History, Users, Wrench, BarChart3, Zap, LogOut, Settings, CircuitBoard, UserPlus
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
