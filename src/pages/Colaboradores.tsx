@@ -13,9 +13,13 @@ import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import type { Colaborador } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { canManageColaboradores } from '@/lib/roles';
+import { Navigate } from 'react-router-dom';
 
 const Colaboradores = () => {
   const { profile } = useAuth();
+
+  if (!canManageColaboradores(profile)) return <Navigate to="/dashboard" replace />;
+
   const canManage = canManageColaboradores(profile);
   const [items, setItems] = useState<Colaborador[]>([]);
   const [loading, setLoading] = useState(true);
