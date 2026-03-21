@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Ocorrencias from "./pages/Ocorrencias";
@@ -29,18 +30,22 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/ocorrencias" element={<Ocorrencias />} />
-            <Route path="/ocorrencias/nova" element={<OcorrenciaForm />} />
-            <Route path="/ocorrencias/:id" element={<OcorrenciaForm />} />
-            <Route path="/colaboradores" element={<Colaboradores />} />
-            <Route path="/equipamentos" element={<Equipamentos />} />
-            <Route path="/historico" element={<Historico />} />
-            <Route path="/resumo-mensal" element={<ResumoMensal />} />
-            <Route path="/automacoes" element={<Automacoes />} />
-            <Route path="/motores-eletricos" element={<MotoresEletricos />} />
-            <Route path="/motores-eletricos/novo" element={<MotorEletricoForm />} />
-            <Route path="/motores-eletricos/:id" element={<MotorEletricoForm />} />
+
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/ocorrencias" element={<Ocorrencias />} />
+              <Route path="/ocorrencias/nova" element={<OcorrenciaForm />} />
+              <Route path="/ocorrencias/:id" element={<OcorrenciaForm />} />
+              <Route path="/colaboradores" element={<Colaboradores />} />
+              <Route path="/equipamentos" element={<Equipamentos />} />
+              <Route path="/historico" element={<Historico />} />
+              <Route path="/resumo-mensal" element={<ResumoMensal />} />
+              <Route path="/automacoes" element={<Automacoes />} />
+              <Route path="/motores-eletricos" element={<MotoresEletricos />} />
+              <Route path="/motores-eletricos/novo" element={<MotorEletricoForm />} />
+              <Route path="/motores-eletricos/:id" element={<MotorEletricoForm />} />
+            </Route>
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

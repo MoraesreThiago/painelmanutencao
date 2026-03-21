@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Layout } from '@/components/Layout';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -63,7 +63,7 @@ const Colaboradores = () => {
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
   return (
-    <Layout>
+
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-bold">Colaboradores</h1>
@@ -132,7 +132,7 @@ const Colaboradores = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </Layout>
+    
   );
 };
 

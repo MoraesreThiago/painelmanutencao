@@ -1,4 +1,4 @@
-import { Layout } from '@/components/Layout';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MessageSquare, FileText, BarChart3, Link2 } from 'lucide-react';
@@ -36,7 +36,7 @@ const integrations = [
 
 const Automacoes = () => {
   return (
-    <Layout>
+
       <div className="space-y-4">
         <div>
           <h1 className="text-2xl font-bold">Automações & Integrações</h1>
@@ -60,7 +60,7 @@ const Automacoes = () => {
           ))}
         </div>
       </div>
-    </Layout>
+    
   );
 };
 

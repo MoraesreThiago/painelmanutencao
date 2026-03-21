@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Layout } from '@/components/Layout';
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -47,7 +47,7 @@ const Historico = () => {
   });
 
   return (
-    <Layout>
+
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">Histórico de Ocorrências</h1>
 
@@ -148,7 +148,7 @@ const Historico = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </Layout>
+    
   );
 };
 
