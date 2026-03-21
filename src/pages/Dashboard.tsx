@@ -178,7 +178,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
+    
   );
 };
 

@@ -426,7 +426,7 @@ const OcorrenciaForm = () => {
           </div>
         </form>
       </div>
-    </Layout>
+    
   );
 };
 

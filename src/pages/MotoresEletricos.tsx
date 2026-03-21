@@ -172,7 +172,7 @@ const MotoresEletricos = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Layout>
+    </>
   );
 };
 

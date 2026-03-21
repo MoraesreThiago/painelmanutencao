@@ -60,7 +60,7 @@ const Automacoes = () => {
           ))}
         </div>
       </div>
-    </Layout>
+    
   );
 };
 

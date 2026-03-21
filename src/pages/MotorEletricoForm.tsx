@@ -305,7 +305,7 @@ const MotorEletricoForm = () => {
           </div>
         </form>
       </div>
-    </Layout>
+    
   );
 };
 

@@ -164,7 +164,7 @@ const Ocorrencias = () => {
           </div>
         )}
       </div>
-    </Layout>
+    
   );
 };
 

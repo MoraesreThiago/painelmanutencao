@@ -296,7 +296,7 @@ const ResumoMensal = () => {
           </Card>
         )}
       </div>
-    </Layout>
+    
   );
 };
 

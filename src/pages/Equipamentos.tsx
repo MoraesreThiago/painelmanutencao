@@ -139,7 +139,7 @@ const Equipamentos = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </Layout>
+    
   );
 };
 

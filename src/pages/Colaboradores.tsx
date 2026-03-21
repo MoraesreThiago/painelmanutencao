@@ -132,7 +132,7 @@ const Colaboradores = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </Layout>
+    
   );
 };
 
