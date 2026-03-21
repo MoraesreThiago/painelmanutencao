@@ -9,37 +9,52 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
-import type { Equipamento } from '@/types/database';
+import { Plus, Edit, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchAllEquipamentos } from '@/lib/fetchAllEquipamentos';
+
+const PAGE_SIZE = 20;
 
 const Equipamentos = () => {
   const { profile } = useAuth();
   const isAdmin = profile?.perfil === 'administrador';
-  const [items, setItems] = useState<Equipamento[]>([]);
+  const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<Equipamento | null>(null);
+  const [editing, setEditing] = useState<any | null>(null);
   const [form, setForm] = useState({ tag: '', equipamento: '', local: '', area: 'Elétrica', status: 'Ativo' });
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
 
   const load = async () => {
     setLoading(true);
-    try {
-      const data = await fetchAllEquipamentos();
-      setItems(data);
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao carregar equipamentos');
-    } finally {
-      setLoading(false);
+    const from = page * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+
+    let countQuery = (supabase as any).from('vw_equipamentos_app').select('*', { count: 'exact', head: true });
+    let dataQuery = (supabase as any).from('vw_equipamentos_app').select('*').order('tag', { ascending: true }).range(from, to);
+
+    if (search.trim()) {
+      const s = `%${search.trim()}%`;
+      const orFilter = `tag.ilike.${s},equipamento.ilike.${s}`;
+      countQuery = countQuery.or(orFilter);
+      dataQuery = dataQuery.or(orFilter);
     }
+
+    const [{ count }, { data, error }] = await Promise.all([countQuery, dataQuery]);
+    if (error) {
+      toast.error(error.message || 'Erro ao carregar equipamentos');
+    }
+    setTotalCount(count || 0);
+    setItems(data || []);
+    setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { setPage(0); }, [search]);
+  useEffect(() => { load(); }, [search, page]);
 
   const openNew = () => { setEditing(null); setForm({ tag: '', equipamento: '', local: '', area: 'Elétrica', status: 'Ativo' }); setDialogOpen(true); };
-  const openEdit = (e: Equipamento) => { setEditing(e); setForm({ tag: e.tag || '', equipamento: e.equipamento, local: e.local || '', area: e.area || 'Elétrica', status: e.status }); setDialogOpen(true); };
+  const openEdit = (e: any) => { setEditing(e); setForm({ tag: e.tag || '', equipamento: e.equipamento, local: e.local || '', area: e.area || 'Elétrica', status: e.status }); setDialogOpen(true); };
 
   const handleSave = async () => {
     if (!form.equipamento.trim()) { toast.error('Equipamento é obrigatório'); return; }
@@ -64,12 +79,7 @@ const Equipamentos = () => {
     load();
   };
 
-  const filtered = items.filter(e => {
-    if (!search) return true;
-    const s = search.toLowerCase();
-    return e.tag?.toLowerCase().includes(s) || e.equipamento.toLowerCase().includes(s);
-  });
-
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
   return (
@@ -86,32 +96,52 @@ const Equipamentos = () => {
 
         {loading ? (
           <div className="flex justify-center py-8"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>
+        ) : items.length === 0 ? (
+          <Card><CardContent className="p-8 text-center text-muted-foreground">Nenhum equipamento encontrado.</CardContent></Card>
         ) : (
-          <div className="space-y-2">
-            {filtered.map(e => (
-              <Card key={e.id}>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{e.equipamento}</span>
-                      {e.tag && <Badge variant="outline">{e.tag}</Badge>}
+          <>
+            <div className="space-y-2">
+              {items.map((e, i) => (
+                <Card key={e.tag + '-' + i}>
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{e.equipamento}</span>
+                        {e.tag && <Badge variant="outline">{e.tag}</Badge>}
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-1 text-sm text-muted-foreground">
+                        {e.local && <span>{e.local}</span>}
+                        {e.area && <Badge variant="secondary">{e.area}</Badge>}
+                        <Badge className={e.status === 'Ativo' ? 'bg-status-realizada text-primary-foreground' : 'bg-muted text-muted-foreground'}>{e.status}</Badge>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-1 text-sm text-muted-foreground">
-                      {e.local && <span>{e.local}</span>}
-                      {e.area && <Badge variant="secondary">{e.area}</Badge>}
-                      <Badge className={e.status === 'Ativo' ? 'bg-status-realizada text-primary-foreground' : 'bg-muted text-muted-foreground'}>{e.status}</Badge>
-                    </div>
-                  </div>
-                  {isAdmin && (
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => openEdit(e)} className="touch-target"><Edit className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(e.id)} className="touch-target text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    {isAdmin && (
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => openEdit(e)} className="touch-target"><Edit className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(e.id)} className="touch-target text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-sm text-muted-foreground">
+                {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, totalCount)} de {totalCount}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)} className="touch-target">
+                  <ChevronLeft className="h-4 w-4 mr-1" /> Anterior
+                </Button>
+                <span className="text-sm text-muted-foreground">{page + 1} / {totalPages}</span>
+                <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="touch-target">
+                  Próxima <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          </>
         )}
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
