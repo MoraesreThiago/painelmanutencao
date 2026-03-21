@@ -13,11 +13,11 @@ const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Ocorrências", url: "/ocorrencias", icon: FileText },
   { title: "Histórico", url: "/historico", icon: History },
+  { title: "Equipamentos", url: "/equipamentos", icon: Settings },
 ];
 
 const managementItems = [
   { title: "Colaboradores", url: "/colaboradores", icon: Users },
-  { title: "Equipamentos", url: "/equipamentos", icon: Settings },
 ];
 
 const adminItems = [
