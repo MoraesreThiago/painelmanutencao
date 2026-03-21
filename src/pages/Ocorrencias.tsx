@@ -162,8 +162,7 @@ const Ocorrencias = () => {
             ))}
           </div>
         )}
-      </div>
-    
+    </div>
   );
 };
 

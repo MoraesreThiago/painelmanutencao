@@ -58,8 +58,7 @@ const Automacoes = () => {
             </Card>
           ))}
         </div>
-      </div>
-    
+    </div>
   );
 };
 

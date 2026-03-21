@@ -424,8 +424,7 @@ const OcorrenciaForm = () => {
             </Button>
           </div>
         </form>
-      </div>
-    
+    </div>
   );
 };
 

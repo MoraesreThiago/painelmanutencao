@@ -137,8 +137,7 @@ const Equipamentos = () => {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
-    
+    </div>
   );
 };
 

@@ -146,8 +146,7 @@ const Historico = () => {
             )}
           </DialogContent>
         </Dialog>
-      </div>
-    
+    </div>
   );
 };
 
