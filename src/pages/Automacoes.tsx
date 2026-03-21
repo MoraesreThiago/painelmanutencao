@@ -1,4 +1,4 @@
-import { Layout } from '@/components/Layout';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MessageSquare, FileText, BarChart3, Link2 } from 'lucide-react';
