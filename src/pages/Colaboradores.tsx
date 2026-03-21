@@ -13,6 +13,7 @@ import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import type { Colaborador } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { canManageColaboradores } from '@/lib/roles';
+import { Navigate } from 'react-router-dom';
 
 const Colaboradores = () => {
   const { profile } = useAuth();
@@ -32,6 +33,8 @@ const Colaboradores = () => {
   };
 
   useEffect(() => { load(); }, []);
+
+  if (!canManage) return <Navigate to="/dashboard" replace />;
 
   const openNew = () => { setEditing(null); setForm({ nome: '', area: 'Elétrica', turno: 'A', cargo: '', status: 'Ativo' }); setDialogOpen(true); };
   const openEdit = (c: Colaborador) => { setEditing(c); setForm({ nome: c.nome, area: c.area, turno: c.turno, cargo: c.cargo || '', status: c.status }); setDialogOpen(true); };
