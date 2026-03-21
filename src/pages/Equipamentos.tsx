@@ -22,7 +22,7 @@ const Equipamentos = () => {
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Equipamento | null>(null);
-  const [form, setForm] = useState({ tag: '', equipamento: '', local: '', area: 'Elétrica', status: 'Ativo' });
+  const [form, setForm] = useState({ tag: '', equipamento: '', local: '', area_fabrica: '', area_manutencao: 'Elétrica', status: 'Ativo' });
 
   const load = async () => {
     setLoading(true);
@@ -38,8 +38,8 @@ const Equipamentos = () => {
 
   useEffect(() => { load(); }, []);
 
-  const openNew = () => { setEditing(null); setForm({ tag: '', equipamento: '', local: '', area: 'Elétrica', status: 'Ativo' }); setDialogOpen(true); };
-  const openEdit = (e: Equipamento) => { setEditing(e); setForm({ tag: e.tag || '', equipamento: e.equipamento, local: e.local || '', area: e.area || 'Elétrica', status: e.status }); setDialogOpen(true); };
+  const openNew = () => { setEditing(null); setForm({ tag: '', equipamento: '', local: '', area_fabrica: '', area_manutencao: 'Elétrica', status: 'Ativo' }); setDialogOpen(true); };
+  const openEdit = (e: Equipamento) => { setEditing(e); setForm({ tag: e.tag || '', equipamento: e.equipamento, local: e.local || '', area_fabrica: e.area_fabrica || '', area_manutencao: e.area_manutencao || 'Elétrica', status: e.status }); setDialogOpen(true); };
 
   const handleSave = async () => {
     if (!form.equipamento.trim()) { toast.error('Equipamento é obrigatório'); return; }
@@ -98,7 +98,8 @@ const Equipamentos = () => {
                     </div>
                     <div className="flex flex-wrap gap-2 mt-1 text-sm text-muted-foreground">
                       {e.local && <span>{e.local}</span>}
-                      {e.area && <Badge variant="secondary">{e.area}</Badge>}
+                      {e.area_fabrica && <Badge variant="secondary">{e.area_fabrica}</Badge>}
+                      {e.area_manutencao && <Badge variant="outline" className="border-primary/50 text-primary">{e.area_manutencao}</Badge>}
                       <Badge className={e.status === 'Ativo' ? 'bg-status-realizada text-primary-foreground' : 'bg-muted text-muted-foreground'}>{e.status}</Badge>
                     </div>
                   </div>
@@ -121,10 +122,15 @@ const Equipamentos = () => {
               <div><Label>TAG</Label><Input value={form.tag} onChange={e => set('tag', e.target.value)} className="touch-target mt-1" /></div>
               <div><Label>Equipamento *</Label><Input value={form.equipamento} onChange={e => set('equipamento', e.target.value)} className="touch-target mt-1" /></div>
               <div><Label>Local</Label><Input value={form.local} onChange={e => set('local', e.target.value)} className="touch-target mt-1" /></div>
-              <div><Label>Área</Label>
-                <Select value={form.area} onValueChange={v => set('area', v)}>
+              <div><Label>Área da Fábrica</Label><Input value={form.area_fabrica} onChange={e => set('area_fabrica', e.target.value)} className="touch-target mt-1" placeholder="Ex: Caldeira, Empacotamento..." /></div>
+              <div><Label>Área de Manutenção</Label>
+                <Select value={form.area_manutencao} onValueChange={v => set('area_manutencao', v)}>
                   <SelectTrigger className="touch-target mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="Elétrica">Elétrica</SelectItem><SelectItem value="Mecânica">Mecânica</SelectItem></SelectContent>
+                  <SelectContent>
+                    <SelectItem value="Elétrica">Elétrica</SelectItem>
+                    <SelectItem value="Mecânica">Mecânica</SelectItem>
+                    <SelectItem value="Instrumentação">Instrumentação</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div><Label>Status</Label>
