@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Ocorrencias from "./pages/Ocorrencias";
 import OcorrenciaForm from "./pages/OcorrenciaForm";
 import Colaboradores from "./pages/Colaboradores";
+import GerenciarUsuarios from "./pages/GerenciarUsuarios";
 import Equipamentos from "./pages/Equipamentos";
 import Historico from "./pages/Historico";
 import ResumoMensal from "./pages/ResumoMensal";
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/ocorrencias/nova" element={<OcorrenciaForm />} />
               <Route path="/ocorrencias/:id" element={<OcorrenciaForm />} />
               <Route path="/colaboradores" element={<Colaboradores />} />
+              <Route path="/usuarios" element={<GerenciarUsuarios />} />
               <Route path="/equipamentos" element={<Equipamentos />} />
               <Route path="/historico" element={<Historico />} />
               <Route path="/resumo-mensal" element={<ResumoMensal />} />

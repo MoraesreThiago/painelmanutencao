@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, FileText, History, Users, Wrench, BarChart3, Zap, LogOut, Settings, CircuitBoard
+  LayoutDashboard, FileText, History, Users, Wrench, BarChart3, Zap, LogOut, Settings, CircuitBoard, UserPlus
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +18,10 @@ const mainItems = [
 const managementItems = [
   { title: "Colaboradores", url: "/colaboradores", icon: Users },
   { title: "Equipamentos", url: "/equipamentos", icon: Settings },
+];
+
+const adminItems = [
+  { title: "Usuários", url: "/usuarios", icon: UserPlus },
 ];
 
 const servicesItems = [
@@ -68,6 +72,13 @@ export function AppSidebar() {
           <SidebarGroup>
             <SidebarGroupLabel>Gestão</SidebarGroupLabel>
             <SidebarGroupContent>{renderItems(managementItems)}</SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {isAdmin(profile) && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administração</SidebarGroupLabel>
+            <SidebarGroupContent>{renderItems(adminItems)}</SidebarGroupContent>
           </SidebarGroup>
         )}
 
