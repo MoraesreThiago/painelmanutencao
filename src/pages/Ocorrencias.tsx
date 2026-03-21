@@ -7,11 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Edit, Lock } from 'lucide-react';
+import { Plus, Search, Edit, Lock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Ocorrencia } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { isAdmin as checkAdmin, canEditWithoutTimeLimit } from '@/lib/roles';
+
+const PAGE_SIZE = 20;
 
 const statusColors: Record<string, string> = {
   Pendente: 'bg-status-pendente text-primary-foreground',
@@ -31,25 +33,37 @@ const Ocorrencias = () => {
   const [filterStatus, setFilterStatus] = useState('todos');
   const [filterArea, setFilterArea] = useState('todos');
   const [filterTurno, setFilterTurno] = useState('todos');
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
 
   const load = async () => {
     setLoading(true);
-    let query = (supabase as any).from('ocorrencias').select('*, colaboradores(nome)').order('data_ocorrencia', { ascending: false }).limit(200);
-    if (filterStatus !== 'todos') query = query.eq('status', filterStatus);
-    if (filterArea !== 'todos') query = query.eq('area', filterArea);
-    if (filterTurno !== 'todos') query = query.eq('turno', filterTurno);
-    const { data } = await query;
+    const from = page * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+
+    let countQuery = (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true });
+    let dataQuery = (supabase as any).from('ocorrencias').select('*, colaboradores(nome)').order('data_ocorrencia', { ascending: false }).order('created_at', { ascending: false }).range(from, to);
+
+    if (filterStatus !== 'todos') { countQuery = countQuery.eq('status', filterStatus); dataQuery = dataQuery.eq('status', filterStatus); }
+    if (filterArea !== 'todos') { countQuery = countQuery.eq('area', filterArea); dataQuery = dataQuery.eq('area', filterArea); }
+    if (filterTurno !== 'todos') { countQuery = countQuery.eq('turno', filterTurno); dataQuery = dataQuery.eq('turno', filterTurno); }
+    if (search.trim()) {
+      const s = `%${search.trim()}%`;
+      const orFilter = `tag.ilike.${s},equipamento.ilike.${s},descricao.ilike.${s},area.ilike.${s}`;
+      countQuery = countQuery.or(orFilter);
+      dataQuery = dataQuery.or(orFilter);
+    }
+
+    const [{ count }, { data }] = await Promise.all([countQuery, dataQuery]);
+    setTotalCount(count || 0);
     setOcorrencias((data || []) as Ocorrencia[]);
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [filterStatus, filterArea, filterTurno]);
+  useEffect(() => { setPage(0); }, [filterStatus, filterArea, filterTurno, search]);
+  useEffect(() => { load(); }, [filterStatus, filterArea, filterTurno, search, page]);
 
-  const filtered = ocorrencias.filter(o => {
-    if (!search) return true;
-    const s = search.toLowerCase();
-    return (o.tag?.toLowerCase().includes(s) || o.equipamento?.toLowerCase().includes(s) || o.descricao.toLowerCase().includes(s) || o.area.toLowerCase().includes(s));
-  });
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
     <div className="space-y-4">
@@ -106,61 +120,79 @@ const Ocorrencias = () => {
 
         {loading ? (
           <div className="flex justify-center py-8"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>
-        ) : filtered.length === 0 ? (
+        ) : ocorrencias.length === 0 ? (
           <Card><CardContent className="p-8 text-center text-muted-foreground">Nenhuma ocorrência encontrada.</CardContent></Card>
         ) : (
-          <div className="space-y-2">
-            {filtered.map(o => (
-              <Card key={o.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="font-semibold">{o.equipamento || 'Sem equipamento'}</span>
-                        {o.tag && <Badge variant="outline" className="text-xs">{o.tag}</Badge>}
-                        <Badge variant="secondary" className="text-xs">{o.area}</Badge>
-                        <Badge variant="secondary" className="text-xs">Turno {o.turno}</Badge>
+          <>
+            <div className="space-y-2">
+              {ocorrencias.map(o => (
+                <Card key={o.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <span className="font-semibold">{o.equipamento || 'Sem equipamento'}</span>
+                          {o.tag && <Badge variant="outline" className="text-xs">{o.tag}</Badge>}
+                          <Badge variant="secondary" className="text-xs">{o.area}</Badge>
+                          <Badge variant="secondary" className="text-xs">Turno {o.turno}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground truncate">{o.descricao}</p>
+                        <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-muted-foreground">
+                          <span>{o.data_ocorrencia.split('-').reverse().join('/')}</span>
+                          <span>•</span>
+                          <span>{o.horario}</span>
+                          {o.colaboradores?.nome && <><span>•</span><span>{o.colaboradores.nome}</span></>}
+                          {o.gerar_os && <Badge className="bg-primary text-primary-foreground text-xs">OS</Badge>}
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground truncate">{o.descricao}</p>
-                      <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-muted-foreground">
-                        <span>{o.data_ocorrencia.split('-').reverse().join('/')}</span>
-                        <span>•</span>
-                        <span>{o.horario}</span>
-                        {o.colaboradores?.nome && <><span>•</span><span>{o.colaboradores.nome}</span></>}
-                        {o.gerar_os && <Badge className="bg-primary text-primary-foreground text-xs">OS</Badge>}
+                      <div className="flex flex-col items-end gap-2 shrink-0">
+                        <Badge className={statusColors[o.status] || 'bg-muted'}>{o.status}</Badge>
+                        {(() => {
+                          const createdAt = new Date(o.created_at || o.data_ocorrencia);
+                          const expired = (Date.now() - createdAt.getTime()) > 24 * 60 * 60 * 1000;
+                          const canEdit = canEditAnytime || !expired;
+                          return canEdit ? (
+                            <Button variant="ghost" size="sm" onClick={() => navigate(`/ocorrencias/${o.id}`)} className="touch-target">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground/50 cursor-not-allowed">
+                                    <Lock className="h-4 w-4" />
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Edição bloqueada após 24h</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          );
+                        })()}
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2 shrink-0">
-                      <Badge className={statusColors[o.status] || 'bg-muted'}>{o.status}</Badge>
-                      {(() => {
-                        const createdAt = new Date(o.created_at || o.data_ocorrencia);
-                        const expired = (Date.now() - createdAt.getTime()) > 24 * 60 * 60 * 1000;
-                        const canEdit = canEditAnytime || !expired;
-                        return canEdit ? (
-                          <Button variant="ghost" size="sm" onClick={() => navigate(`/ocorrencias/${o.id}`)} className="touch-target">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        ) : (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground/50 cursor-not-allowed">
-                                  <Lock className="h-4 w-4" />
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Edição bloqueada após 24h</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-sm text-muted-foreground">
+                {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, totalCount)} de {totalCount}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)} className="touch-target">
+                  <ChevronLeft className="h-4 w-4 mr-1" /> Anterior
+                </Button>
+                <span className="text-sm text-muted-foreground">{page + 1} / {totalPages}</span>
+                <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="touch-target">
+                  Próxima <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          </>
         )}
     </div>
   );
