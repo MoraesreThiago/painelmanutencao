@@ -49,7 +49,8 @@ export type Database = {
       }
       equipamentos: {
         Row: {
-          area: string | null
+          area_fabrica: string | null
+          area_manutencao: string | null
           created_at: string | null
           equipamento: string
           id: string
@@ -59,7 +60,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          area?: string | null
+          area_fabrica?: string | null
+          area_manutencao?: string | null
           created_at?: string | null
           equipamento: string
           id?: string
@@ -69,7 +71,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          area?: string | null
+          area_fabrica?: string | null
+          area_manutencao?: string | null
           created_at?: string | null
           equipamento?: string
           id?: string
