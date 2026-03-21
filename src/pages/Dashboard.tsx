@@ -104,7 +104,7 @@ const Dashboard = () => {
     { label: 'Nova Ocorrência', icon: Plus, path: '/ocorrencias/nova' },
     { label: 'Ocorrências', icon: FileText, path: '/ocorrencias' },
     { label: 'Histórico', icon: History, path: '/historico' },
-    { label: 'Colaboradores', icon: Users, path: '/colaboradores' },
+    ...(canManageColaboradores(profile) ? [{ label: 'Colaboradores', icon: Users, path: '/colaboradores' }] : []),
     { label: 'Resumo Mensal', icon: BarChart3, path: '/resumo-mensal' },
     { label: 'Automações', icon: Zap, path: '/automacoes' },
   ];
