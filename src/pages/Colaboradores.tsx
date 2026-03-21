@@ -63,8 +63,7 @@ const Colaboradores = () => {
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
   return (
-
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-bold">Colaboradores</h1>
           {canManage && <Button onClick={openNew} className="touch-target"><Plus className="h-5 w-5 mr-2" /> Novo</Button>}
@@ -131,8 +130,7 @@ const Colaboradores = () => {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
-    
+    </div>
   );
 };
 

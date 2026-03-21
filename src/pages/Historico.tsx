@@ -47,8 +47,7 @@ const Historico = () => {
   });
 
   return (
-
-      <div className="space-y-4">
+    <div className="space-y-4">
         <h1 className="text-2xl font-bold">Histórico de Ocorrências</h1>
 
         <Card>
@@ -147,8 +146,7 @@ const Historico = () => {
             )}
           </DialogContent>
         </Dialog>
-      </div>
-    
+    </div>
   );
 };
 

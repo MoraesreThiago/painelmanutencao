@@ -36,8 +36,7 @@ const integrations = [
 
 const Automacoes = () => {
   return (
-
-      <div className="space-y-4">
+    <div className="space-y-4">
         <div>
           <h1 className="text-2xl font-bold">Automações & Integrações</h1>
           <p className="text-muted-foreground mt-1">Futuras integrações planejadas para o sistema.</p>
@@ -59,8 +58,7 @@ const Automacoes = () => {
             </Card>
           ))}
         </div>
-      </div>
-    
+    </div>
   );
 };
 
