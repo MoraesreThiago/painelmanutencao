@@ -106,7 +106,7 @@ Regras:
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    const corsHeaders = getCorsHeaders(req);
+    
     console.error("improve-description error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }), {
       status: 500,
