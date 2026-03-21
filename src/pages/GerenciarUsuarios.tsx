@@ -38,6 +38,7 @@ const GerenciarUsuarios = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<UserProfile | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     email: '',
