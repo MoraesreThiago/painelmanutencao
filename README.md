@@ -224,3 +224,4 @@ Secrets das Edge Functions (configurados no painel Supabase):
 3. **Sem registro público** — signup desabilitado no Supabase Auth; criação centralizada via Edge Function.
 4. **PWA** — app instalável com service worker para cache offline.
 5. **IA integrada** — descrições de ocorrências podem ser aprimoradas via LLM com terminologia industrial.
+6. **Paginação server-side** — todas as listagens (Ocorrências, Histórico, Equipamentos, Motores Elétricos) usam paginação de 20 itens com `range()` do Supabase e contagem paralela via `Promise.all` para melhor performance.
