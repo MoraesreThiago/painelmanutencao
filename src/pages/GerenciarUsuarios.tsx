@@ -46,8 +46,6 @@ const GerenciarUsuarios = () => {
     area: '',
   });
 
-  if (!isAdmin(profile)) return <Navigate to="/dashboard" replace />;
-
   const loadUsers = async () => {
     setLoading(true);
     const { data } = await (supabase as any).from('profiles').select('*').order('nome');
@@ -58,6 +56,8 @@ const GerenciarUsuarios = () => {
   useEffect(() => {
     loadUsers();
   }, []);
+
+  if (!isAdmin(profile)) return <Navigate to="/dashboard" replace />;
 
   const set = (key: string, value: string) => {
     if (key === 'perfil') {
