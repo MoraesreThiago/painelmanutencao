@@ -17,9 +17,6 @@ import { Navigate } from 'react-router-dom';
 
 const Colaboradores = () => {
   const { profile } = useAuth();
-
-  if (!canManageColaboradores(profile)) return <Navigate to="/dashboard" replace />;
-
   const canManage = canManageColaboradores(profile);
   const [items, setItems] = useState<Colaborador[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +24,8 @@ const Colaboradores = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Colaborador | null>(null);
   const [form, setForm] = useState({ nome: '', area: 'Elétrica', turno: 'A', cargo: '', status: 'Ativo' });
+
+  if (!canManage) return <Navigate to="/dashboard" replace />;
 
   const load = async () => {
     setLoading(true);
