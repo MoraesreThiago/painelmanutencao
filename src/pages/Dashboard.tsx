@@ -8,6 +8,7 @@ import type { Ocorrencia } from '@/types/database';
 
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { canManageColaboradores } from '@/lib/roles';
 
 const DIA_SEQUENCE = ['A', 'D', 'B', 'C'];
 const AMAN_SEQUENCE = ['B', 'C', 'A', 'D'];
