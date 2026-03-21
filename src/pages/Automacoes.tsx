@@ -36,7 +36,7 @@ const integrations = [
 
 const Automacoes = () => {
   return (
-    <Layout>
+
       <div className="space-y-4">
         <div>
           <h1 className="text-2xl font-bold">Automações & Integrações</h1>

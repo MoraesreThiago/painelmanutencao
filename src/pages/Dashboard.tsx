@@ -107,7 +107,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <Layout>
+
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
