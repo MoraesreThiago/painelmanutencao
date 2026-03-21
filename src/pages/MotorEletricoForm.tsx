@@ -102,7 +102,7 @@ const MotorEletricoForm = () => {
       ...prev,
       tag: eq.tag || '',
       motor: eq.equipamento || '',
-      area: canChangeArea ? ((eq as any).area_manutencao || (eq as any).area_fabrica || prev.area) : prev.area,
+      area: canChangeArea ? (eq.area_manutencao || eq.area_fabrica || prev.area) : prev.area,
     }));
     setTagSearch(eq.tag || '');
     setShowTagSuggestions(false);
