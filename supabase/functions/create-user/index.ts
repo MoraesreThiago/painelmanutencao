@@ -60,15 +60,17 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Validate perfil
+    // Validate perfil — admin cannot be created via this function
     const validPerfis = [
-      "administrador",
       "manutencao_eletrica",
       "manutencao_mecanica",
+      "manutencao_instrumentacao",
       "lider_eletrica",
       "lider_mecanica",
+      "lider_instrumentacao",
       "supervisor_eletrica",
       "supervisor_mecanica",
+      "supervisor_instrumentacao",
     ];
     if (!validPerfis.includes(perfil)) {
       return new Response(JSON.stringify({ error: "Perfil inválido" }), {

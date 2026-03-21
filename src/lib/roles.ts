@@ -1,7 +1,7 @@
 import type { Profile } from '@/types/database';
 
-const LEADER_ROLES = ['lider_eletrica', 'lider_mecanica'];
-const SUPERVISOR_ROLES = ['supervisor_eletrica', 'supervisor_mecanica'];
+const LEADER_ROLES = ['lider_eletrica', 'lider_mecanica', 'lider_instrumentacao'];
+const SUPERVISOR_ROLES = ['supervisor_eletrica', 'supervisor_mecanica', 'supervisor_instrumentacao'];
 const ELEVATED_ROLES = ['administrador', ...LEADER_ROLES, ...SUPERVISOR_ROLES];
 
 export const isAdmin = (profile: Profile | null) =>
@@ -34,10 +34,13 @@ export const getRoleLabel = (perfil: string | null): string => {
     administrador: 'Administrador',
     manutencao_eletrica: 'Manutenção Elétrica',
     manutencao_mecanica: 'Manutenção Mecânica',
+    manutencao_instrumentacao: 'Manutenção Instrumentação',
     lider_eletrica: 'Líder Elétrica',
     lider_mecanica: 'Líder Mecânica',
+    lider_instrumentacao: 'Líder Instrumentação',
     supervisor_eletrica: 'Supervisor Elétrica',
     supervisor_mecanica: 'Supervisor Mecânica',
+    supervisor_instrumentacao: 'Supervisor Instrumentação',
   };
   return labels[perfil || ''] || perfil || '';
 };
