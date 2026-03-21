@@ -75,6 +75,13 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
+        {isAdmin(profile) && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administração</SidebarGroupLabel>
+            <SidebarGroupContent>{renderItems(adminItems)}</SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         {(isEletrica(profile) || isAdmin(profile)) && (
           <SidebarGroup>
             <SidebarGroupLabel>Serviços</SidebarGroupLabel>
