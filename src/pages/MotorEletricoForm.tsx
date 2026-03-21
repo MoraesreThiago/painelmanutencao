@@ -16,7 +16,8 @@ import { format } from 'date-fns';
 interface Equipamento {
   tag: string | null;
   equipamento: string | null;
-  area: string | null;
+  area_fabrica: string | null;
+  area_manutencao: string | null;
   local: string | null;
 }
 
