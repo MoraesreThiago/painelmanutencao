@@ -431,6 +431,9 @@ export type Database = {
         | "lider_mecanica"
         | "supervisor_eletrica"
         | "supervisor_mecanica"
+        | "supervisor_instrumentacao"
+        | "lider_instrumentacao"
+        | "manutencao_instrumentacao"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -566,6 +569,9 @@ export const Constants = {
         "lider_mecanica",
         "supervisor_eletrica",
         "supervisor_mecanica",
+        "supervisor_instrumentacao",
+        "lider_instrumentacao",
+        "manutencao_instrumentacao",
       ],
     },
   },
