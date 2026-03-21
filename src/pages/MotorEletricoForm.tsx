@@ -154,8 +154,7 @@ const MotorEletricoForm = () => {
   };
 
   return (
-
-      <div className="max-w-3xl mx-auto space-y-4">
+    <div className="max-w-3xl mx-auto space-y-4">
         <div className="flex items-center gap-3">
           <Button variant="ghost" onClick={() => navigate('/motores-eletricos')} className="touch-target">
             <ArrowLeft className="h-5 w-5" />
