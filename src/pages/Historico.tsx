@@ -29,7 +29,7 @@ const Historico = () => {
 
   const load = async () => {
     setLoading(true);
-    let query = (supabase as any).from('ocorrencias').select('*, colaboradores(nome)').order('data_ocorrencia', { ascending: false });
+    let query = (supabase as any).from('ocorrencias').select('*, colaboradores(nome)').order('data_ocorrencia', { ascending: false }).limit(300);
     if (filterHorario !== 'todos') query = query.eq('horario', filterHorario);
     if (dateFrom) query = query.gte('data_ocorrencia', dateFrom);
     if (dateTo) query = query.lte('data_ocorrencia', dateTo);

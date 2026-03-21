@@ -70,10 +70,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     const load = async () => {
-      const { count: total } = await (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true });
-      const { count: pendentes } = await (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true }).eq('status', 'Pendente');
-      setStats({ total: total || 0, pendentes: pendentes || 0 });
-
       // A partir das 07:10 considera o dia atual; antes disso, o dia anterior
       const now = new Date();
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -83,16 +79,22 @@ const Dashboard = () => {
       const todayStr = referenceDate.toISOString().split('T')[0];
       const yesterdayStr = new Date(referenceDate.getTime() - 86400000).toISOString().split('T')[0];
 
-      const { data } = await (supabase as any)
-        .from('ocorrencias')
-        .select('*, colaboradores(nome)')
-        .eq('turno', turnoInfo.previousTurno)
-        .eq('horario', turnoInfo.previousHorario)
-        .in('data_ocorrencia', [todayStr, yesterdayStr])
-        .order('created_at', { ascending: false })
-        .limit(10);
+      // Run all queries in parallel
+      const [totalRes, pendentesRes, ocorrenciasRes] = await Promise.all([
+        (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true }),
+        (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true }).eq('status', 'Pendente'),
+        (supabase as any)
+          .from('ocorrencias')
+          .select('*, colaboradores(nome)')
+          .eq('turno', turnoInfo.previousTurno)
+          .eq('horario', turnoInfo.previousHorario)
+          .in('data_ocorrencia', [todayStr, yesterdayStr])
+          .order('created_at', { ascending: false })
+          .limit(10),
+      ]);
 
-      setPreviousOcorrencias((data || []) as Ocorrencia[]);
+      setStats({ total: totalRes.count || 0, pendentes: pendentesRes.count || 0 });
+      setPreviousOcorrencias((ocorrenciasRes.data || []) as Ocorrencia[]);
     };
     load();
   }, [turnoInfo]);
