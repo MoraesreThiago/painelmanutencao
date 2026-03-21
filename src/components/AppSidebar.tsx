@@ -20,6 +20,10 @@ const managementItems = [
   { title: "Equipamentos", url: "/equipamentos", icon: Settings },
 ];
 
+const adminItems = [
+  { title: "Usuários", url: "/usuarios", icon: UserPlus },
+];
+
 const servicesItems = [
   { title: "Motores Elétricos", url: "/motores-eletricos", icon: CircuitBoard },
 ];
