@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { FileText, History, Users, BarChart3, Zap, Plus, AlertCircle } from 'lucide-react';
 import type { Ocorrencia } from '@/types/database';
-import { Layout } from '@/components/Layout';
+
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 
