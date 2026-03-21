@@ -25,8 +25,6 @@ const Colaboradores = () => {
   const [editing, setEditing] = useState<Colaborador | null>(null);
   const [form, setForm] = useState({ nome: '', area: 'Elétrica', turno: 'A', cargo: '', status: 'Ativo' });
 
-  if (!canManage) return <Navigate to="/dashboard" replace />;
-
   const load = async () => {
     setLoading(true);
     const { data } = await (supabase as any).from('colaboradores').select('*').order('nome');
@@ -35,6 +33,8 @@ const Colaboradores = () => {
   };
 
   useEffect(() => { load(); }, []);
+
+  if (!canManage) return <Navigate to="/dashboard" replace />;
 
   const openNew = () => { setEditing(null); setForm({ nome: '', area: 'Elétrica', turno: 'A', cargo: '', status: 'Ativo' }); setDialogOpen(true); };
   const openEdit = (c: Colaborador) => { setEditing(c); setForm({ nome: c.nome, area: c.area, turno: c.turno, cargo: c.cargo || '', status: c.status }); setDialogOpen(true); };
