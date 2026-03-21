@@ -138,7 +138,7 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+        <div className={`grid gap-3 ${shortcuts.length <= 5 ? 'grid-cols-3 md:grid-cols-5' : 'grid-cols-3 md:grid-cols-6'}`}>
           {shortcuts.map(s => (
             <Button key={s.label} variant="outline" className="h-auto py-4 flex flex-col gap-2 touch-target" onClick={() => navigate(s.path)}>
               <s.icon className="h-6 w-6" />
