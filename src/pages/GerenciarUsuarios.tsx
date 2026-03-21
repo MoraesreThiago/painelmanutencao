@@ -118,7 +118,22 @@ const GerenciarUsuarios = () => {
     }
   };
 
-  return (
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      const response = await supabase.functions.invoke('delete-user', {
+        body: { user_id: deleteTarget.id },
+      });
+      if (response.error) throw new Error(response.error.message);
+      if (response.data?.error) throw new Error(response.data.error);
+      toast.success('Usuário excluído com sucesso!');
+      setDeleteTarget(null);
+      loadUsers();
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao excluir usuário');
+    }
+  };
+
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
