@@ -59,7 +59,7 @@ const MotorEletricoForm = () => {
     const loadData = async () => {
       const { data: eqs } = await (supabase as any)
         .from('vw_equipamentos_app')
-        .select('tag, equipamento, area, local')
+        .select('tag, equipamento, area_fabrica, area_manutencao, local')
         .order('tag');
       setEquipamentos((eqs || []) as Equipamento[]);
 
