@@ -115,10 +115,9 @@ const Historico = () => {
                     <p className="font-medium text-sm leading-snug line-clamp-2">{o.equipamento || o.tag || 'Sem equipamento'}</p>
                     {o.tag && o.equipamento && <span className="text-xs text-muted-foreground">TAG: {o.tag}</span>}
                     <p className="text-xs text-muted-foreground line-clamp-2">{o.descricao}</p>
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground pt-1">
-                      <Badge variant="secondary" className="text-xs">{o.area}</Badge>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
                       <span>Turno: {o.turno} - {o.horario}</span>
-                      {o.colaboradores?.nome && <><span>•</span><span>{o.colaboradores.nome}</span></>}
+                      {o.colaboradores?.nome && <span>{o.colaboradores.nome}</span>}
                     </div>
                   </CardContent>
                 </Card>
