@@ -167,12 +167,15 @@ const GerenciarUsuarios = () => {
                     <p className="text-xs text-muted-foreground">{u.email}</p>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="secondary">{getRoleLabel(u.perfil)}</Badge>
                   {u.area && <Badge variant="outline">{u.area}</Badge>}
+                  {u.id !== profile?.id && (
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(u)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
           ))}
         </div>
       )}
