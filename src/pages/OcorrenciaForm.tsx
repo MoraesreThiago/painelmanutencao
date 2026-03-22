@@ -268,7 +268,7 @@ const OcorrenciaForm = () => {
                 <Select value={form.colaborador_id} onValueChange={v => set('colaborador_id', v)}>
                   <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>
-                    {colaboradores.map(c => <SelectItem key={c.id} value={c.id}>{c.nome} ({c.area})</SelectItem>)}
+                    {colaboradores.filter(c => isAdmin || c.area === profile?.area).map(c => <SelectItem key={c.id} value={c.id}>{c.nome} ({c.area})</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
