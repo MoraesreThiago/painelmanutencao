@@ -62,9 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   };
 
-
-
-
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
