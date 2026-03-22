@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
-import { FileText, History, Users, BarChart3, Zap, Plus, AlertCircle } from 'lucide-react';
+import { FileText, History, Users, BarChart3, Zap, Plus } from 'lucide-react';
 import type { Ocorrencia } from '@/types/database';
 
 import { Badge } from '@/components/ui/badge';
@@ -81,7 +81,7 @@ const OcorrenciaItem = ({ o }: { o: Ocorrencia }) => (
 const Dashboard = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const [stats, setStats] = useState({ total: 0, pendentes: 0 });
+  
   const [previousOcorrencias, setPreviousOcorrencias] = useState<Ocorrencia[]>([]);
   const [currentOcorrencias, setCurrentOcorrencias] = useState<Ocorrencia[]>([]);
 
@@ -97,9 +97,7 @@ const Dashboard = () => {
       const todayStr = referenceDate.toISOString().split('T')[0];
       const yesterdayStr = new Date(referenceDate.getTime() - 86400000).toISOString().split('T')[0];
 
-      const [totalRes, pendentesRes, previousRes, currentRes] = await Promise.all([
-        (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true }),
-        (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true }).eq('status', 'Pendente'),
+      const [previousRes, currentRes] = await Promise.all([
         (supabase as any)
           .from('ocorrencias')
           .select('*, colaboradores(nome)')
@@ -118,7 +116,7 @@ const Dashboard = () => {
           .limit(10),
       ]);
 
-      setStats({ total: totalRes.count || 0, pendentes: pendentesRes.count || 0 });
+      
       setPreviousOcorrencias((previousRes.data || []) as Ocorrencia[]);
       setCurrentOcorrencias((currentRes.data || []) as Ocorrencia[]);
     };
@@ -146,22 +144,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/ocorrencias')}>
-            <CardContent className="p-4 flex flex-col items-center text-center">
-              <FileText className="h-8 w-8 mb-2 text-foreground" />
-              <p className="text-2xl font-bold">{stats.total}</p>
-              <p className="text-xs text-muted-foreground">Total de Ocorrências</p>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/ocorrencias')}>
-            <CardContent className="p-4 flex flex-col items-center text-center">
-              <AlertCircle className="h-8 w-8 mb-2 text-status-pendente" />
-              <p className="text-2xl font-bold">{stats.pendentes}</p>
-              <p className="text-xs text-muted-foreground">Pendentes</p>
-            </CardContent>
-          </Card>
-        </div>
 
         <div className={`grid gap-3 ${shortcuts.length <= 5 ? 'grid-cols-3 md:grid-cols-5' : 'grid-cols-3 md:grid-cols-6'}`}>
           {shortcuts.map(s => (
