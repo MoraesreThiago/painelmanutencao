@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, keepConnected?: boolean) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
