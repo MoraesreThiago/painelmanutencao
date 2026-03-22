@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Wrench } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -13,6 +14,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [keepConnected, setKeepConnected] = useState(true);
 
   if (user) return <Navigate to="/dashboard" replace />;
 
@@ -20,7 +22,7 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await signIn(loginEmail, loginPassword);
+      await signIn(loginEmail, loginPassword, keepConnected);
       toast.success('Login realizado com sucesso!');
     } catch (err: any) {
       toast.error(err.message || 'Erro ao fazer login');
@@ -50,6 +52,16 @@ const Login = () => {
             <div>
               <Label htmlFor="login-password">Senha</Label>
               <Input id="login-password" type="password" value={loginPassword} onChange={e => setLoginPassword(e.target.value)} required className="touch-target mt-1" />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="keep-connected"
+                checked={keepConnected}
+                onCheckedChange={(checked) => setKeepConnected(checked === true)}
+              />
+              <Label htmlFor="keep-connected" className="text-sm font-normal cursor-pointer">
+                Manter-me conectado
+              </Label>
             </div>
             <Button type="submit" className="w-full touch-target text-base" disabled={loading}>
               {loading ? 'Entrando...' : 'Entrar'}

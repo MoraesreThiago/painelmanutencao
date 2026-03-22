@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, keepConnected?: boolean) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -57,9 +57,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, keepConnected = true) => {
+    if (!keepConnected) {
+      // Move session to sessionStorage so it clears when browser closes
+      await supabase.auth.setSession({ access_token: '', refresh_token: '' }).catch(() => {});
+    }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    if (!keepConnected) {
+      // Copy session from localStorage to sessionStorage and remove from localStorage
+      const keys = Object.keys(localStorage).filter(k => k.startsWith('sb-'));
+      keys.forEach(k => {
+        sessionStorage.setItem(k, localStorage.getItem(k)!);
+        localStorage.removeItem(k);
+      });
+    }
   };
 
   const signOut = async () => {
