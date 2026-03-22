@@ -237,6 +237,18 @@ const MotorEletricoForm = () => {
                 <Label>Fabricante</Label>
                 <Input value={form.fabricante} onChange={e => set('fabricante', e.target.value)} placeholder="Ex: WEG" className="touch-target mt-1" />
               </div>
+              <div>
+                <Label>RPM</Label>
+                <Input value={form.rpm} onChange={e => set('rpm', e.target.value)} placeholder="Ex: 1750" className="touch-target mt-1" />
+              </div>
+              <div>
+                <Label>Tensão</Label>
+                <Input value={form.tensao} onChange={e => set('tensao', e.target.value)} placeholder="Ex: 380" className="touch-target mt-1" />
+              </div>
+              <div>
+                <Label>Corrente</Label>
+                <Input value={form.corrente} onChange={e => set('corrente', e.target.value)} placeholder="Ex: 10,0A" className="touch-target mt-1" />
+              </div>
             </CardContent>
           </Card>
 
