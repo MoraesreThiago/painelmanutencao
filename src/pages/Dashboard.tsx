@@ -116,7 +116,7 @@ const Dashboard = () => {
           .limit(10),
       ]);
 
-      setStats({ total: totalRes.count || 0, pendentes: pendentesRes.count || 0 });
+      
       setPreviousOcorrencias((previousRes.data || []) as Ocorrencia[]);
       setCurrentOcorrencias((currentRes.data || []) as Ocorrencia[]);
     };
