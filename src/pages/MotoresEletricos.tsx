@@ -147,8 +147,15 @@ const MotoresEletricos = () => {
                     {m.carcaca && <p><span className="font-medium text-muted-foreground">Carcaça:</span> {m.carcaca}</p>}
                     {m.fabricante && <p><span className="font-medium text-muted-foreground">Fabricante:</span> {m.fabricante}</p>}
                     {m.potencia && <p><span className="font-medium text-muted-foreground">Potência:</span> {m.potencia}</p>}
+                    {m.rpm && <p><span className="font-medium text-muted-foreground">RPM:</span> {m.rpm}</p>}
+                    {m.tensao && <p><span className="font-medium text-muted-foreground">Tensão:</span> {m.tensao}</p>}
+                    {m.corrente && <p><span className="font-medium text-muted-foreground">Corrente:</span> {m.corrente}</p>}
                     <p><span className="font-medium text-muted-foreground">NF:</span> {m.numero_nf}</p>
-                    <p><span className="font-medium text-muted-foreground">Saída:</span> {format(new Date(m.data_saida + 'T12:00:00'), 'dd/MM/yyyy')}</p>
+                    {m.data_saida ? (
+                      <p><span className="font-medium text-muted-foreground">Saída:</span> {format(new Date(m.data_saida + 'T12:00:00'), 'dd/MM/yyyy')}</p>
+                    ) : (
+                      <p><span className="font-medium text-muted-foreground">Saída:</span> <span className="text-yellow-600">Aguardando liberação</span></p>
+                    )}
                     {m.destino && <p><span className="font-medium text-muted-foreground">Destino:</span> {m.destino}</p>}
                     {m.motivo && <p><span className="font-medium text-muted-foreground">Serviço:</span> {m.motivo}</p>}
                     {m.data_retorno && <p><span className="font-medium text-muted-foreground">Retorno:</span> {format(new Date(m.data_retorno + 'T12:00:00'), 'dd/MM/yyyy')}</p>}
