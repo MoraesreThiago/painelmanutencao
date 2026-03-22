@@ -134,6 +134,9 @@ const MotoresEletricos = () => {
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div>
+                        {m.identificacao_motor && (
+                          <p className="text-lg font-bold text-primary">{m.identificacao_motor}</p>
+                        )}
                         <CardTitle className="text-base">{m.tag}</CardTitle>
                         <p className="text-sm text-muted-foreground mt-0.5">{m.motor}</p>
                       </div>
