@@ -309,19 +309,6 @@ const MotorEletricoForm = () => {
                 <Label>Data de Retorno</Label>
                 <Input type="date" value={form.data_retorno} onChange={e => set('data_retorno', e.target.value)} className="touch-target mt-1" />
               </div>
-
-              {canChangeArea && (
-                <div>
-                  <Label>Área</Label>
-                  <Select value={form.area} onValueChange={v => set('area', v)}>
-                    <SelectTrigger className="touch-target mt-1"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Elétrica">Elétrica</SelectItem>
-                      <SelectItem value="Mecânica">Mecânica</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
             </CardContent>
           </Card>
 

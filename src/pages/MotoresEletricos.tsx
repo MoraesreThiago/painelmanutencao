@@ -146,7 +146,7 @@ const MotoresEletricos = () => {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">
-                    {m.identificacao_motor && <p><span className="font-medium text-muted-foreground">MO:</span> {m.identificacao_motor}</p>}
+                    
                     {m.carcaca && <p><span className="font-medium text-muted-foreground">Carcaça:</span> {m.carcaca}</p>}
                     {m.fabricante && <p><span className="font-medium text-muted-foreground">Fabricante:</span> {m.fabricante}</p>}
                     {m.potencia && <p><span className="font-medium text-muted-foreground">Potência:</span> {m.potencia}</p>}
