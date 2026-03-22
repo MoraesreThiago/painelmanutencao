@@ -275,7 +275,7 @@ const MotorEletricoForm = () => {
                 <Input value={form.numero_nf} onChange={e => set('numero_nf', e.target.value)} placeholder="Número da NF" className="touch-target mt-1" />
               </div>
               <div>
-                <Label>Data de Saída *</Label>
+                <Label>Data de Saída</Label>
                 <Input type="date" value={form.data_saida} onChange={e => set('data_saida', e.target.value)} className="touch-target mt-1" />
               </div>
             </CardContent>
