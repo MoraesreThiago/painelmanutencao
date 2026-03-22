@@ -294,18 +294,6 @@ export type Database = {
         }
         Relationships: []
       }
-      vw_equipamentos_consolidados: {
-        Row: {
-          area: string | null
-          equipamento: string | null
-          local_exemplo: string | null
-          qtd_registros_origem: number | null
-          status: string | null
-          tag: string | null
-          updated_at: string | null
-        }
-        Relationships: []
-      }
       vw_equipamentos_mapeados: {
         Row: {
           area: string | null
@@ -318,28 +306,6 @@ export type Database = {
           status: string | null
           tag: string | null
           tag_representacao: string | null
-          updated_at: string | null
-        }
-        Relationships: []
-      }
-      vw_equipamentos_tratados: {
-        Row: {
-          area: string | null
-          codigo_da_tag: string | null
-          codigo_no_grupo: string | null
-          codigo_principal: string | null
-          cp_no_local: string | null
-          created_at: string | null
-          eh_instrumentacao: boolean | null
-          eh_sensor: boolean | null
-          equipamento: string | null
-          grupo_principal: string | null
-          id: string | null
-          local: string | null
-          prefixo_tag: string | null
-          status: string | null
-          tag: string | null
-          tipo_registro_final: string | null
           updated_at: string | null
         }
         Relationships: []
