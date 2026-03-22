@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
-import { FileText, History, Users, BarChart3, Zap, Plus, AlertCircle } from 'lucide-react';
+import { FileText, History, Users, BarChart3, Zap, Plus } from 'lucide-react';
 import type { Ocorrencia } from '@/types/database';
 
 import { Badge } from '@/components/ui/badge';
