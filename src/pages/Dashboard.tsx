@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { FileText, History, Users, BarChart3, Zap, Plus, AlertCircle } from 'lucide-react';
 import type { Ocorrencia } from '@/types/database';
@@ -27,7 +28,6 @@ function getCurrentAndPreviousTurno(): { currentTurno: string; currentHorario: s
 
   const isDia = currentTime >= 430 && currentTime < 1150; // 07:10-19:10
 
-  // Dia operacional: antes das 07:10 ainda pertence ao dia anterior
   const operationalDate = currentTime >= 430
     ? new Date(now.getFullYear(), now.getMonth(), now.getDate())
     : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
@@ -61,17 +61,34 @@ const statusColors: Record<string, string> = {
   Realizada: 'bg-status-realizada text-primary-foreground',
 };
 
+const OcorrenciaItem = ({ o }: { o: Ocorrencia }) => (
+  <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-2 mb-1">
+        <span className="font-medium text-sm truncate">{o.equipamento || o.tag || 'Sem equipamento'}</span>
+        {o.tag && <Badge variant="outline" className="text-xs">{o.tag}</Badge>}
+      </div>
+      <p className="text-xs text-muted-foreground truncate">{o.descricao}</p>
+      <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+        {o.colaboradores?.nome && <span>{o.colaboradores.nome}</span>}
+        {o.local && <><span>•</span><span>{o.local}</span></>}
+      </div>
+    </div>
+    <Badge className={`${statusColors[o.status] || 'bg-muted'} ml-2 shrink-0`}>{o.status}</Badge>
+  </div>
+);
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const [stats, setStats] = useState({ total: 0, pendentes: 0 });
   const [previousOcorrencias, setPreviousOcorrencias] = useState<Ocorrencia[]>([]);
+  const [currentOcorrencias, setCurrentOcorrencias] = useState<Ocorrencia[]>([]);
 
   const turnoInfo = useMemo(() => getCurrentAndPreviousTurno(), []);
 
   useEffect(() => {
     const load = async () => {
-      // A partir das 07:10 considera o dia atual; antes disso, o dia anterior
       const now = new Date();
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
       const referenceDate = currentMinutes >= 430
@@ -80,8 +97,7 @@ const Dashboard = () => {
       const todayStr = referenceDate.toISOString().split('T')[0];
       const yesterdayStr = new Date(referenceDate.getTime() - 86400000).toISOString().split('T')[0];
 
-      // Run all queries in parallel
-      const [totalRes, pendentesRes, ocorrenciasRes] = await Promise.all([
+      const [totalRes, pendentesRes, previousRes, currentRes] = await Promise.all([
         (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true }),
         (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true }).eq('status', 'Pendente'),
         (supabase as any)
@@ -92,10 +108,19 @@ const Dashboard = () => {
           .in('data_ocorrencia', [todayStr, yesterdayStr])
           .order('created_at', { ascending: false })
           .limit(10),
+        (supabase as any)
+          .from('ocorrencias')
+          .select('*, colaboradores(nome)')
+          .eq('turno', turnoInfo.currentTurno)
+          .eq('horario', turnoInfo.currentHorario)
+          .in('data_ocorrencia', [todayStr, yesterdayStr])
+          .order('created_at', { ascending: false })
+          .limit(10),
       ]);
 
       setStats({ total: totalRes.count || 0, pendentes: pendentesRes.count || 0 });
-      setPreviousOcorrencias((ocorrenciasRes.data || []) as Ocorrencia[]);
+      setPreviousOcorrencias((previousRes.data || []) as Ocorrencia[]);
+      setCurrentOcorrencias((currentRes.data || []) as Ocorrencia[]);
     };
     load();
   }, [turnoInfo]);
@@ -113,7 +138,7 @@ const Dashboard = () => {
     <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <h1 className="text-2xl font-bold">Painel Principal</h1>
             <p className="text-sm text-muted-foreground">
               Turno atual: <span className="font-medium text-foreground">{turnoInfo.currentTurno}</span> — {turnoInfo.currentHorario}
               {profile?.area && <> • {profile.area}</>}
@@ -148,35 +173,38 @@ const Dashboard = () => {
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Ocorrências do Turno Anterior</CardTitle>
-            <p className="text-xs text-muted-foreground">
-              Turno {turnoInfo.previousTurno} — {turnoInfo.previousHorario}
-            </p>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Ocorrências por Turno</CardTitle>
           </CardHeader>
           <CardContent>
-            {previousOcorrencias.length === 0 ? (
-              <p className="text-muted-foreground text-sm">Nenhuma ocorrência registrada no turno anterior.</p>
-            ) : (
-              <div className="space-y-2">
-                {previousOcorrencias.map(o => (
-                  <div key={o.id} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm truncate">{o.equipamento || o.tag || 'Sem equipamento'}</span>
-                        {o.tag && <Badge variant="outline" className="text-xs">{o.tag}</Badge>}
-                      </div>
-                      <p className="text-xs text-muted-foreground truncate">{o.descricao}</p>
-                      <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                        {o.colaboradores?.nome && <span>{o.colaboradores.nome}</span>}
-                        {o.local && <><span>•</span><span>{o.local}</span></>}
-                      </div>
-                    </div>
-                    <Badge className={`${statusColors[o.status] || 'bg-muted'} ml-2 shrink-0`}>{o.status}</Badge>
+            <Tabs defaultValue="atual">
+              <TabsList className="w-full">
+                <TabsTrigger value="atual" className="flex-1">
+                  Turno Atual ({turnoInfo.currentTurno} — {turnoInfo.currentHorario})
+                </TabsTrigger>
+                <TabsTrigger value="anterior" className="flex-1">
+                  Turno Anterior ({turnoInfo.previousTurno} — {turnoInfo.previousHorario})
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="atual" className="mt-3">
+                {currentOcorrencias.length === 0 ? (
+                  <p className="text-muted-foreground text-sm py-4 text-center">Nenhuma ocorrência registrada no turno atual.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {currentOcorrencias.map(o => <OcorrenciaItem key={o.id} o={o} />)}
                   </div>
-                ))}
-              </div>
-            )}
+                )}
+              </TabsContent>
+              <TabsContent value="anterior" className="mt-3">
+                {previousOcorrencias.length === 0 ? (
+                  <p className="text-muted-foreground text-sm py-4 text-center">Nenhuma ocorrência registrada no turno anterior.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {previousOcorrencias.map(o => <OcorrenciaItem key={o.id} o={o} />)}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
     </div>
