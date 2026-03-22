@@ -91,7 +91,8 @@ Deno.serve(async (req) => {
     });
 
     if (createError) {
-      return new Response(JSON.stringify({ error: createError.message }), {
+      console.error("[create-user] Auth create error:", createError);
+      return new Response(JSON.stringify({ error: "Erro ao criar usuário. Verifique os dados e tente novamente." }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
