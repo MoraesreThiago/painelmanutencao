@@ -60,11 +60,22 @@ const MotorEletricoForm = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const { data: eqs } = await (supabase as any)
-        .from('vw_equipamentos_app')
-        .select('tag, equipamento, area, local')
-        .order('tag');
-      setEquipamentos((eqs || []) as Equipamento[]);
+      // Fetch all equipamentos (bypassing 1000-row default limit)
+      let allEqs: Equipamento[] = [];
+      let from = 0;
+      const batchSize = 1000;
+      while (true) {
+        const { data: batch } = await (supabase as any)
+          .from('vw_equipamentos_app')
+          .select('tag, equipamento, area, local')
+          .order('tag')
+          .range(from, from + batchSize - 1);
+        if (!batch || batch.length === 0) break;
+        allEqs = allEqs.concat(batch as Equipamento[]);
+        if (batch.length < batchSize) break;
+        from += batchSize;
+      }
+      setEquipamentos(allEqs);
 
       if (isEdit) {
         const { data } = await (supabase as any).from('motores_eletricos').select('*').eq('id', id).single();
