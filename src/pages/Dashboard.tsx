@@ -81,7 +81,7 @@ const OcorrenciaItem = ({ o }: { o: Ocorrencia }) => (
 const Dashboard = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const [stats, setStats] = useState({ total: 0, pendentes: 0 });
+  
   const [previousOcorrencias, setPreviousOcorrencias] = useState<Ocorrencia[]>([]);
   const [currentOcorrencias, setCurrentOcorrencias] = useState<Ocorrencia[]>([]);
 
