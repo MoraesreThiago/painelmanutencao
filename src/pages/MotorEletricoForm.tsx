@@ -40,8 +40,11 @@ const MotorEletricoForm = () => {
     carcaca: '',
     fabricante: '',
     potencia: '',
+    rpm: '',
+    tensao: '',
+    corrente: '',
     numero_nf: '',
-    data_saida: format(new Date(), 'yyyy-MM-dd'),
+    data_saida: '',
     destino: '',
     motivo: '',
     status_retorno: 'Pendente',
@@ -73,8 +76,11 @@ const MotorEletricoForm = () => {
             carcaca: data.carcaca || '',
             fabricante: data.fabricante || '',
             potencia: data.potencia || '',
+            rpm: data.rpm || '',
+            tensao: data.tensao || '',
+            corrente: data.corrente || '',
             numero_nf: data.numero_nf || '',
-            data_saida: data.data_saida,
+            data_saida: data.data_saida || '',
             destino: data.destino || '',
             motivo: data.motivo || '',
             status_retorno: data.status_retorno,
@@ -112,8 +118,8 @@ const MotorEletricoForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.tag.trim() || !form.motor.trim() || !form.data_saida) {
-      toast.error('Equipamento e Data de Saída são obrigatórios');
+    if (!form.tag.trim() || !form.motor.trim()) {
+      toast.error('Equipamento é obrigatório');
       return;
     }
     setLoading(true);
@@ -125,8 +131,11 @@ const MotorEletricoForm = () => {
       carcaca: (form.carcaca || '').trim() || null,
       fabricante: (form.fabricante || '').trim() || null,
       potencia: (form.potencia || '').trim() || null,
+      rpm: (form.rpm || '').trim() || null,
+      tensao: (form.tensao || '').trim() || null,
+      corrente: (form.corrente || '').trim() || null,
       numero_nf: (form.numero_nf || '').trim() || null,
-      data_saida: form.data_saida,
+      data_saida: form.data_saida || null,
       destino: (form.destino || '').trim() || null,
       motivo: (form.motivo || '').trim() || null,
       status_retorno: form.status_retorno,
@@ -228,6 +237,18 @@ const MotorEletricoForm = () => {
                 <Label>Fabricante</Label>
                 <Input value={form.fabricante} onChange={e => set('fabricante', e.target.value)} placeholder="Ex: WEG" className="touch-target mt-1" />
               </div>
+              <div>
+                <Label>RPM</Label>
+                <Input value={form.rpm} onChange={e => set('rpm', e.target.value)} placeholder="Ex: 1750" className="touch-target mt-1" />
+              </div>
+              <div>
+                <Label>Tensão</Label>
+                <Input value={form.tensao} onChange={e => set('tensao', e.target.value)} placeholder="Ex: 380" className="touch-target mt-1" />
+              </div>
+              <div>
+                <Label>Corrente</Label>
+                <Input value={form.corrente} onChange={e => set('corrente', e.target.value)} placeholder="Ex: 10,0A" className="touch-target mt-1" />
+              </div>
             </CardContent>
           </Card>
 
@@ -254,7 +275,7 @@ const MotorEletricoForm = () => {
                 <Input value={form.numero_nf} onChange={e => set('numero_nf', e.target.value)} placeholder="Número da NF" className="touch-target mt-1" />
               </div>
               <div>
-                <Label>Data de Saída *</Label>
+                <Label>Data de Saída</Label>
                 <Input type="date" value={form.data_saida} onChange={e => set('data_saida', e.target.value)} className="touch-target mt-1" />
               </div>
             </CardContent>

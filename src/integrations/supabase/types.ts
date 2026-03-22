@@ -84,10 +84,11 @@ export type Database = {
         Row: {
           area: string
           carcaca: string | null
+          corrente: string | null
           created_at: string | null
           created_by: string | null
           data_retorno: string | null
-          data_saida: string
+          data_saida: string | null
           destino: string | null
           fabricante: string | null
           id: string
@@ -96,17 +97,20 @@ export type Database = {
           motor: string
           numero_nf: string | null
           potencia: string | null
+          rpm: string | null
           status_retorno: string
           tag: string
+          tensao: string | null
           updated_at: string | null
         }
         Insert: {
           area: string
           carcaca?: string | null
+          corrente?: string | null
           created_at?: string | null
           created_by?: string | null
           data_retorno?: string | null
-          data_saida: string
+          data_saida?: string | null
           destino?: string | null
           fabricante?: string | null
           id?: string
@@ -115,17 +119,20 @@ export type Database = {
           motor: string
           numero_nf?: string | null
           potencia?: string | null
+          rpm?: string | null
           status_retorno?: string
           tag: string
+          tensao?: string | null
           updated_at?: string | null
         }
         Update: {
           area?: string
           carcaca?: string | null
+          corrente?: string | null
           created_at?: string | null
           created_by?: string | null
           data_retorno?: string | null
-          data_saida?: string
+          data_saida?: string | null
           destino?: string | null
           fabricante?: string | null
           id?: string
@@ -134,8 +141,10 @@ export type Database = {
           motor?: string
           numero_nf?: string | null
           potencia?: string | null
+          rpm?: string | null
           status_retorno?: string
           tag?: string
+          tensao?: string | null
           updated_at?: string | null
         }
         Relationships: []
