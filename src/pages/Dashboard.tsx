@@ -144,22 +144,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/ocorrencias')}>
-            <CardContent className="p-4 flex flex-col items-center text-center">
-              <FileText className="h-8 w-8 mb-2 text-foreground" />
-              <p className="text-2xl font-bold">{stats.total}</p>
-              <p className="text-xs text-muted-foreground">Total de Ocorrências</p>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/ocorrencias')}>
-            <CardContent className="p-4 flex flex-col items-center text-center">
-              <AlertCircle className="h-8 w-8 mb-2 text-status-pendente" />
-              <p className="text-2xl font-bold">{stats.pendentes}</p>
-              <p className="text-xs text-muted-foreground">Pendentes</p>
-            </CardContent>
-          </Card>
-        </div>
 
         <div className={`grid gap-3 ${shortcuts.length <= 5 ? 'grid-cols-3 md:grid-cols-5' : 'grid-cols-3 md:grid-cols-6'}`}>
           {shortcuts.map(s => (
