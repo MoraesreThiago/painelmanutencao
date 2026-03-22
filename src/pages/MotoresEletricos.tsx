@@ -154,7 +154,7 @@ const MotoresEletricos = () => {
                     {m.data_saida ? (
                       <p><span className="font-medium text-muted-foreground">Saída:</span> {format(new Date(m.data_saida + 'T12:00:00'), 'dd/MM/yyyy')}</p>
                     ) : (
-                      <p><span className="font-medium text-muted-foreground">Saída:</span> <span className="text-yellow-600">Aguardando liberação</span></p>
+                      <p><span className="font-medium text-muted-foreground">Saída:</span> <span className="text-amber-600 dark:text-amber-400">Aguardando liberação</span></p>
                     )}
                     {m.destino && <p><span className="font-medium text-muted-foreground">Destino:</span> {m.destino}</p>}
                     {m.motivo && <p><span className="font-medium text-muted-foreground">Serviço:</span> {m.motivo}</p>}
