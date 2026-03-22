@@ -97,9 +97,7 @@ const Dashboard = () => {
       const todayStr = referenceDate.toISOString().split('T')[0];
       const yesterdayStr = new Date(referenceDate.getTime() - 86400000).toISOString().split('T')[0];
 
-      const [totalRes, pendentesRes, previousRes, currentRes] = await Promise.all([
-        (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true }),
-        (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true }).eq('status', 'Pendente'),
+      const [previousRes, currentRes] = await Promise.all([
         (supabase as any)
           .from('ocorrencias')
           .select('*, colaboradores(nome)')
