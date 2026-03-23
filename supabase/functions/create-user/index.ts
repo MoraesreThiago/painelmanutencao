@@ -13,6 +13,7 @@ import {
   VALID_PERFIS,
   VALID_AREAS,
 } from "../_shared/helpers.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 Deno.serve(async (req) => {
   const cors = getCorsHeaders(req);
