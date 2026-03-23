@@ -47,7 +47,7 @@ async function fetchEquipamentosPaginated(filters: EquipamentosFilters): Promise
   if (dataRes.error) throw dataRes.error;
 
   return {
-    data: (dataRes.data ?? []) as Equipamento[],
+    data: (dataRes.data ?? []) as EquipamentoView[],
     totalCount: countRes.count ?? 0,
   };
 }
