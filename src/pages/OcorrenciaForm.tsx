@@ -195,7 +195,7 @@ const OcorrenciaForm = () => {
     }
   };
 
-  const set = (key: string, value: any) => setForm(f => ({ ...f, [key]: value }));
+  const set = (key: string, value: string | boolean) => setForm(f => ({ ...f, [key]: value }));
 
   const handleImproveDescription = async () => {
     if (!form.descricao.trim()) { toast.error('Digite uma descrição primeiro'); return; }
