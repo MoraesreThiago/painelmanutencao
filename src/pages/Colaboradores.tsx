@@ -1,38 +1,31 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import type { Colaborador } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { canManageColaboradores } from '@/lib/roles';
 import { Navigate } from 'react-router-dom';
+import { useColaboradores, useInvalidateColaboradores } from '@/hooks/queries';
 
 const Colaboradores = () => {
   const { profile } = useAuth();
   const canManage = canManageColaboradores(profile);
-  const [items, setItems] = useState<Colaborador[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Colaborador | null>(null);
   const [form, setForm] = useState({ nome: '', area: 'Elétrica', turno: 'A', cargo: '', status: 'Ativo' });
 
-  const load = async () => {
-    setLoading(true);
-    const { data } = await (supabase as any).from('colaboradores').select('*').order('nome');
-    setItems((data || []) as Colaborador[]);
-    setLoading(false);
-  };
-
-  useEffect(() => { load(); }, []);
+  const { data: items = [], isLoading } = useColaboradores();
+  const invalidate = useInvalidateColaboradores();
 
   if (!canManage) return <Navigate to="/dashboard" replace />;
 
@@ -43,23 +36,27 @@ const Colaboradores = () => {
     if (!form.nome.trim()) { toast.error('Nome é obrigatório'); return; }
     try {
       if (editing) {
-        await (supabase as any).from('colaboradores').update(form).eq('id', editing.id);
+        const { error } = await supabase.from('colaboradores').update(form).eq('id', editing.id);
+        if (error) throw error;
         toast.success('Colaborador atualizado!');
       } else {
-        await (supabase as any).from('colaboradores').insert(form);
+        const { error } = await supabase.from('colaboradores').insert(form);
+        if (error) throw error;
         toast.success('Colaborador cadastrado!');
       }
       setDialogOpen(false);
-      load();
-    } catch (err: any) { toast.error(err.message); }
+      invalidate();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao salvar');
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Excluir colaborador?')) return;
-    const { error } = await (supabase as any).from('colaboradores').delete().eq('id', id);
-    if (error) { toast.error('Sem permissão para excluir ou erro: ' + error.message); return; }
+    const { error } = await supabase.from('colaboradores').delete().eq('id', id);
+    if (error) { toast.error('Sem permissão para excluir ou erro'); return; }
     toast.success('Colaborador excluído!');
-    load();
+    invalidate();
   };
 
   const filtered = items.filter(c => !search || c.nome.toLowerCase().includes(search.toLowerCase()));
@@ -77,7 +74,7 @@ const Colaboradores = () => {
           <Input placeholder="Buscar por nome..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 touch-target" />
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center py-8"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>
         ) : (
           <div className="space-y-2">

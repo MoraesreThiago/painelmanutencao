@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,8 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import type { Ocorrencia } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { isAdmin as checkAdmin, canEditWithoutTimeLimit } from '@/lib/roles';
-
-const PAGE_SIZE = 20;
+import { useOcorrencias, OCORRENCIAS_PAGE_SIZE } from '@/hooks/queries';
 
 const statusColors: Record<string, string> = {
   Pendente: 'bg-status-pendente text-primary-foreground',
@@ -27,43 +25,35 @@ const Ocorrencias = () => {
   const { profile } = useAuth();
   const isAdmin = checkAdmin(profile);
   const canEditAnytime = canEditWithoutTimeLimit(profile);
-  const [ocorrencias, setOcorrencias] = useState<Ocorrencia[]>([]);
-  const [loading, setLoading] = useState(true);
+
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('todos');
   const [filterArea, setFilterArea] = useState('todos');
   const [filterTurno, setFilterTurno] = useState('todos');
   const [page, setPage] = useState(0);
-  const [totalCount, setTotalCount] = useState(0);
 
-  const load = async () => {
-    setLoading(true);
-    const from = page * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
+  // Debounce search input
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => {
+    debounceRef.current = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(debounceRef.current);
+  }, [search]);
 
-    let countQuery = (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true });
-    let dataQuery = (supabase as any).from('ocorrencias').select('*, colaboradores(nome)').order('data_ocorrencia', { ascending: false }).order('created_at', { ascending: false }).range(from, to);
+  // Reset page on filter change
+  useEffect(() => { setPage(0); }, [filterStatus, filterArea, filterTurno, debouncedSearch]);
 
-    if (filterStatus !== 'todos') { countQuery = countQuery.eq('status', filterStatus); dataQuery = dataQuery.eq('status', filterStatus); }
-    if (filterArea !== 'todos') { countQuery = countQuery.eq('area', filterArea); dataQuery = dataQuery.eq('area', filterArea); }
-    if (filterTurno !== 'todos') { countQuery = countQuery.eq('turno', filterTurno); dataQuery = dataQuery.eq('turno', filterTurno); }
-    if (search.trim()) {
-      const s = `%${search.trim()}%`;
-      const orFilter = `tag.ilike.${s},equipamento.ilike.${s},descricao.ilike.${s},area.ilike.${s}`;
-      countQuery = countQuery.or(orFilter);
-      dataQuery = dataQuery.or(orFilter);
-    }
+  const { data, isLoading } = useOcorrencias({
+    status: filterStatus,
+    area: filterArea,
+    turno: filterTurno,
+    search: debouncedSearch,
+    page,
+  });
 
-    const [{ count }, { data }] = await Promise.all([countQuery, dataQuery]);
-    setTotalCount(count || 0);
-    setOcorrencias((data || []) as Ocorrencia[]);
-    setLoading(false);
-  };
-
-  useEffect(() => { setPage(0); }, [filterStatus, filterArea, filterTurno, search]);
-  useEffect(() => { load(); }, [filterStatus, filterArea, filterTurno, search, page]);
-
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const ocorrencias = data?.data ?? [];
+  const totalCount = data?.totalCount ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / OCORRENCIAS_PAGE_SIZE));
 
   return (
     <div className="space-y-4">
@@ -118,7 +108,7 @@ const Ocorrencias = () => {
           </CardContent>
         </Card>
 
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center py-8"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>
         ) : ocorrencias.length === 0 ? (
           <Card><CardContent className="p-8 text-center text-muted-foreground">Nenhuma ocorrência encontrada.</CardContent></Card>
@@ -177,10 +167,9 @@ const Ocorrencias = () => {
               ))}
             </div>
 
-            {/* Pagination */}
             <div className="flex items-center justify-between pt-2">
               <p className="text-sm text-muted-foreground">
-                {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, totalCount)} de {totalCount}
+                {page * OCORRENCIAS_PAGE_SIZE + 1}–{Math.min((page + 1) * OCORRENCIAS_PAGE_SIZE, totalCount)} de {totalCount}
               </p>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)} className="touch-target">
