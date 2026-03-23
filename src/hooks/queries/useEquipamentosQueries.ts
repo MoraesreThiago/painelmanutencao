@@ -1,7 +1,10 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
 import type { Equipamento } from '@/types/database';
 import { queryKeys } from './queryKeys';
+
+type EquipamentoView = Tables<'vw_equipamentos_app'>;
 
 const PAGE_SIZE = 20;
 const BATCH_SIZE = 1000;
