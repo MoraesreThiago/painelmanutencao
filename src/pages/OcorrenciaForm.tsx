@@ -303,7 +303,7 @@ const OcorrenciaForm = () => {
                 {showTagSuggestions && tagSuggestions.length > 0 && (
                   <div className="absolute z-50 w-full mt-1 bg-card border rounded-md shadow-lg max-h-48 overflow-auto">
                     {tagSuggestions.map(eq => (
-                      <button key={eq.id} type="button" className="w-full text-left px-3 py-2 hover:bg-muted text-sm" onMouseDown={() => selectEquipamento(eq)}>
+                      <button key={eq.tag} type="button" className="w-full text-left px-3 py-2 hover:bg-muted text-sm" onMouseDown={() => selectEquipamento(eq)}>
                         <span className="font-medium">{eq.tag}</span> — {eq.equipamento}
                       </button>
                     ))}
