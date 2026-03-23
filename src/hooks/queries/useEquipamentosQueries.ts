@@ -66,8 +66,8 @@ export { PAGE_SIZE as EQUIPAMENTOS_PAGE_SIZE };
 
 // ─── Full list (for forms/selects) ───────────────────────────────────────────
 
-async function fetchAllEquipamentos(): Promise<Equipamento[]> {
-  const items: Equipamento[] = [];
+async function fetchAllEquipamentos(): Promise<EquipamentoView[]> {
+  const items: EquipamentoView[] = [];
 
   for (let from = 0; ; from += BATCH_SIZE) {
     const to = from + BATCH_SIZE - 1;
@@ -79,7 +79,7 @@ async function fetchAllEquipamentos(): Promise<Equipamento[]> {
 
     if (error) throw error;
 
-    const batch = (data ?? []) as Equipamento[];
+    const batch = (data ?? []) as EquipamentoView[];
     items.push(...batch);
 
     if (batch.length < BATCH_SIZE) break;
