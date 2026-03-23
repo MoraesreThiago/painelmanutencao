@@ -106,48 +106,40 @@ const OcorrenciaForm = () => {
   }, [profile, isEdit]);
 
   useEffect(() => {
-    const loadData = async () => {
-      const [eqs, { data: cols }] = await Promise.all([
-        fetchAllEquipamentos(),
-        (supabase as any).from('colaboradores').select('*').eq('status', 'Ativo').order('nome'),
-      ]);
-      setEquipamentos(eqs);
-      setColaboradores((cols || []) as Colaborador[]);
-
-      if (isEdit) {
-        const { data } = await (supabase as any).from('ocorrencias').select('*').eq('id', id).single();
-        if (data) {
-          setForm({
-            data_ocorrencia: data.data_ocorrencia,
-            horario: data.horario,
-            turno: data.turno,
-            colaborador_id: data.colaborador_id || '',
-            tag: data.tag || '',
-            equipamento: data.equipamento || '',
-            local: data.local || '',
-            area: data.area,
-            tipo_ocorrencia: data.tipo_ocorrencia || '',
-            descricao: data.descricao,
-            status: data.status,
-            houve_parada: data.houve_parada || false,
-            tipo_parada: data.tipo_parada || '',
-            tempo_parada: data.tempo_parada || '',
-            gerar_os: data.gerar_os || false,
-            prioridade_os: data.prioridade_os || '',
-            observacao_os: data.observacao_os || '',
-            tipo_manutencao_os: data.tipo_manutencao_os || '',
-            area_responsavel: data.area_responsavel || '',
-          });
-          setTagSearch(data.tag || '');
-          setEqSearch(data.equipamento || '');
-          setLocalSearch(data.local || '');
-        }
+    if (!isEdit || !id) return;
+    const loadOcorrencia = async () => {
+      const { data } = await supabase.from('ocorrencias').select('*').eq('id', id).single();
+      if (data) {
+        setForm({
+          data_ocorrencia: data.data_ocorrencia,
+          horario: data.horario,
+          turno: data.turno,
+          colaborador_id: data.colaborador_id || '',
+          tag: data.tag || '',
+          equipamento: data.equipamento || '',
+          local: data.local || '',
+          area: data.area,
+          tipo_ocorrencia: data.tipo_ocorrencia || '',
+          descricao: data.descricao,
+          status: data.status || 'Pendente',
+          houve_parada: data.houve_parada || false,
+          tipo_parada: data.tipo_parada || '',
+          tempo_parada: data.tempo_parada || '',
+          gerar_os: data.gerar_os || false,
+          prioridade_os: data.prioridade_os || '',
+          observacao_os: data.observacao_os || '',
+          tipo_manutencao_os: data.tipo_manutencao_os || '',
+          area_responsavel: data.area_responsavel || '',
+        });
+        setTagSearch(data.tag || '');
+        setEqSearch(data.equipamento || '');
+        setLocalSearch(data.local || '');
       }
     };
-    loadData();
+    loadOcorrencia();
   }, [id, isEdit]);
 
-  const selectEquipamento = (eq: Equipamento) => {
+  const selectEquipamento = (eq: EquipamentoView) => {
     setForm(f => ({
       ...f,
       tag: eq.tag || '',
