@@ -16,7 +16,7 @@ export const queryKeys = {
   // Equipamentos
   equipamentos: {
     all: ['equipamentos'] as const,
-    list: (filters: Record<string, string | number>) =>
+    list: (filters: object) =>
       ['equipamentos', 'list', filters] as const,
     full: ['equipamentos', 'full'] as const,
   },
