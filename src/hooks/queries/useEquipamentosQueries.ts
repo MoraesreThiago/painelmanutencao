@@ -17,7 +17,7 @@ interface EquipamentosFilters {
 }
 
 interface EquipamentosResult {
-  data: Equipamento[];
+  data: EquipamentoView[];
   totalCount: number;
 }
 
