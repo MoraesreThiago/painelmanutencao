@@ -12,8 +12,10 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Wand2, Loader2 } from 'lucide-react';
-import type { Equipamento, Colaborador } from '@/types/database';
-import { fetchAllEquipamentos } from '@/lib/fetchAllEquipamentos';
+import { useAllEquipamentos, useActiveColaboradores, useInvalidateOcorrencias } from '@/hooks/queries';
+import type { Tables } from '@/integrations/supabase/types';
+
+type EquipamentoView = Tables<'vw_equipamentos_app'>;
 
 const OcorrenciaForm = () => {
   const { id } = useParams();
