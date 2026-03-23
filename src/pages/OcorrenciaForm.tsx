@@ -165,7 +165,7 @@ const OcorrenciaForm = () => {
     if (form.descricao.trim().length < 20) { toast.error('Descrição deve ter no mínimo 20 caracteres'); return; }
     setLoading(true);
 
-    const payload: any = {
+    const payload = {
       ...form,
       colaborador_id: form.colaborador_id || null,
       area_responsavel: form.area_responsavel || null,
@@ -178,18 +178,18 @@ const OcorrenciaForm = () => {
 
     try {
       if (isEdit) {
-        const { error } = await (supabase as any).from('ocorrencias').update(payload).eq('id', id);
+        const { error } = await supabase.from('ocorrencias').update(payload).eq('id', id!);
         if (error) throw error;
         toast.success('Ocorrência atualizada!');
       } else {
-        payload.created_by = user?.id;
-        const { error } = await (supabase as any).from('ocorrencias').insert(payload);
+        const { error } = await supabase.from('ocorrencias').insert({ ...payload, created_by: user?.id });
         if (error) throw error;
         toast.success('Ocorrência criada!');
       }
+      invalidateOcorrencias();
       navigate('/ocorrencias');
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao salvar');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao salvar');
     } finally {
       setLoading(false);
     }
