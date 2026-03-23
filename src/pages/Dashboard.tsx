@@ -111,7 +111,7 @@ const Dashboard = () => {
           .select('*, colaboradores(nome)')
           .eq('turno', turnoInfo.currentTurno)
           .eq('horario', turnoInfo.currentHorario)
-          .in('data_ocorrencia', [todayStr, yesterdayStr])
+          .eq('data_ocorrencia', todayStr)
           .order('created_at', { ascending: false })
           .limit(10),
       ]);
