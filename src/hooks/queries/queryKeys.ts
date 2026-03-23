@@ -9,7 +9,7 @@ export const queryKeys = {
   // Ocorrencias
   ocorrencias: {
     all: ['ocorrencias'] as const,
-    list: (filters: Record<string, string | number>) =>
+    list: (filters: object) =>
       ['ocorrencias', 'list', filters] as const,
   },
 
