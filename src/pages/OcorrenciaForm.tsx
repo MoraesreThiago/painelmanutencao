@@ -26,8 +26,7 @@ const OcorrenciaForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [improving, setImproving] = useState(false);
-  const [equipamentos, setEquipamentos] = useState<Equipamento[]>([]);
-  const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
+  const [tagSearch, setTagSearch] = useState('');
   const [tagSearch, setTagSearch] = useState('');
   const [eqSearch, setEqSearch] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
