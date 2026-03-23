@@ -27,12 +27,15 @@ const OcorrenciaForm = () => {
   const [loading, setLoading] = useState(false);
   const [improving, setImproving] = useState(false);
   const [tagSearch, setTagSearch] = useState('');
-  const [tagSearch, setTagSearch] = useState('');
   const [eqSearch, setEqSearch] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [showEqSuggestions, setShowEqSuggestions] = useState(false);
   const [localSearch, setLocalSearch] = useState('');
   const [showLocalSuggestions, setShowLocalSuggestions] = useState(false);
+
+  const { data: equipamentos = [] } = useAllEquipamentos();
+  const { data: colaboradores = [] } = useActiveColaboradores();
+  const invalidateOcorrencias = useInvalidateOcorrencias();
 
   const getHorarioByTime = () => {
     const now = new Date();
