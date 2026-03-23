@@ -1,32 +1,30 @@
-import { useEffect, useState, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { FileText, History, Users, BarChart3, Zap, Plus } from 'lucide-react';
 import type { Ocorrencia } from '@/types/database';
-
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { canManageColaboradores } from '@/lib/roles';
+import { useTurnoOcorrencias } from '@/hooks/queries';
 
 const DIA_SEQUENCE = ['A', 'D', 'B', 'C'];
 const AMAN_SEQUENCE = ['B', 'C', 'A', 'D'];
-const REFERENCE_DATE = new Date(2026, 1, 18); // 18/02/2026
+const REFERENCE_DATE = new Date(2026, 1, 18);
 
 function getSlotIndex(diffDays: number): number {
   const cycleDay = ((diffDays % 8) + 8) % 8;
   return Math.floor(cycleDay / 2);
 }
 
-function getCurrentAndPreviousTurno(): { currentTurno: string; currentHorario: string; previousTurno: string; previousHorario: string } {
+function getCurrentAndPreviousTurno() {
   const now = new Date();
   const hours = now.getHours();
   const minutes = now.getMinutes();
   const currentTime = hours * 60 + minutes;
-
-  const isDia = currentTime >= 430 && currentTime < 1150; // 07:10-19:10
+  const isDia = currentTime >= 430 && currentTime < 1150;
 
   const operationalDate = currentTime >= 430
     ? new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -37,12 +35,17 @@ function getCurrentAndPreviousTurno(): { currentTurno: string; currentHorario: s
   const todaySlot = getSlotIndex(diffDays);
   const yesterdaySlot = getSlotIndex(diffDays - 1);
 
+  const todayStr = operationalDate.toISOString().split('T')[0];
+  const yesterdayStr = new Date(operationalDate.getTime() - 86400000).toISOString().split('T')[0];
+
   if (isDia) {
     return {
       currentTurno: DIA_SEQUENCE[todaySlot],
       currentHorario: 'Dia',
       previousTurno: AMAN_SEQUENCE[yesterdaySlot],
       previousHorario: 'Amanhecida',
+      todayStr,
+      yesterdayStr,
     };
   } else {
     return {
@@ -50,6 +53,8 @@ function getCurrentAndPreviousTurno(): { currentTurno: string; currentHorario: s
       currentHorario: 'Amanhecida',
       previousTurno: DIA_SEQUENCE[todaySlot],
       previousHorario: 'Dia',
+      todayStr,
+      yesterdayStr,
     };
   }
 }
@@ -81,47 +86,20 @@ const OcorrenciaItem = ({ o }: { o: Ocorrencia }) => (
 const Dashboard = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  
-  const [previousOcorrencias, setPreviousOcorrencias] = useState<Ocorrencia[]>([]);
-  const [currentOcorrencias, setCurrentOcorrencias] = useState<Ocorrencia[]>([]);
-
   const turnoInfo = useMemo(() => getCurrentAndPreviousTurno(), []);
 
-  useEffect(() => {
-    const load = async () => {
-      const now = new Date();
-      const currentMinutes = now.getHours() * 60 + now.getMinutes();
-      const referenceDate = currentMinutes >= 430
-        ? new Date(now.getFullYear(), now.getMonth(), now.getDate())
-        : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-      const todayStr = referenceDate.toISOString().split('T')[0];
-      const yesterdayStr = new Date(referenceDate.getTime() - 86400000).toISOString().split('T')[0];
+  const { data: previousOcorrencias = [] } = useTurnoOcorrencias({
+    turno: turnoInfo.previousTurno,
+    horario: turnoInfo.previousHorario,
+    dates: [turnoInfo.todayStr, turnoInfo.yesterdayStr],
+  });
 
-      const [previousRes, currentRes] = await Promise.all([
-        (supabase as any)
-          .from('ocorrencias')
-          .select('*, colaboradores(nome)')
-          .eq('turno', turnoInfo.previousTurno)
-          .eq('horario', turnoInfo.previousHorario)
-          .in('data_ocorrencia', [todayStr, yesterdayStr])
-          .order('created_at', { ascending: false })
-          .limit(10),
-        (supabase as any)
-          .from('ocorrencias')
-          .select('*, colaboradores(nome)')
-          .eq('turno', turnoInfo.currentTurno)
-          .eq('horario', turnoInfo.currentHorario)
-          .eq('data_ocorrencia', todayStr)
-          .order('created_at', { ascending: false })
-          .limit(10),
-      ]);
-
-      
-      setPreviousOcorrencias((previousRes.data || []) as Ocorrencia[]);
-      setCurrentOcorrencias((currentRes.data || []) as Ocorrencia[]);
-    };
-    load();
-  }, [turnoInfo]);
+  const { data: currentOcorrencias = [] } = useTurnoOcorrencias({
+    turno: turnoInfo.currentTurno,
+    horario: turnoInfo.currentHorario,
+    dates: [],
+    exactDate: turnoInfo.todayStr,
+  });
 
   const shortcuts = [
     { label: 'Nova Ocorrência', icon: Plus, path: '/ocorrencias/nova' },
@@ -143,7 +121,6 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
-
 
         <div className={`grid gap-3 ${shortcuts.length <= 5 ? 'grid-cols-3 md:grid-cols-5' : 'grid-cols-3 md:grid-cols-6'}`}>
           {shortcuts.map(s => (

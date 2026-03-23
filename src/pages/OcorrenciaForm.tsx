@@ -12,8 +12,10 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Wand2, Loader2 } from 'lucide-react';
-import type { Equipamento, Colaborador } from '@/types/database';
-import { fetchAllEquipamentos } from '@/lib/fetchAllEquipamentos';
+import { useAllEquipamentos, useActiveColaboradores, useInvalidateOcorrencias } from '@/hooks/queries';
+import type { Tables } from '@/integrations/supabase/types';
+
+type EquipamentoView = Tables<'vw_equipamentos_app'>;
 
 const OcorrenciaForm = () => {
   const { id } = useParams();
@@ -24,14 +26,16 @@ const OcorrenciaForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [improving, setImproving] = useState(false);
-  const [equipamentos, setEquipamentos] = useState<Equipamento[]>([]);
-  const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
   const [tagSearch, setTagSearch] = useState('');
   const [eqSearch, setEqSearch] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [showEqSuggestions, setShowEqSuggestions] = useState(false);
   const [localSearch, setLocalSearch] = useState('');
   const [showLocalSuggestions, setShowLocalSuggestions] = useState(false);
+
+  const { data: equipamentos = [] } = useAllEquipamentos();
+  const { data: colaboradores = [] } = useActiveColaboradores();
+  const invalidateOcorrencias = useInvalidateOcorrencias();
 
   const getHorarioByTime = () => {
     const now = new Date();
@@ -102,63 +106,55 @@ const OcorrenciaForm = () => {
   }, [profile, isEdit]);
 
   useEffect(() => {
-    const loadData = async () => {
-      const [eqs, { data: cols }] = await Promise.all([
-        fetchAllEquipamentos(),
-        (supabase as any).from('colaboradores').select('*').eq('status', 'Ativo').order('nome'),
-      ]);
-      setEquipamentos(eqs);
-      setColaboradores((cols || []) as Colaborador[]);
-
-      if (isEdit) {
-        const { data } = await (supabase as any).from('ocorrencias').select('*').eq('id', id).single();
-        if (data) {
-          setForm({
-            data_ocorrencia: data.data_ocorrencia,
-            horario: data.horario,
-            turno: data.turno,
-            colaborador_id: data.colaborador_id || '',
-            tag: data.tag || '',
-            equipamento: data.equipamento || '',
-            local: data.local || '',
-            area: data.area,
-            tipo_ocorrencia: data.tipo_ocorrencia || '',
-            descricao: data.descricao,
-            status: data.status,
-            houve_parada: data.houve_parada || false,
-            tipo_parada: data.tipo_parada || '',
-            tempo_parada: data.tempo_parada || '',
-            gerar_os: data.gerar_os || false,
-            prioridade_os: data.prioridade_os || '',
-            observacao_os: data.observacao_os || '',
-            tipo_manutencao_os: data.tipo_manutencao_os || '',
-            area_responsavel: data.area_responsavel || '',
-          });
-          setTagSearch(data.tag || '');
-          setEqSearch(data.equipamento || '');
-          setLocalSearch(data.local || '');
-        }
+    if (!isEdit || !id) return;
+    const loadOcorrencia = async () => {
+      const { data } = await supabase.from('ocorrencias').select('*').eq('id', id).single();
+      if (data) {
+        setForm({
+          data_ocorrencia: data.data_ocorrencia,
+          horario: data.horario,
+          turno: data.turno,
+          colaborador_id: data.colaborador_id || '',
+          tag: data.tag || '',
+          equipamento: data.equipamento || '',
+          local: data.local || '',
+          area: data.area,
+          tipo_ocorrencia: data.tipo_ocorrencia || '',
+          descricao: data.descricao,
+          status: data.status || 'Pendente',
+          houve_parada: data.houve_parada || false,
+          tipo_parada: data.tipo_parada || '',
+          tempo_parada: data.tempo_parada || '',
+          gerar_os: data.gerar_os || false,
+          prioridade_os: data.prioridade_os || '',
+          observacao_os: data.observacao_os || '',
+          tipo_manutencao_os: data.tipo_manutencao_os || '',
+          area_responsavel: data.area_responsavel || '',
+        });
+        setTagSearch(data.tag || '');
+        setEqSearch(data.equipamento || '');
+        setLocalSearch(data.local || '');
       }
     };
-    loadData();
+    loadOcorrencia();
   }, [id, isEdit]);
 
-  const selectEquipamento = (eq: Equipamento) => {
+  const selectEquipamento = (eq: EquipamentoView) => {
     setForm(f => ({
       ...f,
       tag: eq.tag || '',
-      equipamento: eq.equipamento,
+      equipamento: eq.equipamento || '',
       local: eq.local || '',
     }));
     setTagSearch(eq.tag || '');
-    setEqSearch(eq.equipamento);
+    setEqSearch(eq.equipamento || '');
     setLocalSearch(eq.local || '');
     setShowTagSuggestions(false);
     setShowEqSuggestions(false);
   };
 
   const tagSuggestions = equipamentos.filter(e => e.tag?.toLowerCase().includes(tagSearch.toLowerCase()) && tagSearch.length > 0);
-  const eqSuggestions = equipamentos.filter(e => e.equipamento.toLowerCase().includes(eqSearch.toLowerCase()) && eqSearch.length > 0);
+  const eqSuggestions = equipamentos.filter(e => (e.equipamento || '').toLowerCase().includes(eqSearch.toLowerCase()) && eqSearch.length > 0);
   const localSuggestions = [...new Set(equipamentos.map(e => e.local).filter((l): l is string => !!l && l.toLowerCase().includes(localSearch.toLowerCase()) && localSearch.length > 0))];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -169,7 +165,7 @@ const OcorrenciaForm = () => {
     if (form.descricao.trim().length < 20) { toast.error('Descrição deve ter no mínimo 20 caracteres'); return; }
     setLoading(true);
 
-    const payload: any = {
+    const payload = {
       ...form,
       colaborador_id: form.colaborador_id || null,
       area_responsavel: form.area_responsavel || null,
@@ -182,24 +178,24 @@ const OcorrenciaForm = () => {
 
     try {
       if (isEdit) {
-        const { error } = await (supabase as any).from('ocorrencias').update(payload).eq('id', id);
+        const { error } = await supabase.from('ocorrencias').update(payload).eq('id', id!);
         if (error) throw error;
         toast.success('Ocorrência atualizada!');
       } else {
-        payload.created_by = user?.id;
-        const { error } = await (supabase as any).from('ocorrencias').insert(payload);
+        const { error } = await supabase.from('ocorrencias').insert({ ...payload, created_by: user?.id });
         if (error) throw error;
         toast.success('Ocorrência criada!');
       }
+      invalidateOcorrencias();
       navigate('/ocorrencias');
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao salvar');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao salvar');
     } finally {
       setLoading(false);
     }
   };
 
-  const set = (key: string, value: any) => setForm(f => ({ ...f, [key]: value }));
+  const set = (key: string, value: string | boolean) => setForm(f => ({ ...f, [key]: value }));
 
   const handleImproveDescription = async () => {
     if (!form.descricao.trim()) { toast.error('Digite uma descrição primeiro'); return; }
@@ -307,7 +303,7 @@ const OcorrenciaForm = () => {
                 {showTagSuggestions && tagSuggestions.length > 0 && (
                   <div className="absolute z-50 w-full mt-1 bg-card border rounded-md shadow-lg max-h-48 overflow-auto">
                     {tagSuggestions.map(eq => (
-                      <button key={eq.id} type="button" className="w-full text-left px-3 py-2 hover:bg-muted text-sm" onMouseDown={() => selectEquipamento(eq)}>
+                      <button key={eq.tag} type="button" className="w-full text-left px-3 py-2 hover:bg-muted text-sm" onMouseDown={() => selectEquipamento(eq)}>
                         <span className="font-medium">{eq.tag}</span> — {eq.equipamento}
                       </button>
                     ))}
@@ -320,7 +316,7 @@ const OcorrenciaForm = () => {
                 {showEqSuggestions && eqSuggestions.length > 0 && (
                   <div className="absolute z-50 w-full mt-1 bg-card border rounded-md shadow-lg max-h-48 overflow-auto">
                     {eqSuggestions.map(eq => (
-                      <button key={eq.id} type="button" className="w-full text-left px-3 py-2 hover:bg-muted text-sm" onMouseDown={() => selectEquipamento(eq)}>
+                      <button key={eq.tag || eq.equipamento} type="button" className="w-full text-left px-3 py-2 hover:bg-muted text-sm" onMouseDown={() => selectEquipamento(eq)}>
                         <span className="font-medium">{eq.equipamento}</span>{eq.tag ? ` — ${eq.tag}` : ''}
                       </button>
                     ))}
