@@ -1,24 +1,45 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS = Deno.env.get("ALLOWED_ORIGINS")
+  ?.split(",")
+  .map((o) => o.trim())
+  .filter(Boolean) ?? [];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") ?? "";
+  const allowed =
+    ALLOWED_ORIGINS.length === 0 ||
+    ALLOWED_ORIGINS.includes(origin);
+  return {
+    "Access-Control-Allow-Origin": allowed ? origin : ALLOWED_ORIGINS[0] ?? "",
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "Vary": "Origin",
+  };
+}
+
+function jsonResponse(body: Record<string, unknown>, status: number, cors: Record<string, string>) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...cors, "Content-Type": "application/json" },
+  });
+}
+
+const MAX_DESC_LENGTH = 2000;
 
 Deno.serve(async (req) => {
+  const cors = getCorsHeaders(req);
 
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: cors });
   }
 
   try {
+    // Auth is now enforced by Supabase gateway (verify_jwt = true),
+    // but we still validate the user for logging/auditing purposes.
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Não autorizado" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "Não autorizado" }, 401, cors);
     }
 
     const supabase = createClient(
@@ -27,36 +48,39 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: "Não autorizado" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return jsonResponse({ error: "Não autorizado" }, 401, cors);
     }
 
-    const { descricao } = await req.json();
-    if (!descricao?.trim()) {
-      return new Response(JSON.stringify({ error: "Descrição vazia" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // --- Payload validation ---
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return jsonResponse({ error: "Payload JSON inválido" }, 400, cors);
     }
-    if (descricao.length > 2000) {
-      return new Response(JSON.stringify({ error: "Descrição muito longa (máx. 2000 caracteres)" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+
+    const { descricao } = body as Record<string, unknown>;
+
+    if (typeof descricao !== "string" || !descricao.trim()) {
+      return jsonResponse({ error: "Descrição vazia" }, 400, cors);
+    }
+    if (descricao.length > MAX_DESC_LENGTH) {
+      return jsonResponse(
+        { error: `Descrição muito longa (máx. ${MAX_DESC_LENGTH} caracteres)` },
+        400,
+        cors
+      );
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       console.error("[improve-description] AI API key is not configured");
-      return new Response(JSON.stringify({ error: "Serviço de IA indisponível" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "Serviço de IA indisponível" }, 500, cors);
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -92,31 +116,27 @@ Regras:
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Limite de requisições excedido, tente novamente em alguns segundos." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return jsonResponse({ error: "Limite de requisições excedido, tente novamente em alguns segundos." }, 429, cors);
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Créditos insuficientes para IA." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return jsonResponse({ error: "Créditos insuficientes para IA." }, 402, cors);
       }
       const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      throw new Error("Erro no gateway de IA");
+      console.error("[improve-description] AI gateway error:", response.status, t);
+      return jsonResponse({ error: "Erro no serviço de IA" }, 502, cors);
     }
 
     const data = await response.json();
     const improved = data.choices?.[0]?.message?.content?.trim();
 
-    return new Response(JSON.stringify({ improved }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    if (!improved) {
+      console.error("[improve-description] Empty AI response");
+      return jsonResponse({ error: "Resposta vazia do serviço de IA" }, 502, cors);
+    }
+
+    return jsonResponse({ improved }, 200, cors);
   } catch (e) {
-    console.error("[improve-description] Unhandled error:", e);
-    return new Response(JSON.stringify({ error: "Erro interno do servidor" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error("[improve-description] Unhandled error:", (e as Error).message);
+    return jsonResponse({ error: "Erro interno do servidor" }, 500, cors);
   }
 });

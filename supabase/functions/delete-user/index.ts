@@ -1,22 +1,41 @@
 import { createClient } from "@supabase/supabase-js";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const ALLOWED_ORIGINS = Deno.env.get("ALLOWED_ORIGINS")
+  ?.split(",")
+  .map((o) => o.trim())
+  .filter(Boolean) ?? [];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") ?? "";
+  const allowed =
+    ALLOWED_ORIGINS.length === 0 ||
+    ALLOWED_ORIGINS.includes(origin);
+  return {
+    "Access-Control-Allow-Origin": allowed ? origin : ALLOWED_ORIGINS[0] ?? "",
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "Vary": "Origin",
+  };
+}
+
+function jsonResponse(body: Record<string, unknown>, status: number, cors: Record<string, string>) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...cors, "Content-Type": "application/json" },
+  });
+}
 
 Deno.serve(async (req) => {
+  const cors = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response(null, { headers: cors });
   }
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Não autorizado" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (!authHeader?.startsWith("Bearer ")) {
+      return jsonResponse({ error: "Não autorizado" }, 401, cors);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -27,15 +46,14 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
 
-    const { data: { user: caller } } = await callerClient.auth.getUser();
+    const {
+      data: { user: caller },
+    } = await callerClient.auth.getUser();
     if (!caller) {
-      return new Response(JSON.stringify({ error: "Não autorizado" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "Não autorizado" }, 401, cors);
     }
 
-    // Check if caller is admin
+    // Verify caller is admin
     const { data: roleData } = await callerClient
       .from("user_roles")
       .select("role")
@@ -44,34 +62,39 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (!roleData) {
-      return new Response(JSON.stringify({ error: "Apenas administradores podem excluir usuários" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "Apenas administradores podem excluir usuários" }, 403, cors);
     }
 
-    const { user_id } = await req.json();
+    // --- Payload validation ---
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return jsonResponse({ error: "Payload JSON inválido" }, 400, cors);
+    }
 
-    if (!user_id) {
-      return new Response(JSON.stringify({ error: "ID do usuário é obrigatório" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const { user_id } = body as Record<string, unknown>;
+
+    if (typeof user_id !== "string" || !user_id.trim()) {
+      return jsonResponse({ error: "ID do usuário é obrigatório" }, 400, cors);
+    }
+
+    // UUID format validation
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(user_id)) {
+      return jsonResponse({ error: "ID do usuário inválido" }, 400, cors);
     }
 
     // Prevent self-deletion
     if (user_id === caller.id) {
-      return new Response(JSON.stringify({ error: "Você não pode excluir sua própria conta" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "Você não pode excluir sua própria conta" }, 400, cors);
     }
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Delete profile and roles (cascade from auth.users FK will handle user_roles)
+    // Delete profile and roles
     await adminClient.from("profiles").delete().eq("id", user_id);
     await adminClient.from("user_roles").delete().eq("user_id", user_id);
 
@@ -79,22 +102,13 @@ Deno.serve(async (req) => {
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(user_id);
 
     if (deleteError) {
-      console.error("[delete-user] Auth delete error:", deleteError);
-      return new Response(JSON.stringify({ error: "Erro ao excluir usuário. Tente novamente." }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.error("[delete-user] Auth delete error:", deleteError.message);
+      return jsonResponse({ error: "Erro ao excluir usuário. Tente novamente." }, 400, cors);
     }
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ success: true }, 200, cors);
   } catch (err) {
-    console.error("[delete-user] Unhandled error:", err);
-    return new Response(JSON.stringify({ error: "Erro interno do servidor" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error("[delete-user] Unhandled error:", (err as Error).message);
+    return jsonResponse({ error: "Erro interno do servidor" }, 500, cors);
   }
 });
