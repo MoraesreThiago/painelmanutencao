@@ -10,15 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Ocorrencia } from '@/types/database';
-
-const PAGE_SIZE = 20;
-
-const statusColors: Record<string, string> = {
-  Pendente: 'bg-status-pendente text-primary-foreground',
-  Liberado: 'bg-status-liberado text-primary-foreground',
-  'Em andamento': 'bg-status-andamento text-primary-foreground',
-  Realizada: 'bg-status-realizada text-primary-foreground',
-};
+import { STATUS_COLORS, DEFAULT_PAGE_SIZE } from '@/lib/constants';
 
 const Historico = () => {
   const [items, setItems] = useState<Ocorrencia[]>([]);
@@ -33,11 +25,11 @@ const Historico = () => {
 
   const load = async () => {
     setLoading(true);
-    const from = page * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
+    const from = page * DEFAULT_PAGE_SIZE;
+    const to = from + DEFAULT_PAGE_SIZE - 1;
 
-    let countQuery = (supabase as any).from('ocorrencias').select('*', { count: 'exact', head: true });
-    let dataQuery = (supabase as any).from('ocorrencias').select('*, colaboradores(nome)').order('data_ocorrencia', { ascending: false }).order('created_at', { ascending: false }).range(from, to);
+    let countQuery = supabase.from('ocorrencias').select('*', { count: 'exact', head: true });
+    let dataQuery = supabase.from('ocorrencias').select('*, colaboradores(nome)').order('data_ocorrencia', { ascending: false }).order('created_at', { ascending: false }).range(from, to);
 
     if (filterHorario !== 'todos') { countQuery = countQuery.eq('horario', filterHorario); dataQuery = dataQuery.eq('horario', filterHorario); }
     if (dateFrom) { countQuery = countQuery.gte('data_ocorrencia', dateFrom); dataQuery = dataQuery.gte('data_ocorrencia', dateFrom); }
@@ -51,14 +43,14 @@ const Historico = () => {
 
     const [{ count }, { data }] = await Promise.all([countQuery, dataQuery]);
     setTotalCount(count || 0);
-    setItems((data || []) as Ocorrencia[]);
+    setItems((data ?? []) as Ocorrencia[]);
     setLoading(false);
   };
 
   useEffect(() => { setPage(0); }, [filterHorario, dateFrom, dateTo, search]);
   useEffect(() => { load(); }, [filterHorario, dateFrom, dateTo, search, page]);
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(totalCount / DEFAULT_PAGE_SIZE));
 
   return (
     <div className="space-y-4">
@@ -110,7 +102,7 @@ const Historico = () => {
                   <CardContent className="p-4 space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">{o.data_ocorrencia.split('-').reverse().join('/')}</span>
-                      <Badge className={statusColors[o.status] || 'bg-muted'}>{o.status}</Badge>
+                      <Badge className={STATUS_COLORS[o.status] || 'bg-muted'}>{o.status}</Badge>
                     </div>
                     <p className="font-medium text-sm leading-snug line-clamp-2">{o.equipamento || o.tag || 'Sem equipamento'}</p>
                     {o.tag && o.equipamento && <span className="text-xs text-muted-foreground">TAG: {o.tag}</span>}
@@ -125,10 +117,9 @@ const Historico = () => {
               ))}
             </div>
 
-            {/* Pagination */}
             <div className="flex items-center justify-between pt-2">
               <p className="text-sm text-muted-foreground">
-                {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, totalCount)} de {totalCount}
+                {page * DEFAULT_PAGE_SIZE + 1}–{Math.min((page + 1) * DEFAULT_PAGE_SIZE, totalCount)} de {totalCount}
               </p>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)} className="touch-target">
@@ -156,7 +147,7 @@ const Historico = () => {
                   <div><span className="text-muted-foreground">TAG:</span> {selected.tag || '-'}</div>
                   <div><span className="text-muted-foreground">Equipamento:</span> {selected.equipamento || '-'}</div>
                   <div><span className="text-muted-foreground">Local:</span> {selected.local || '-'}</div>
-                  <div><span className="text-muted-foreground">Status:</span> <Badge className={statusColors[selected.status]}>{selected.status}</Badge></div>
+                  <div><span className="text-muted-foreground">Status:</span> <Badge className={STATUS_COLORS[selected.status]}>{selected.status}</Badge></div>
                 </div>
                 <div><span className="text-muted-foreground">Descrição:</span><p className="mt-1">{selected.descricao}</p></div>
                 {selected.colaboradores?.nome && <div><span className="text-muted-foreground">Colaborador:</span> {selected.colaboradores.nome}</div>}

@@ -11,29 +11,44 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { ArrowLeft, Save } from 'lucide-react';
-import { format } from 'date-fns';
+import type { Tables } from '@/integrations/supabase/types';
+import { useAllEquipamentos } from '@/hooks/queries';
 
-interface Equipamento {
-  tag: string | null;
-  equipamento: string | null;
-  area: string | null;
-  local: string | null;
+type EquipamentoView = Tables<'vw_equipamentos_app'>;
+
+interface MotorFormState {
+  tag: string;
+  motor: string;
+  identificacao_motor: string;
+  carcaca: string;
+  fabricante: string;
+  potencia: string;
+  rpm: string;
+  tensao: string;
+  corrente: string;
+  numero_nf: string;
+  data_saida: string;
+  destino: string;
+  motivo: string;
+  status_retorno: string;
+  data_retorno: string;
+  area: string;
 }
 
 const MotorEletricoForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, profile } = useAuth();
-  const isAdmin = profile?.perfil === 'administrador';
   const canChangeArea = isLeaderOrAbove(profile);
   const isEdit = !!id;
 
   const [loading, setLoading] = useState(false);
-  const [equipamentos, setEquipamentos] = useState<Equipamento[]>([]);
   const [tagSearch, setTagSearch] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
 
-  const [form, setForm] = useState({
+  const { data: equipamentos = [] } = useAllEquipamentos();
+
+  const [form, setForm] = useState<MotorFormState>({
     tag: '',
     motor: '',
     identificacao_motor: '',
@@ -59,50 +74,36 @@ const MotorEletricoForm = () => {
   }, [profile, isEdit]);
 
   useEffect(() => {
-    const loadData = async () => {
-      // Fetch all equipamentos (bypassing 1000-row default limit)
-      let allEqs: Equipamento[] = [];
-      let from = 0;
-      const batchSize = 1000;
-      while (true) {
-        const { data: batch } = await (supabase as any)
-          .from('vw_equipamentos_app')
-          .select('tag, equipamento, area, local')
-          .order('tag')
-          .range(from, from + batchSize - 1);
-        if (!batch || batch.length === 0) break;
-        allEqs = allEqs.concat(batch as Equipamento[]);
-        if (batch.length < batchSize) break;
-        from += batchSize;
-      }
-      setEquipamentos(allEqs);
+    if (!isEdit || !id) return;
+    let cancelled = false;
 
-      if (isEdit) {
-        const { data } = await (supabase as any).from('motores_eletricos').select('*').eq('id', id).single();
-        if (data) {
-          setForm({
-            tag: data.tag,
-            motor: data.motor,
-            identificacao_motor: (data.identificacao_motor || '').replace(/^MO/i, ''),
-            carcaca: data.carcaca || '',
-            fabricante: data.fabricante || '',
-            potencia: data.potencia || '',
-            rpm: data.rpm || '',
-            tensao: data.tensao || '',
-            corrente: data.corrente || '',
-            numero_nf: data.numero_nf || '',
-            data_saida: data.data_saida || '',
-            destino: data.destino || '',
-            motivo: data.motivo || '',
-            status_retorno: data.status_retorno,
-            data_retorno: data.data_retorno || '',
-            area: data.area,
-          });
-          setTagSearch(data.tag || '');
-        }
-      }
+    const loadRecord = async () => {
+      const { data } = await supabase.from('motores_eletricos').select('*').eq('id', id).single();
+      if (cancelled || !data) return;
+
+      setForm({
+        tag: data.tag,
+        motor: data.motor,
+        identificacao_motor: (data.identificacao_motor || '').replace(/^MO/i, ''),
+        carcaca: data.carcaca || '',
+        fabricante: data.fabricante || '',
+        potencia: data.potencia || '',
+        rpm: data.rpm || '',
+        tensao: data.tensao || '',
+        corrente: data.corrente || '',
+        numero_nf: data.numero_nf || '',
+        data_saida: data.data_saida || '',
+        destino: data.destino || '',
+        motivo: data.motivo || '',
+        status_retorno: data.status_retorno,
+        data_retorno: data.data_retorno || '',
+        area: data.area,
+      });
+      setTagSearch(data.tag || '');
     };
-    loadData();
+
+    loadRecord();
+    return () => { cancelled = true; };
   }, [id, isEdit]);
 
   const tagSuggestions = useMemo(() => {
@@ -114,7 +115,7 @@ const MotorEletricoForm = () => {
     ).slice(0, 30);
   }, [equipamentos, tagSearch]);
 
-  const selectEquipamento = (eq: Equipamento) => {
+  const selectEquipamento = (eq: EquipamentoView) => {
     setForm(prev => ({
       ...prev,
       tag: eq.tag || '',
@@ -125,7 +126,9 @@ const MotorEletricoForm = () => {
     setShowTagSuggestions(false);
   };
 
-  const set = (key: string, value: any) => setForm(f => ({ ...f, [key]: value }));
+  const setFormField = <K extends keyof MotorFormState>(key: K, value: MotorFormState[K]) => {
+    setForm(f => ({ ...f, [key]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,20 +138,22 @@ const MotorEletricoForm = () => {
     }
     setLoading(true);
 
-    const payload: any = {
-      tag: (form.tag || '').trim(),
-      motor: (form.motor || '').trim(),
-      identificacao_motor: (form.identificacao_motor || '').trim() ? `MO${(form.identificacao_motor || '').trim()}` : null,
-      carcaca: (form.carcaca || '').trim() || null,
-      fabricante: (form.fabricante || '').trim() || null,
-      potencia: (form.potencia || '').trim() || null,
-      rpm: (form.rpm || '').trim() || null,
-      tensao: (form.tensao || '').trim() || null,
-      corrente: (form.corrente || '').trim() || null,
-      numero_nf: (form.numero_nf || '').trim() || null,
+    const trimOrNull = (v: string) => v.trim() || null;
+
+    const payload = {
+      tag: form.tag.trim(),
+      motor: form.motor.trim(),
+      identificacao_motor: form.identificacao_motor.trim() ? `MO${form.identificacao_motor.trim()}` : null,
+      carcaca: trimOrNull(form.carcaca),
+      fabricante: trimOrNull(form.fabricante),
+      potencia: trimOrNull(form.potencia),
+      rpm: trimOrNull(form.rpm),
+      tensao: trimOrNull(form.tensao),
+      corrente: trimOrNull(form.corrente),
+      numero_nf: trimOrNull(form.numero_nf),
       data_saida: form.data_saida || null,
-      destino: (form.destino || '').trim() || null,
-      motivo: (form.motivo || '').trim() || null,
+      destino: trimOrNull(form.destino),
+      motivo: trimOrNull(form.motivo),
       status_retorno: form.status_retorno,
       data_retorno: form.data_retorno || null,
       area: form.area,
@@ -156,18 +161,17 @@ const MotorEletricoForm = () => {
 
     try {
       if (isEdit) {
-        const { error } = await (supabase as any).from('motores_eletricos').update(payload).eq('id', id);
+        const { error } = await supabase.from('motores_eletricos').update(payload).eq('id', id!);
         if (error) throw error;
         toast.success('Registro atualizado!');
       } else {
-        payload.created_by = user?.id;
-        const { error } = await (supabase as any).from('motores_eletricos').insert(payload);
+        const { error } = await supabase.from('motores_eletricos').insert({ ...payload, created_by: user?.id });
         if (error) throw error;
         toast.success('Serviço externo registrado!');
       }
       navigate('/motores-eletricos');
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao salvar');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao salvar');
     } finally {
       setLoading(false);
     }
@@ -192,7 +196,7 @@ const MotorEletricoForm = () => {
                   value={tagSearch || form.tag}
                   onChange={e => {
                     setTagSearch(e.target.value);
-                    set('tag', e.target.value);
+                    setFormField('tag', e.target.value);
                     setShowTagSuggestions(true);
                   }}
                   onFocus={() => setShowTagSuggestions(true)}
@@ -230,7 +234,7 @@ const MotorEletricoForm = () => {
                   <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm font-medium">MO</span>
                   <Input
                     value={form.identificacao_motor}
-                    onChange={e => set('identificacao_motor', e.target.value.replace(/\D/g, ''))}
+                    onChange={e => setFormField('identificacao_motor', e.target.value.replace(/\D/g, ''))}
                     placeholder="0000201"
                     className="touch-target rounded-l-none"
                   />
@@ -238,27 +242,27 @@ const MotorEletricoForm = () => {
               </div>
               <div>
                 <Label>Potência</Label>
-                <Input value={form.potencia} onChange={e => set('potencia', e.target.value)} placeholder="Ex: 75 CV" className="touch-target mt-1" />
+                <Input value={form.potencia} onChange={e => setFormField('potencia', e.target.value)} placeholder="Ex: 75 CV" className="touch-target mt-1" />
               </div>
               <div>
                 <Label>Carcaça</Label>
-                <Input value={form.carcaca} onChange={e => set('carcaca', e.target.value)} placeholder="Ex: 254T" className="touch-target mt-1" />
+                <Input value={form.carcaca} onChange={e => setFormField('carcaca', e.target.value)} placeholder="Ex: 254T" className="touch-target mt-1" />
               </div>
               <div>
                 <Label>Fabricante</Label>
-                <Input value={form.fabricante} onChange={e => set('fabricante', e.target.value)} placeholder="Ex: WEG" className="touch-target mt-1" />
+                <Input value={form.fabricante} onChange={e => setFormField('fabricante', e.target.value)} placeholder="Ex: WEG" className="touch-target mt-1" />
               </div>
               <div>
                 <Label>RPM</Label>
-                <Input value={form.rpm} onChange={e => set('rpm', e.target.value)} placeholder="Ex: 1750" className="touch-target mt-1" />
+                <Input value={form.rpm} onChange={e => setFormField('rpm', e.target.value)} placeholder="Ex: 1750" className="touch-target mt-1" />
               </div>
               <div>
                 <Label>Tensão</Label>
-                <Input value={form.tensao} onChange={e => set('tensao', e.target.value)} placeholder="Ex: 380" className="touch-target mt-1" />
+                <Input value={form.tensao} onChange={e => setFormField('tensao', e.target.value)} placeholder="Ex: 380" className="touch-target mt-1" />
               </div>
               <div>
                 <Label>Corrente</Label>
-                <Input value={form.corrente} onChange={e => set('corrente', e.target.value)} placeholder="Ex: 10,0A" className="touch-target mt-1" />
+                <Input value={form.corrente} onChange={e => setFormField('corrente', e.target.value)} placeholder="Ex: 10,0A" className="touch-target mt-1" />
               </div>
             </CardContent>
           </Card>
@@ -268,7 +272,7 @@ const MotorEletricoForm = () => {
             <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>Motivo / Serviço</Label>
-                <Select value={form.motivo || ''} onValueChange={v => set('motivo', v)}>
+                <Select value={form.motivo || ''} onValueChange={v => setFormField('motivo', v)}>
                   <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione o serviço" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Rebobinar">Rebobinar</SelectItem>
@@ -279,15 +283,15 @@ const MotorEletricoForm = () => {
               </div>
               <div>
                 <Label>Destino</Label>
-                <Input value={form.destino} onChange={e => set('destino', e.target.value)} placeholder="Para onde foi enviado" className="touch-target mt-1" />
+                <Input value={form.destino} onChange={e => setFormField('destino', e.target.value)} placeholder="Para onde foi enviado" className="touch-target mt-1" />
               </div>
               <div>
                 <Label>Nº Nota Fiscal</Label>
-                <Input value={form.numero_nf} onChange={e => set('numero_nf', e.target.value)} placeholder="Número da NF" className="touch-target mt-1" />
+                <Input value={form.numero_nf} onChange={e => setFormField('numero_nf', e.target.value)} placeholder="Número da NF" className="touch-target mt-1" />
               </div>
               <div>
                 <Label>Data de Saída</Label>
-                <Input type="date" value={form.data_saida} onChange={e => set('data_saida', e.target.value)} className="touch-target mt-1" />
+                <Input type="date" value={form.data_saida} onChange={e => setFormField('data_saida', e.target.value)} className="touch-target mt-1" />
               </div>
             </CardContent>
           </Card>
@@ -297,7 +301,7 @@ const MotorEletricoForm = () => {
             <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>Status de Retorno</Label>
-                <Select value={form.status_retorno} onValueChange={v => set('status_retorno', v)}>
+                <Select value={form.status_retorno} onValueChange={v => setFormField('status_retorno', v)}>
                   <SelectTrigger className="touch-target mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Pendente">Pendente</SelectItem>
@@ -307,7 +311,7 @@ const MotorEletricoForm = () => {
               </div>
               <div>
                 <Label>Data de Retorno</Label>
-                <Input type="date" value={form.data_retorno} onChange={e => set('data_retorno', e.target.value)} className="touch-target mt-1" />
+                <Input type="date" value={form.data_retorno} onChange={e => setFormField('data_retorno', e.target.value)} className="touch-target mt-1" />
               </div>
             </CardContent>
           </Card>

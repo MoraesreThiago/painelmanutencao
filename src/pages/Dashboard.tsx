@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,10 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { canManageColaboradores } from '@/lib/roles';
 import { useTurnoOcorrencias } from '@/hooks/queries';
-
-const DIA_SEQUENCE = ['A', 'D', 'B', 'C'];
-const AMAN_SEQUENCE = ['B', 'C', 'A', 'D'];
-const REFERENCE_DATE = new Date(2026, 1, 18);
+import { STATUS_COLORS, DIA_SEQUENCE, AMAN_SEQUENCE, REFERENCE_DATE } from '@/lib/constants';
 
 function getSlotIndex(diffDays: number): number {
   const cycleDay = ((diffDays % 8) + 8) % 8;
@@ -21,16 +18,13 @@ function getSlotIndex(diffDays: number): number {
 
 function getCurrentAndPreviousTurno() {
   const now = new Date();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const currentTime = hours * 60 + minutes;
+  const currentTime = now.getHours() * 60 + now.getMinutes();
   const isDia = currentTime >= 430 && currentTime < 1150;
 
   const operationalDate = currentTime >= 430
     ? new Date(now.getFullYear(), now.getMonth(), now.getDate())
     : new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-  const diffMs = operationalDate.getTime() - REFERENCE_DATE.getTime();
-  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+  const diffDays = Math.round((operationalDate.getTime() - REFERENCE_DATE.getTime()) / (1000 * 60 * 60 * 24));
 
   const todaySlot = getSlotIndex(diffDays);
   const yesterdaySlot = getSlotIndex(diffDays - 1);
@@ -47,24 +41,16 @@ function getCurrentAndPreviousTurno() {
       todayStr,
       yesterdayStr,
     };
-  } else {
-    return {
-      currentTurno: AMAN_SEQUENCE[todaySlot],
-      currentHorario: 'Amanhecida',
-      previousTurno: DIA_SEQUENCE[todaySlot],
-      previousHorario: 'Dia',
-      todayStr,
-      yesterdayStr,
-    };
   }
+  return {
+    currentTurno: AMAN_SEQUENCE[todaySlot],
+    currentHorario: 'Amanhecida',
+    previousTurno: DIA_SEQUENCE[todaySlot],
+    previousHorario: 'Dia',
+    todayStr,
+    yesterdayStr,
+  };
 }
-
-const statusColors: Record<string, string> = {
-  Pendente: 'bg-status-pendente text-primary-foreground',
-  Liberado: 'bg-status-liberado text-primary-foreground',
-  'Em andamento': 'bg-status-andamento text-primary-foreground',
-  Realizada: 'bg-status-realizada text-primary-foreground',
-};
 
 const OcorrenciaItem = ({ o }: { o: Ocorrencia }) => (
   <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
@@ -79,7 +65,7 @@ const OcorrenciaItem = ({ o }: { o: Ocorrencia }) => (
         {o.local && <><span>•</span><span>{o.local}</span></>}
       </div>
     </div>
-    <Badge className={`${statusColors[o.status] || 'bg-muted'} ml-2 shrink-0`}>{o.status}</Badge>
+    <Badge className={`${STATUS_COLORS[o.status] || 'bg-muted'} ml-2 shrink-0`}>{o.status}</Badge>
   </div>
 );
 
