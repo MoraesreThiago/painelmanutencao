@@ -12,31 +12,10 @@ import { Plus, Edit, Trash2, Search, RotateCcw, ChevronLeft, ChevronRight } from
 import { useAuth } from '@/contexts/AuthContext';
 import { isLeaderOrAbove } from '@/lib/roles';
 import { format } from 'date-fns';
+import type { Tables } from '@/integrations/supabase/types';
+import { DEFAULT_PAGE_SIZE } from '@/lib/constants';
 
-const PAGE_SIZE = 20;
-
-interface MotorEletrico {
-  id: string;
-  tag: string;
-  motor: string;
-  potencia: string | null;
-  identificacao_motor: string | null;
-  carcaca: string | null;
-  fabricante: string | null;
-  rpm: string | null;
-  tensao: string | null;
-  corrente: string | null;
-  numero_nf: string;
-  data_saida: string | null;
-  destino: string | null;
-  motivo: string | null;
-  status_retorno: string;
-  data_retorno: string | null;
-  area: string;
-  created_by: string | null;
-  created_at: string;
-  updated_at: string;
-}
+type MotorEletrico = Tables<'motores_eletricos'>;
 
 const MotoresEletricos = () => {
   const navigate = useNavigate();
@@ -52,11 +31,11 @@ const MotoresEletricos = () => {
 
   const load = async () => {
     setLoading(true);
-    const from = page * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
+    const from = page * DEFAULT_PAGE_SIZE;
+    const to = from + DEFAULT_PAGE_SIZE - 1;
 
-    let countQuery = (supabase as any).from('motores_eletricos').select('*', { count: 'exact', head: true });
-    let dataQuery = (supabase as any).from('motores_eletricos').select('*').order('data_saida', { ascending: false }).range(from, to);
+    let countQuery = supabase.from('motores_eletricos').select('*', { count: 'exact', head: true });
+    let dataQuery = supabase.from('motores_eletricos').select('*').order('data_saida', { ascending: false }).range(from, to);
 
     if (search.trim()) {
       const s = `%${search.trim()}%`;
@@ -67,7 +46,7 @@ const MotoresEletricos = () => {
 
     const [{ count }, { data }] = await Promise.all([countQuery, dataQuery]);
     setTotalCount(count || 0);
-    setItems((data || []) as MotorEletrico[]);
+    setItems((data ?? []) as MotorEletrico[]);
     setLoading(false);
   };
 
@@ -76,7 +55,7 @@ const MotoresEletricos = () => {
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    const { error } = await (supabase as any).from('motores_eletricos').delete().eq('id', deleteId);
+    const { error } = await supabase.from('motores_eletricos').delete().eq('id', deleteId);
     setDeleteId(null);
     if (error) {
       toast.error('Erro ao excluir: ' + error.message);
@@ -88,14 +67,14 @@ const MotoresEletricos = () => {
 
   const handleMarcarRetorno = async (m: MotorEletrico) => {
     const today = format(new Date(), 'yyyy-MM-dd');
-    await (supabase as any).from('motores_eletricos')
+    await supabase.from('motores_eletricos')
       .update({ status_retorno: 'Retornado', data_retorno: today })
       .eq('id', m.id);
     toast.success('Motor marcado como retornado!');
     load();
   };
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(totalCount / DEFAULT_PAGE_SIZE));
 
   return (
     <>
@@ -183,10 +162,9 @@ const MotoresEletricos = () => {
               ))}
             </div>
 
-            {/* Pagination */}
             <div className="flex items-center justify-between pt-2">
               <p className="text-sm text-muted-foreground">
-                {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, totalCount)} de {totalCount}
+                {page * DEFAULT_PAGE_SIZE + 1}–{Math.min((page + 1) * DEFAULT_PAGE_SIZE, totalCount)} de {totalCount}
               </p>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)} className="touch-target">

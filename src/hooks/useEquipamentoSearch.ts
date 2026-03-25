@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { EquipamentoView } from '@/types/ocorrenciaForm';
@@ -45,7 +45,6 @@ export function useEquipamentoSearch() {
   const [showEqSuggestions, setShowEqSuggestions] = useState(false);
   const [showLocalSuggestions, setShowLocalSuggestions] = useState(false);
 
-  // Debounced values using React Query's built-in staleTime
   const tagQuery = useQuery({
     queryKey: ['eq-search', 'tag', tagTerm],
     queryFn: () => searchEquipamentos(tagTerm),
@@ -71,15 +70,12 @@ export function useEquipamentoSearch() {
   });
 
   return {
-    // Tag
     tagTerm, setTagTerm,
     tagSuggestions: tagQuery.data ?? [],
     showTagSuggestions, setShowTagSuggestions,
-    // Equipamento
     eqTerm, setEqTerm,
     eqSuggestions: eqQuery.data ?? [],
     showEqSuggestions, setShowEqSuggestions,
-    // Local
     localTerm, setLocalTerm,
     localSuggestions: localQuery.data ?? [],
     showLocalSuggestions, setShowLocalSuggestions,

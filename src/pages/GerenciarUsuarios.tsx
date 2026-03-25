@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Users, Shield, Trash2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { getRoleLabel } from '@/lib/roles';
+import { PERFIL_AREA_MAP, CREATABLE_PERFIS } from '@/lib/constants';
 
 interface UserProfile {
   id: string;
@@ -22,30 +23,6 @@ interface UserProfile {
   perfil: string | null;
   area: string | null;
 }
-
-const perfilAreaMap: Record<string, string> = {
-  manutencao_eletrica: 'Elétrica',
-  manutencao_mecanica: 'Mecânica',
-  manutencao_instrumentacao: 'Instrumentação',
-  lider_eletrica: 'Elétrica',
-  lider_mecanica: 'Mecânica',
-  lider_instrumentacao: 'Instrumentação',
-  supervisor_eletrica: 'Elétrica',
-  supervisor_mecanica: 'Mecânica',
-  supervisor_instrumentacao: 'Instrumentação',
-};
-
-const creatablePerfis = [
-  { value: 'supervisor_eletrica', label: 'Supervisor Elétrica' },
-  { value: 'supervisor_mecanica', label: 'Supervisor Mecânica' },
-  { value: 'supervisor_instrumentacao', label: 'Supervisor Instrumentação' },
-  { value: 'lider_eletrica', label: 'Líder Elétrica' },
-  { value: 'lider_mecanica', label: 'Líder Mecânica' },
-  { value: 'lider_instrumentacao', label: 'Líder Instrumentação' },
-  { value: 'manutencao_eletrica', label: 'Manutenção Elétrica' },
-  { value: 'manutencao_mecanica', label: 'Manutenção Mecânica' },
-  { value: 'manutencao_instrumentacao', label: 'Manutenção Instrumentação' },
-];
 
 const GerenciarUsuarios = () => {
   const { profile } = useAuth();
@@ -59,8 +36,8 @@ const GerenciarUsuarios = () => {
 
   const loadUsers = async () => {
     setLoading(true);
-    const { data } = await (supabase as any).from('profiles').select('*').order('nome');
-    setUsers(data || []);
+    const { data } = await supabase.from('profiles').select('*').order('nome');
+    setUsers((data ?? []) as UserProfile[]);
     setLoading(false);
   };
 
@@ -68,9 +45,9 @@ const GerenciarUsuarios = () => {
 
   if (!isAdmin(profile)) return <Navigate to="/dashboard" replace />;
 
-  const set = (key: string, value: string) => {
+  const setFormField = (key: string, value: string) => {
     if (key === 'perfil') {
-      const area = perfilAreaMap[value] || '';
+      const area = PERFIL_AREA_MAP[value] || '';
       setForm(f => ({ ...f, perfil: value, area }));
     } else {
       setForm(f => ({ ...f, [key]: value }));
@@ -104,7 +81,7 @@ const GerenciarUsuarios = () => {
       toast.error('A senha deve ter pelo menos 6 caracteres');
       return;
     }
-    const area = perfilAreaMap[form.perfil] || '';
+    const area = PERFIL_AREA_MAP[form.perfil] || '';
     if (!area) { toast.error('Área é obrigatória'); return; }
 
     setSaving(true);
@@ -117,8 +94,8 @@ const GerenciarUsuarios = () => {
       toast.success('Usuário criado com sucesso!');
       setDialogOpen(false);
       loadUsers();
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao criar usuário');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao criar usuário');
     } finally {
       setSaving(false);
     }
@@ -132,29 +109,27 @@ const GerenciarUsuarios = () => {
 
     const isEditingAdmin = editTarget.perfil === 'administrador';
     const newPerfil = isEditingAdmin ? 'administrador' : form.perfil;
-    const newArea = isEditingAdmin ? editTarget.area : (perfilAreaMap[form.perfil] || '');
+    const newArea = isEditingAdmin ? editTarget.area : (PERFIL_AREA_MAP[form.perfil] || '');
 
     setSaving(true);
     try {
-      // Update profile
-      const { error: profileError } = await (supabase as any)
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({ nome: form.nome, perfil: newPerfil, area: newArea })
         .eq('id', editTarget.id);
       if (profileError) throw profileError;
 
-      // Update role if perfil changed and not admin
       if (!isEditingAdmin && newPerfil !== editTarget.perfil) {
-        await (supabase as any).from('user_roles').delete().eq('user_id', editTarget.id);
-        await (supabase as any).from('user_roles').insert({ user_id: editTarget.id, role: newPerfil });
+        await supabase.from('user_roles').delete().eq('user_id', editTarget.id);
+        await supabase.from('user_roles').insert({ user_id: editTarget.id, role: newPerfil as never });
       }
 
       toast.success('Usuário atualizado!');
       setDialogOpen(false);
       setEditTarget(null);
       loadUsers();
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao atualizar usuário');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao atualizar usuário');
     } finally {
       setSaving(false);
     }
@@ -171,8 +146,8 @@ const GerenciarUsuarios = () => {
       toast.success('Usuário excluído com sucesso!');
       setDeleteTarget(null);
       loadUsers();
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao excluir usuário');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao excluir usuário');
     }
   };
 
@@ -231,7 +206,6 @@ const GerenciarUsuarios = () => {
         </div>
       )}
 
-      {/* Delete confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={open => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -249,7 +223,6 @@ const GerenciarUsuarios = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Create / Edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -258,17 +231,17 @@ const GerenciarUsuarios = () => {
           <div className="space-y-4">
             <div>
               <Label>Nome *</Label>
-              <Input value={form.nome} onChange={e => set('nome', e.target.value)} placeholder="Nome completo" className="touch-target mt-1" />
+              <Input value={form.nome} onChange={e => setFormField('nome', e.target.value)} placeholder="Nome completo" className="touch-target mt-1" />
             </div>
             {!isEditing && (
               <>
                 <div>
                   <Label>Email *</Label>
-                  <Input type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="email@exemplo.com" className="touch-target mt-1" />
+                  <Input type="email" value={form.email} onChange={e => setFormField('email', e.target.value)} placeholder="email@exemplo.com" className="touch-target mt-1" />
                 </div>
                 <div>
                   <Label>Senha *</Label>
-                  <Input type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="Mínimo 6 caracteres" className="touch-target mt-1" />
+                  <Input type="password" value={form.password} onChange={e => setFormField('password', e.target.value)} placeholder="Mínimo 6 caracteres" className="touch-target mt-1" />
                 </div>
               </>
             )}
@@ -280,10 +253,10 @@ const GerenciarUsuarios = () => {
             ) : (
               <div>
                 <Label>Perfil *</Label>
-                <Select value={form.perfil} onValueChange={v => set('perfil', v)}>
+                <Select value={form.perfil} onValueChange={v => setFormField('perfil', v)}>
                   <SelectTrigger className="touch-target mt-1"><SelectValue placeholder="Selecione o perfil" /></SelectTrigger>
                   <SelectContent>
-                    {creatablePerfis.map(p => (
+                    {CREATABLE_PERFIS.map(p => (
                       <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
                     ))}
                   </SelectContent>

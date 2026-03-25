@@ -5,12 +5,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import type { Ocorrencia } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { FilterX } from 'lucide-react';
 
 const COLORS = ['hsl(215,65%,42%)', 'hsl(152,55%,42%)', 'hsl(38,92%,50%)', 'hsl(25,95%,53%)', 'hsl(340,65%,50%)', 'hsl(280,50%,50%)'];
+
+interface PieRenderProps {
+  cx: number;
+  cy: number;
+  midAngle: number;
+  outerRadius: number;
+  name: string;
+  value: number;
+  percent: number;
+}
 
 const ResumoMensal = () => {
   const { profile } = useAuth();
@@ -27,8 +37,8 @@ const ResumoMensal = () => {
     const lastDay = new Date(year, mo, 0).getDate();
     const end = `${year}-${String(mo).padStart(2, '0')}-${lastDay}`;
 
-    (supabase as any).from('ocorrencias').select('*').gte('data_ocorrencia', start).lte('data_ocorrencia', end)
-      .then(({ data }: any) => { setOcorrencias((data || []) as Ocorrencia[]); clearFilters(); });
+    supabase.from('ocorrencias').select('*').gte('data_ocorrencia', start).lte('data_ocorrencia', end)
+      .then(({ data }) => { setOcorrencias((data ?? []) as Ocorrencia[]); clearFilters(); });
   }, [month]);
 
   const hasFilters = selectedTurno || selectedLocal || selectedEquipamento;
@@ -47,7 +57,6 @@ const ResumoMensal = () => {
     ? ['Elétrica', 'Mecânica'].map(a => ({ name: a, value: ocorrencias.filter(o => o.area === a).length }))
     : null;
 
-  // Cross-filtered data
   const filteredOcorrencias = useMemo(() => {
     let result = ocorrencias;
     if (selectedTurno) result = result.filter(o => o.turno === selectedTurno);
@@ -56,7 +65,6 @@ const ResumoMensal = () => {
     return result;
   }, [ocorrencias, selectedTurno, selectedLocal, selectedEquipamento]);
 
-  // Turno data (not filtered by turno itself, but by local/equipamento)
   const turnoFiltered = useMemo(() => {
     let result = ocorrencias;
     if (selectedLocal) result = result.filter(o => o.local === selectedLocal);
@@ -66,7 +74,6 @@ const ResumoMensal = () => {
 
   const porTurno = ['A', 'B', 'C', 'D'].map(t => ({ name: `Turno ${t}`, turno: t, value: turnoFiltered.filter(o => o.turno === t).length }));
 
-  // Local data (not filtered by local itself, but by turno/equipamento)
   const localFiltered = useMemo(() => {
     let result = ocorrencias;
     if (selectedTurno) result = result.filter(o => o.turno === selectedTurno);
@@ -78,7 +85,6 @@ const ResumoMensal = () => {
   localFiltered.forEach(o => { if (o.local) localCount[o.local] = (localCount[o.local] || 0) + 1; });
   const topLocais = Object.entries(localCount).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, value]) => ({ name, value }));
 
-  // Equipamento data (not filtered by equipamento itself, but by turno/local)
   const eqFiltered = useMemo(() => {
     let result = ocorrencias;
     if (selectedTurno) result = result.filter(o => o.turno === selectedTurno);
@@ -95,21 +101,21 @@ const ResumoMensal = () => {
     return { value: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, label: d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) };
   });
 
-  const handleTurnoClick = (data: any) => {
+  const handleTurnoClick = (data: { activePayload?: Array<{ payload: Record<string, unknown> }> }) => {
     if (!data?.activePayload?.[0]) return;
-    const turno = data.activePayload[0].payload.turno;
+    const turno = data.activePayload[0].payload.turno as string;
     setSelectedTurno(prev => prev === turno ? null : turno);
   };
 
-  const handleLocalClick = (_: any, index: number) => {
+  const handleLocalClick = (_: unknown, index: number) => {
     const local = topLocais[index]?.name;
     if (!local) return;
     setSelectedLocal(prev => prev === local ? null : local);
   };
 
-  const handleEquipamentoClick = (data: any) => {
+  const handleEquipamentoClick = (data: { activePayload?: Array<{ payload: Record<string, unknown> }> }) => {
     if (!data?.activePayload?.[0]) return;
-    const eq = data.activePayload[0].payload.name;
+    const eq = data.activePayload[0].payload.name as string;
     setSelectedEquipamento(prev => prev === eq ? null : eq);
   };
 
@@ -118,7 +124,7 @@ const ResumoMensal = () => {
   if (selectedLocal) activeFilters.push(selectedLocal.length > 20 ? selectedLocal.slice(0, 18) + '…' : selectedLocal);
   if (selectedEquipamento) activeFilters.push(selectedEquipamento.length > 20 ? selectedEquipamento.slice(0, 18) + '…' : selectedEquipamento);
 
-  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, value, percent }: any) => {
+  const renderCustomLabel = ({ cx, cy, midAngle, outerRadius, name, value, percent }: PieRenderProps) => {
     const RADIAN = Math.PI / 180;
     const radius = outerRadius + 20;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);

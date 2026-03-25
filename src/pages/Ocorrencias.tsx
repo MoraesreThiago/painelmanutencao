@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,17 +8,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Lock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import type { Ocorrencia } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { isAdmin as checkAdmin, canEditWithoutTimeLimit } from '@/lib/roles';
 import { useOcorrencias, OCORRENCIAS_PAGE_SIZE } from '@/hooks/queries';
-
-const statusColors: Record<string, string> = {
-  Pendente: 'bg-status-pendente text-primary-foreground',
-  Liberado: 'bg-status-liberado text-primary-foreground',
-  'Em andamento': 'bg-status-andamento text-primary-foreground',
-  Realizada: 'bg-status-realizada text-primary-foreground',
-};
+import { STATUS_COLORS, EDIT_LOCK_MS } from '@/lib/constants';
 
 const Ocorrencias = () => {
   const navigate = useNavigate();
@@ -115,33 +108,34 @@ const Ocorrencias = () => {
         ) : (
           <>
             <div className="space-y-2">
-              {ocorrencias.map(o => (
-                <Card key={o.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <span className="font-semibold">{o.equipamento || 'Sem equipamento'}</span>
-                          {o.tag && <Badge variant="outline" className="text-xs">{o.tag}</Badge>}
-                          <Badge variant="secondary" className="text-xs">{o.area}</Badge>
-                          <Badge variant="secondary" className="text-xs">Turno {o.turno}</Badge>
+              {ocorrencias.map(o => {
+                const createdAt = new Date(o.created_at || o.data_ocorrencia);
+                const expired = (Date.now() - createdAt.getTime()) > EDIT_LOCK_MS;
+                const canEdit = canEditAnytime || !expired;
+
+                return (
+                  <Card key={o.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <span className="font-semibold">{o.equipamento || 'Sem equipamento'}</span>
+                            {o.tag && <Badge variant="outline" className="text-xs">{o.tag}</Badge>}
+                            <Badge variant="secondary" className="text-xs">{o.area}</Badge>
+                            <Badge variant="secondary" className="text-xs">Turno {o.turno}</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground truncate">{o.descricao}</p>
+                          <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-muted-foreground">
+                            <span>{o.data_ocorrencia.split('-').reverse().join('/')}</span>
+                            <span>•</span>
+                            <span>{o.horario}</span>
+                            {o.colaboradores?.nome && <><span>•</span><span>{o.colaboradores.nome}</span></>}
+                            {o.gerar_os && <Badge className="bg-primary text-primary-foreground text-xs">OS</Badge>}
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground truncate">{o.descricao}</p>
-                        <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-muted-foreground">
-                          <span>{o.data_ocorrencia.split('-').reverse().join('/')}</span>
-                          <span>•</span>
-                          <span>{o.horario}</span>
-                          {o.colaboradores?.nome && <><span>•</span><span>{o.colaboradores.nome}</span></>}
-                          {o.gerar_os && <Badge className="bg-primary text-primary-foreground text-xs">OS</Badge>}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-2 shrink-0">
-                        <Badge className={statusColors[o.status] || 'bg-muted'}>{o.status}</Badge>
-                        {(() => {
-                          const createdAt = new Date(o.created_at || o.data_ocorrencia);
-                          const expired = (Date.now() - createdAt.getTime()) > 24 * 60 * 60 * 1000;
-                          const canEdit = canEditAnytime || !expired;
-                          return canEdit ? (
+                        <div className="flex flex-col items-end gap-2 shrink-0">
+                          <Badge className={STATUS_COLORS[o.status] || 'bg-muted'}>{o.status}</Badge>
+                          {canEdit ? (
                             <Button variant="ghost" size="sm" onClick={() => navigate(`/ocorrencias/${o.id}`)} className="touch-target">
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -158,13 +152,13 @@ const Ocorrencias = () => {
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
-                          );
-                        })()}
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
 
             <div className="flex items-center justify-between pt-2">

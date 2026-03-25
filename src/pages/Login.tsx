@@ -24,8 +24,8 @@ const Login = () => {
     try {
       await signIn(loginEmail, loginPassword, keepConnected);
       toast.success('Login realizado com sucesso!');
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao fazer login');
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao fazer login');
     } finally {
       setLoading(false);
     }
