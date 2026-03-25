@@ -101,7 +101,7 @@ const ResumoMensal = () => {
     return { value: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, label: d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) };
   });
 
-  const handleTurnoClick = (data: CategoricalChartState) => {
+  const handleTurnoClick = (data: { activePayload?: Array<{ payload: Record<string, unknown> }> }) => {
     if (!data?.activePayload?.[0]) return;
     const turno = data.activePayload[0].payload.turno as string;
     setSelectedTurno(prev => prev === turno ? null : turno);
@@ -113,7 +113,7 @@ const ResumoMensal = () => {
     setSelectedLocal(prev => prev === local ? null : local);
   };
 
-  const handleEquipamentoClick = (data: CategoricalChartState) => {
+  const handleEquipamentoClick = (data: { activePayload?: Array<{ payload: Record<string, unknown> }> }) => {
     if (!data?.activePayload?.[0]) return;
     const eq = data.activePayload[0].payload.name as string;
     setSelectedEquipamento(prev => prev === eq ? null : eq);
