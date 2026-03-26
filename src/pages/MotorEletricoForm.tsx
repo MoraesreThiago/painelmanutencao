@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { ArrowLeft, Save } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
-import { useAllEquipamentos } from '@/hooks/queries';
+import { useEquipamentoSearch } from '@/hooks/useEquipamentoSearch';
 
 type EquipamentoView = Tables<'vw_equipamentos_app'>;
 
@@ -43,10 +43,8 @@ const MotorEletricoForm = () => {
   const isEdit = !!id;
 
   const [loading, setLoading] = useState(false);
-  const [tagSearch, setTagSearch] = useState('');
-  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
 
-  const { data: equipamentos = [] } = useAllEquipamentos();
+  const eqSearch = useEquipamentoSearch();
 
   const [form, setForm] = useState<MotorFormState>({
     tag: '',
@@ -99,21 +97,12 @@ const MotorEletricoForm = () => {
         data_retorno: data.data_retorno || '',
         area: data.area,
       });
-      setTagSearch(data.tag || '');
+      eqSearch.setTagTerm(data.tag || '');
     };
 
     loadRecord();
     return () => { cancelled = true; };
   }, [id, isEdit]);
-
-  const tagSuggestions = useMemo(() => {
-    if (!tagSearch || tagSearch.length < 1) return [];
-    const q = tagSearch.toLowerCase();
-    return equipamentos.filter(e =>
-      (e.tag?.toLowerCase().includes(q)) ||
-      (e.equipamento?.toLowerCase().includes(q))
-    ).slice(0, 30);
-  }, [equipamentos, tagSearch]);
 
   const selectEquipamento = (eq: EquipamentoView) => {
     setForm(prev => ({
@@ -122,8 +111,8 @@ const MotorEletricoForm = () => {
       motor: eq.equipamento || '',
       area: canChangeArea ? (eq.area || prev.area) : prev.area,
     }));
-    setTagSearch(eq.tag || '');
-    setShowTagSuggestions(false);
+    eqSearch.setTagTerm(eq.tag || '');
+    eqSearch.setShowTagSuggestions(false);
   };
 
   const setFormField = <K extends keyof MotorFormState>(key: K, value: MotorFormState[K]) => {
@@ -193,20 +182,20 @@ const MotorEletricoForm = () => {
               <div className="relative sm:col-span-2">
                 <Label>Equipamento (Tag) *</Label>
                 <Input
-                  value={tagSearch || form.tag}
+                  value={eqSearch.tagTerm || form.tag}
                   onChange={e => {
-                    setTagSearch(e.target.value);
+                    eqSearch.setTagTerm(e.target.value);
                     setFormField('tag', e.target.value);
-                    setShowTagSuggestions(true);
+                    eqSearch.setShowTagSuggestions(true);
                   }}
-                  onFocus={() => setShowTagSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowTagSuggestions(false), 200)}
+                  onFocus={() => eqSearch.setShowTagSuggestions(true)}
+                  onBlur={() => setTimeout(() => eqSearch.setShowTagSuggestions(false), 200)}
                   placeholder="Buscar por tag ou nome do equipamento..."
                   className="touch-target mt-1"
                 />
-                {showTagSuggestions && tagSuggestions.length > 0 && (
+                {eqSearch.showTagSuggestions && eqSearch.tagSuggestions.length > 0 && (
                   <div className="absolute z-50 w-full mt-1 bg-card border rounded-md shadow-lg max-h-48 overflow-auto">
-                    {tagSuggestions.map((eq) => (
+                    {eqSearch.tagSuggestions.map((eq) => (
                       <button
                         key={eq.tag}
                         type="button"

@@ -1,5 +1,6 @@
 import {
   getCorsHeaders,
+  isOriginBlocked,
   jsonOk,
   jsonError,
   parseAuthHeader,
@@ -18,6 +19,7 @@ import {
 Deno.serve(async (req) => {
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+  if (isOriginBlocked(req)) return jsonError("Origem não permitida", 403, cors);
 
   const tag = "[create-user]";
 
