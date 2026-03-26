@@ -36,19 +36,19 @@ function getCurrentAndPreviousTurno() {
     return {
       currentTurno: DIA_SEQUENCE[todaySlot],
       currentHorario: 'Dia',
+      currentDate: todayStr,
       previousTurno: AMAN_SEQUENCE[yesterdaySlot],
       previousHorario: 'Amanhecida',
-      todayStr,
-      yesterdayStr,
+      previousDate: yesterdayStr,
     };
   }
   return {
     currentTurno: AMAN_SEQUENCE[todaySlot],
     currentHorario: 'Amanhecida',
+    currentDate: todayStr,
     previousTurno: DIA_SEQUENCE[todaySlot],
     previousHorario: 'Dia',
-    todayStr,
-    yesterdayStr,
+    previousDate: todayStr,
   };
 }
 
