@@ -77,14 +77,15 @@ const Dashboard = () => {
   const { data: previousOcorrencias = [] } = useTurnoOcorrencias({
     turno: turnoInfo.previousTurno,
     horario: turnoInfo.previousHorario,
-    dates: [turnoInfo.todayStr, turnoInfo.yesterdayStr],
+    dates: [],
+    exactDate: turnoInfo.previousDate,
   });
 
   const { data: currentOcorrencias = [] } = useTurnoOcorrencias({
     turno: turnoInfo.currentTurno,
     horario: turnoInfo.currentHorario,
     dates: [],
-    exactDate: turnoInfo.todayStr,
+    exactDate: turnoInfo.currentDate,
   });
 
   const shortcuts = [
