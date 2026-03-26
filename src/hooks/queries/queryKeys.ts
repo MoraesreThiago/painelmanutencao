@@ -18,7 +18,6 @@ export const queryKeys = {
     all: ['equipamentos'] as const,
     list: (filters: object) =>
       ['equipamentos', 'list', filters] as const,
-    full: ['equipamentos', 'full'] as const,
   },
 
   // Colaboradores

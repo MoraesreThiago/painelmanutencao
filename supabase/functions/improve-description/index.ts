@@ -1,22 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const ALLOWED_ORIGINS = Deno.env.get("ALLOWED_ORIGINS")
-  ?.split(",")
-  .map((o) => o.trim())
-  .filter(Boolean) ?? [];
-
-function getCorsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") ?? "";
-  const allowed =
-    ALLOWED_ORIGINS.length === 0 ||
-    ALLOWED_ORIGINS.includes(origin);
-  return {
-    "Access-Control-Allow-Origin": allowed ? origin : ALLOWED_ORIGINS[0] ?? "",
-    "Access-Control-Allow-Headers":
-      "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-    "Vary": "Origin",
-  };
-}
+import { getCorsHeaders, isOriginBlocked } from "../_shared/helpers.ts";
 
 function jsonResponse(body: Record<string, unknown>, status: number, cors: Record<string, string>) {
   return new Response(JSON.stringify(body), {
@@ -32,6 +15,9 @@ Deno.serve(async (req) => {
 
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: cors });
+  }
+  if (isOriginBlocked(req)) {
+    return jsonResponse({ error: "Origem não permitida" }, 403, cors);
   }
 
   try {

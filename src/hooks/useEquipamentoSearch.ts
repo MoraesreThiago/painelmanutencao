@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { EquipamentoView } from '@/types/ocorrenciaForm';
 
 const SEARCH_LIMIT = 20;
-const DEBOUNCE_MS = 250;
+const DEBOUNCE_MS = 300;
 
 async function searchEquipamentos(term: string): Promise<EquipamentoView[]> {
   if (!term.trim()) return [];
@@ -34,8 +34,21 @@ async function searchLocais(term: string): Promise<string[]> {
   return unique;
 }
 
+/** Debounces a value by `delay` ms. */
+function useDebouncedValue(value: string, delay: number): string {
+  const [debounced, setDebounced] = useState(value);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    timerRef.current = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timerRef.current);
+  }, [value, delay]);
+
+  return debounced;
+}
+
 /**
- * Debounced equipment search hook — fetches on demand instead of loading all.
+ * Debounced equipment search hook — fetches on demand with real debounce.
  */
 export function useEquipamentoSearch() {
   const [tagTerm, setTagTerm] = useState('');
@@ -45,27 +58,28 @@ export function useEquipamentoSearch() {
   const [showEqSuggestions, setShowEqSuggestions] = useState(false);
   const [showLocalSuggestions, setShowLocalSuggestions] = useState(false);
 
+  const debouncedTag = useDebouncedValue(tagTerm, DEBOUNCE_MS);
+  const debouncedEq = useDebouncedValue(eqTerm, DEBOUNCE_MS);
+  const debouncedLocal = useDebouncedValue(localTerm, DEBOUNCE_MS);
+
   const tagQuery = useQuery({
-    queryKey: ['eq-search', 'tag', tagTerm],
-    queryFn: () => searchEquipamentos(tagTerm),
-    enabled: tagTerm.length > 0 && showTagSuggestions,
-    staleTime: DEBOUNCE_MS,
+    queryKey: ['eq-search', 'tag', debouncedTag],
+    queryFn: () => searchEquipamentos(debouncedTag),
+    enabled: debouncedTag.length > 0 && showTagSuggestions,
     gcTime: 60_000,
   });
 
   const eqQuery = useQuery({
-    queryKey: ['eq-search', 'eq', eqTerm],
-    queryFn: () => searchEquipamentos(eqTerm),
-    enabled: eqTerm.length > 0 && showEqSuggestions,
-    staleTime: DEBOUNCE_MS,
+    queryKey: ['eq-search', 'eq', debouncedEq],
+    queryFn: () => searchEquipamentos(debouncedEq),
+    enabled: debouncedEq.length > 0 && showEqSuggestions,
     gcTime: 60_000,
   });
 
   const localQuery = useQuery({
-    queryKey: ['eq-search', 'local', localTerm],
-    queryFn: () => searchLocais(localTerm),
-    enabled: localTerm.length > 0 && showLocalSuggestions,
-    staleTime: DEBOUNCE_MS,
+    queryKey: ['eq-search', 'local', debouncedLocal],
+    queryFn: () => searchLocais(debouncedLocal),
+    enabled: debouncedLocal.length > 0 && showLocalSuggestions,
     gcTime: 60_000,
   });
 

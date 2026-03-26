@@ -8,7 +8,6 @@ export {
 export type { OcorrenciasFilters } from './useOcorrenciasQueries';
 export {
   useEquipamentosPaginated,
-  useAllEquipamentos,
   useInvalidateEquipamentos,
   EQUIPAMENTOS_PAGE_SIZE,
 } from './useEquipamentosQueries';
