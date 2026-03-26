@@ -1,5 +1,6 @@
 import {
   getCorsHeaders,
+  isOriginBlocked,
   jsonOk,
   jsonError,
   parseAuthHeader,
@@ -16,6 +17,7 @@ import {
 Deno.serve(async (req) => {
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+  if (isOriginBlocked(req)) return jsonError("Origem não permitida", 403, cors);
 
   const tag = "[delete-user]";
 
@@ -36,10 +38,12 @@ Deno.serve(async (req) => {
       throw new PayloadError("Você não pode excluir sua própria conta");
     }
 
-    // 3. Delete — order: auth first, then profile/roles
-    //    Rationale: if auth delete succeeds the user can no longer log in,
-    //    so leftover profile/role rows are harmless orphans.
-    //    If auth delete fails we abort without touching other tables.
+    // 3. Delete via Auth admin API.
+    //    The auth.users table has ON DELETE CASCADE for profiles (via trigger/FK
+    //    on profiles.id → auth.users.id) and user_roles (user_id → auth.users.id).
+    //    Therefore deleting the auth user automatically removes profile and role rows.
+    //    The explicit cleanup below is a safety net for edge cases where cascades
+    //    may not be configured or have been altered.
     const adminClient = getAdminClient();
 
     const { error: authDeleteError } = await adminClient.auth.admin.deleteUser(userId);
@@ -49,12 +53,12 @@ Deno.serve(async (req) => {
     }
     console.info(`${tag} Auth user deleted: ${userId}`);
 
-    // 4. Clean up profile and roles (best-effort; FK cascades may also handle this)
+    // 4. Best-effort cleanup (safety net — cascades should already handle this)
     const { error: profileErr } = await adminClient.from("profiles").delete().eq("id", userId);
-    if (profileErr) console.warn(`${tag} Profile cleanup failed for ${userId}:`, profileErr.message);
+    if (profileErr) console.warn(`${tag} Profile cleanup (may already be cascaded): ${profileErr.message}`);
 
     const { error: roleErr } = await adminClient.from("user_roles").delete().eq("user_id", userId);
-    if (roleErr) console.warn(`${tag} Role cleanup failed for ${userId}:`, roleErr.message);
+    if (roleErr) console.warn(`${tag} Role cleanup (may already be cascaded): ${roleErr.message}`);
 
     console.info(`${tag} User ${userId} fully deleted`);
     return jsonOk({ success: true }, cors);

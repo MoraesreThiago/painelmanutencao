@@ -7,15 +7,43 @@ const ALLOWED_ORIGINS = Deno.env.get("ALLOWED_ORIGINS")
   .map((o) => o.trim())
   .filter(Boolean) ?? [];
 
+/**
+ * Returns CORS headers for the given request.
+ *
+ * - If ALLOWED_ORIGINS is configured, only listed origins get
+ *   `Access-Control-Allow-Origin`. Unknown origins receive a 403-safe
+ *   empty string, which the browser will reject.
+ * - If ALLOWED_ORIGINS is empty (local dev), all origins are allowed
+ *   so `supabase functions serve` works out of the box.
+ */
 export function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("Origin") ?? "";
-  const allowed = ALLOWED_ORIGINS.length === 0 || ALLOWED_ORIGINS.includes(origin);
+
+  let allowedOrigin: string;
+  if (ALLOWED_ORIGINS.length === 0) {
+    // Local development: no restriction
+    allowedOrigin = origin || "*";
+  } else {
+    // Production: strict allow-list
+    allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : "";
+  }
+
   return {
-    "Access-Control-Allow-Origin": allowed ? origin : ALLOWED_ORIGINS[0] ?? "",
+    "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
     Vary: "Origin",
   };
+}
+
+/**
+ * Returns true when the origin is NOT in the allow-list (production only).
+ * Use after getCorsHeaders to short-circuit with 403.
+ */
+export function isOriginBlocked(req: Request): boolean {
+  if (ALLOWED_ORIGINS.length === 0) return false; // dev mode
+  const origin = req.headers.get("Origin") ?? "";
+  return !ALLOWED_ORIGINS.includes(origin);
 }
 
 // ─── Responses ───────────────────────────────────────────────────────────────
