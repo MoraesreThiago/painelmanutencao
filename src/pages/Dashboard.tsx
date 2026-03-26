@@ -36,19 +36,19 @@ function getCurrentAndPreviousTurno() {
     return {
       currentTurno: DIA_SEQUENCE[todaySlot],
       currentHorario: 'Dia',
+      currentDate: todayStr,
       previousTurno: AMAN_SEQUENCE[yesterdaySlot],
       previousHorario: 'Amanhecida',
-      todayStr,
-      yesterdayStr,
+      previousDate: yesterdayStr,
     };
   }
   return {
     currentTurno: AMAN_SEQUENCE[todaySlot],
     currentHorario: 'Amanhecida',
+    currentDate: todayStr,
     previousTurno: DIA_SEQUENCE[todaySlot],
     previousHorario: 'Dia',
-    todayStr,
-    yesterdayStr,
+    previousDate: todayStr,
   };
 }
 
@@ -77,14 +77,15 @@ const Dashboard = () => {
   const { data: previousOcorrencias = [] } = useTurnoOcorrencias({
     turno: turnoInfo.previousTurno,
     horario: turnoInfo.previousHorario,
-    dates: [turnoInfo.todayStr, turnoInfo.yesterdayStr],
+    dates: [],
+    exactDate: turnoInfo.previousDate,
   });
 
   const { data: currentOcorrencias = [] } = useTurnoOcorrencias({
     turno: turnoInfo.currentTurno,
     horario: turnoInfo.currentHorario,
     dates: [],
-    exactDate: turnoInfo.todayStr,
+    exactDate: turnoInfo.currentDate,
   });
 
   const shortcuts = [
