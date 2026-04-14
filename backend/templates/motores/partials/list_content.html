@@ -1,0 +1,53 @@
+<section class="panel motor-filter-panel">
+  <header class="panel-toolbar">
+    <div>
+      <h2>Busca e filtros</h2>
+      <p>Consulte os motores eletricos cadastrados e acompanhe os processos de motor queimado.</p>
+    </div>
+  </header>
+  <form
+    method="get"
+    class="filter-grid motor-filter-grid"
+    hx-get="{% url 'motores:list' %}"
+    hx-target="#motor-list-content"
+    hx-push-url="true"
+  >
+    <div class="field">
+      <span>{{ filter_form.search.label }}</span>
+      {{ filter_form.search }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.manufacturer.label }}</span>
+      {{ filter_form.manufacturer }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.fabrica.label }}</span>
+      {{ filter_form.fabrica }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.unidade.label }}</span>
+      {{ filter_form.unidade }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.status.label }}</span>
+      {{ filter_form.status }}
+    </div>
+    {% if current_motor_area %}
+      <input type="hidden" name="area" value="{{ current_motor_area.code }}">
+    {% endif %}
+    <div class="filter-actions">
+      <button type="submit" class="ghost-button">Filtrar</button>
+      <a href="{% url 'motores:list' %}{% if current_motor_area %}?area={{ current_motor_area.code }}{% endif %}" class="ghost-button">Limpar</a>
+    </div>
+  </form>
+</section>
+
+<section class="panel motor-table-panel">
+  <header class="panel-toolbar">
+    <div>
+      <h2>Motores eletricos</h2>
+      <p>{{ total_count }} motor(es) encontrado(s).</p>
+    </div>
+  </header>
+  {% include "motores/partials/table.html" %}
+</section>

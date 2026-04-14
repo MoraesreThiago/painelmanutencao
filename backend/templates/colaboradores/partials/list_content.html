@@ -1,0 +1,83 @@
+<section class="panel equipment-filter-panel">
+  <header class="panel-toolbar">
+    <div>
+      <h2>Equipe da area</h2>
+      <p>
+        Acompanhe a composicao da equipe{% if current_team_area %} de {{ current_team_area.name }}{% endif %},
+        agora com o escopo fisico de fabrica e unidade produtiva integrado na consulta.
+      </p>
+    </div>
+  </header>
+  <form
+    method="get"
+    class="filter-grid equipment-filter-grid"
+    hx-get="{% url 'colaboradores:team' %}"
+    hx-target="#team-management-content"
+    hx-push-url="true"
+    hx-trigger="input changed delay:350ms, search, change"
+  >
+    <div class="field">
+      <span>{{ filter_form.search.label }}</span>
+      {{ filter_form.search }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.job_title.label }}</span>
+      {{ filter_form.job_title }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.status.label }}</span>
+      {{ filter_form.status }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.fabrica.label }}</span>
+      {{ filter_form.fabrica }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.unidade.label }}</span>
+      {{ filter_form.unidade }}
+    </div>
+    {% if current_team_area %}
+      <input type="hidden" name="area" value="{{ current_team_area.code }}">
+    {% endif %}
+    <div class="filter-actions">
+      <a href="{% url 'colaboradores:team' %}{% if current_team_area %}?area={{ current_team_area.code }}{% endif %}" class="ghost-button">Limpar</a>
+    </div>
+  </form>
+</section>
+
+<section class="summary-grid burned-case-summary-grid">
+  <article class="summary-card">
+    <span>Integrantes</span>
+    <strong>{{ team_summary.total_count }}</strong>
+  </article>
+  <article class="summary-card">
+    <span>Ativos</span>
+    <strong>{{ team_summary.active_count }}</strong>
+  </article>
+  <article class="summary-card">
+    <span>Com acesso</span>
+    <strong>{{ team_summary.linked_count }}</strong>
+  </article>
+  <article class="summary-card">
+    <span>Sem usuario</span>
+    <strong>{{ team_summary.unlinked_count }}</strong>
+  </article>
+  <article class="summary-card">
+    <span>Fabricas no resultado</span>
+    <strong>{{ team_summary.fabrica_count }}</strong>
+  </article>
+  <article class="summary-card">
+    <span>Unidades no resultado</span>
+    <strong>{{ team_summary.unidade_count }}</strong>
+  </article>
+</section>
+
+<section class="panel equipment-table-panel">
+  <header class="panel-toolbar">
+    <div>
+      <h2>Gestao da equipe</h2>
+      <p>{{ total_count }} colaborador(es) encontrado(s).</p>
+    </div>
+  </header>
+  {% include "colaboradores/partials/table.html" %}
+</section>

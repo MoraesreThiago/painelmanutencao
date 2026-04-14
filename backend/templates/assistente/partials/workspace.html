@@ -1,0 +1,55 @@
+<div class="assistant-chat-shell">
+  <article class="panel assistant-thread-panel">
+    <header class="assistant-thread-header">
+      <div>
+        <h2>Chat operacional</h2>
+        <p class="muted-copy">Pergunte sobre ocorrencias, periodos, motivos e padroes operacionais.</p>
+      </div>
+    </header>
+    <div class="assistant-thread" id="assistant-thread">
+      {% if chat_messages %}
+        {% for message in chat_messages %}
+          <article class="assistant-message assistant-message--{{ message.role|lower }}">
+            <span class="assistant-message-role">
+              {% if message.role == "USER" %}Voce{% else %}Assistente{% endif %}
+            </span>
+            <div class="assistant-message-body">{{ message.content|linebreaksbr }}</div>
+          </article>
+        {% endfor %}
+      {% else %}
+        <article class="assistant-empty-state">
+          <strong>O assistente esta pronto.</strong>
+          <p>Voce pode perguntar, por exemplo: "Me mostre as ocorrencias dos ultimos 3 meses" ou "Quais foram os principais motivos das ocorrencias recentes?".</p>
+        </article>
+      {% endif %}
+    </div>
+  </article>
+
+  <form
+    method="post"
+    class="panel assistant-form"
+    data-chat-form
+    hx-post="{% url 'assistente:submit' %}"
+    hx-target="#assistant-workspace"
+    hx-swap="innerHTML"
+  >
+    {% csrf_token %}
+    {{ chat_form.session_id }}
+    <div class="form-grid assistant-form-grid">
+      <div class="field">
+        <span>{{ chat_form.area.label }}</span>
+        {{ chat_form.area }}
+      </div>
+      <div class="field assistant-form-field assistant-form-field--prompt">
+        <span>{{ chat_form.prompt.label }}</span>
+        {{ chat_form.prompt }}
+        {% if chat_form.prompt.errors %}
+          <small class="field-error">{{ chat_form.prompt.errors.0 }}</small>
+        {% endif %}
+      </div>
+      <div class="form-actions assistant-form-actions">
+        <button type="submit" class="primary-button">Perguntar ao assistente</button>
+      </div>
+    </div>
+  </form>
+</div>

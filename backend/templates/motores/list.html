@@ -1,0 +1,17 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | Motores Eletricos{% endblock %}
+
+{% block header_actions %}
+  {% if can_manage_motor_registry %}
+    <a href="{% url 'motores:create' %}{% if current_motor_area %}?area={{ current_motor_area.code }}{% endif %}" class="primary-button">
+      Novo motor
+    </a>
+  {% endif %}
+{% endblock %}
+
+{% block app_content %}
+  <section id="motor-list-content">
+    {% include "motores/partials/list_content.html" %}
+  </section>
+{% endblock %}

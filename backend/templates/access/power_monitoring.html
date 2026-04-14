@@ -1,0 +1,67 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | Tensão, Geração e Consumo{% endblock %}
+
+{% block app_content %}
+<section class="metrics-grid">
+  {% for metric in metrics %}
+    <article class="metric-card">
+      <span>{{ metric.label }}</span>
+      {% if metric.key != "concessionaria" %}
+        <strong>{{ metric.value }}</strong>
+      {% endif %}
+      {% if metric.key == "concessionaria" %}
+        <ul class="metric-card-detail-list">
+          {% for phase in concessionaire_phases %}
+            <li>
+              <span>{{ phase.label }}</span>
+              <strong>{{ phase.value }}</strong>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+      <small class="muted-copy">{{ metric.description }}</small>
+    </article>
+  {% endfor %}
+</section>
+
+<section>
+  {% for card in monitoring_cards|slice:":1" %}
+    <article class="panel">
+      <header><h2>{{ card.title }}</h2></header>
+      <p class="muted-copy">{{ card.description }}</p>
+      <div class="monitoring-chart-placeholder" aria-label="{{ card.chart_title }}">
+        <div class="monitoring-chart-placeholder-head">
+          <strong>{{ card.chart_title }}</strong>
+          <small>{{ card.chart_caption }}</small>
+        </div>
+        <div class="monitoring-chart-surface" aria-hidden="true">
+          <span class="monitoring-chart-line monitoring-chart-line--primary"></span>
+          <span class="monitoring-chart-line monitoring-chart-line--secondary"></span>
+          <span class="monitoring-chart-line monitoring-chart-line--tertiary"></span>
+        </div>
+      </div>
+    </article>
+  {% endfor %}
+</section>
+
+<section class="panel-grid">
+  {% for card in monitoring_cards|slice:"1:" %}
+    <article class="panel">
+      <header><h2>{{ card.title }}</h2></header>
+      <p class="muted-copy">{{ card.description }}</p>
+      <div class="monitoring-chart-placeholder" aria-label="{{ card.chart_title }}">
+        <div class="monitoring-chart-placeholder-head">
+          <strong>{{ card.chart_title }}</strong>
+          <small>{{ card.chart_caption }}</small>
+        </div>
+        <div class="monitoring-chart-surface" aria-hidden="true">
+          <span class="monitoring-chart-line monitoring-chart-line--primary"></span>
+          <span class="monitoring-chart-line monitoring-chart-line--secondary"></span>
+          <span class="monitoring-chart-line monitoring-chart-line--tertiary"></span>
+        </div>
+      </div>
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}

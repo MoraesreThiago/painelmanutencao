@@ -1,0 +1,57 @@
+<div class="metrics-grid">
+  {% for metric in metrics %}
+    <article class="metric-card">
+      <span>{{ metric.label }}</span>
+      <strong>{{ metric.value }}</strong>
+    </article>
+  {% endfor %}
+</div>
+
+<div class="panel-grid">
+  <section class="panel">
+    <header>
+      <h2>Alertas</h2>
+    </header>
+    <div class="stack">
+      {% for alert in alerts %}
+        <article class="alert-card">
+          <strong>{{ alert.title }}</strong>
+          <p>{{ alert.description }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <header>
+      <h2>Movimentações recentes</h2>
+    </header>
+    <ul class="data-list">
+      {% for movement in recent_movements %}
+        <li>
+          <strong>{{ movement.equipment.code }}</strong>
+          <span>{{ movement.reason }}</span>
+        </li>
+      {% empty %}
+        <li>Nenhuma movimentação recente.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+
+<section class="panel">
+  <header>
+    <h2>Resumo por área</h2>
+  </header>
+  <div class="summary-grid">
+    {% for item in area_summary %}
+      <article class="summary-card">
+        <strong>{{ item.area__name }}</strong>
+        <span>{{ item.equipment_count }} equipamentos</span>
+        <small>{{ item.motor_count }} motores · {{ item.instrument_count }} instrumentos</small>
+      </article>
+    {% empty %}
+      <p>Sem dados consolidados para exibir.</p>
+    {% endfor %}
+  </div>
+</section>

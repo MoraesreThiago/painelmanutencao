@@ -1,0 +1,42 @@
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>OS</th>
+        <th>Motor</th>
+        <th>Equipamento</th>
+        <th>Fornecedor</th>
+        <th>Status</th>
+        <th>Envio</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in object_list %}
+        <tr>
+          <td><a href="{% url 'ordens-servico:detail' order.pk %}">{{ order.work_order_number }}</a></td>
+          <td>{{ order.motor.unique_identifier }}</td>
+          <td>{{ order.motor.equipment.code }}</td>
+          <td>{{ order.vendor_name }}</td>
+          <td>{{ order.get_service_status_display }}</td>
+          <td>{{ order.sent_at|date:"d/m/Y H:i" }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6" class="muted-copy">Nenhuma ordem de serviço encontrada.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="pagination">
+  <span>Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+  <div class="filter-actions">
+    {% if page_obj.has_previous %}
+      <a class="ghost-button" href="?page={{ page_obj.previous_page_number }}{{ filter_query }}">Anterior</a>
+    {% endif %}
+    {% if page_obj.has_next %}
+      <a class="ghost-button" href="?page={{ page_obj.next_page_number }}{{ filter_query }}">Proxima</a>
+    {% endif %}
+  </div>
+</div>

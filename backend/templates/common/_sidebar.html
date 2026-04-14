@@ -1,0 +1,119 @@
+<aside class="sidebar" id="app-sidebar" data-sidebar>
+  <div class="sidebar-head">
+    <div class="sidebar-brand">
+      <img src="{% url 'brand-logo' %}" alt="SGM">
+      <div class="sidebar-brand-copy">
+        <strong aria-label="{{ APP_SUBTITLE }}">
+          <span class="sidebar-brand-line">Sistema de Gestão de</span>
+          <span class="sidebar-brand-line">Manutenção</span>
+        </strong>
+      </div>
+    </div>
+  </div>
+  <nav class="sidebar-nav" id="sidebar-navigation" aria-label="Navegação principal">
+    {% for section in sidebar_sections %}
+      <section class="sidebar-section">
+        <h3>{{ section.title }}</h3>
+        <ul>
+          {% for item in section.items %}
+            <li>
+              <a
+                href="{{ item.href }}"
+                class="{% if item.is_active %}is-active{% endif %} {% if item.is_disabled %}is-disabled{% endif %}"
+                {% if item.is_disabled %}aria-disabled="true"{% endif %}
+                {% if item.is_active %}aria-current="page"{% endif %}
+                data-sidebar-link
+                data-sidebar-tooltip="{{ item.label }}"
+              >
+                <span class="sidebar-item-icon sidebar-item-icon--{{ item.icon_slug|slugify }}" aria-hidden="true">{% include "common/_sidebar_icon.html" with slug=item.icon_slug %}</span>
+                <span class="sidebar-item-label">{{ item.label }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endfor %}
+  </nav>
+  <footer class="sidebar-footer" data-profile-menu>
+    <button
+      type="button"
+      class="sidebar-profile-trigger"
+      data-profile-trigger
+      aria-expanded="false"
+      aria-controls="sidebar-profile-panel"
+      aria-label="Abrir menu do usuário"
+      data-sidebar-tooltip="{{ request.user.full_name }}"
+    >
+      <span class="sidebar-user-chip" aria-hidden="true">
+        <span class="sidebar-user-chip-value">{{ request.user.full_name|slice:":2"|upper }}</span>
+      </span>
+      <span class="sidebar-user-meta">
+        <span class="sidebar-user-name">{{ request.user.full_name|truncatechars:20 }}</span>
+      </span>
+    </button>
+    <div class="sidebar-profile-card" id="sidebar-profile-panel" data-profile-panel aria-hidden="true" hidden>
+      <div class="sidebar-profile-card-head">
+        <span class="sidebar-user-chip sidebar-user-chip--card" aria-hidden="true">
+          <span class="sidebar-user-chip-value">{{ request.user.full_name|slice:":2"|upper }}</span>
+        </span>
+        <div class="sidebar-profile-card-copy">
+          <strong>{{ request.user.full_name }}</strong>
+          <small>{{ request.user.email }}</small>
+        </div>
+      </div>
+      {% if can_assume_context and context_switch_form %}
+        <div class="sidebar-profile-context">
+          <div class="sidebar-profile-context-head">
+            <strong>Alterar contexto</strong>
+          </div>
+          <form method="post" action="{% url 'access:context-switch' %}" class="sidebar-profile-context-form">
+            {% csrf_token %}
+            <div class="sidebar-profile-context-grid">
+              <div class="sidebar-profile-context-field">
+                <label class="sidebar-profile-context-field-label" for="{{ context_switch_form.area.id_for_label }}">{{ context_switch_form.area.label }}</label>
+                <div class="sidebar-profile-context-select" data-custom-select>
+                  {{ context_switch_form.area }}
+                </div>
+              </div>
+              <div class="sidebar-profile-context-field">
+                <label class="sidebar-profile-context-field-label" for="{{ context_switch_form.role_name.id_for_label }}">{{ context_switch_form.role_name.label }}</label>
+                <div class="sidebar-profile-context-select" data-custom-select>
+                  {{ context_switch_form.role_name }}
+                </div>
+              </div>
+            </div>
+            <div class="sidebar-profile-context-actions">
+              <button type="submit" class="ghost-button sidebar-profile-context-submit">Aplicar contexto</button>
+            </div>
+          </form>
+          {% if current_context_summary.is_assumed %}
+            <form method="post" action="{% url 'access:context-reset' %}" class="sidebar-profile-context-reset-form">
+              {% csrf_token %}
+              {% if current_area %}<input type="hidden" name="area" value="{{ current_area.code }}">{% endif %}
+              <button type="submit" class="ghost-button sidebar-profile-context-reset">Voltar para Admin</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endif %}
+      <form method="post" action="{% url 'accounts:logout' %}" class="sidebar-profile-logout-form">
+        {% csrf_token %}
+        <button type="submit" class="ghost-button sidebar-profile-logout">Encerrar sessão</button>
+      </form>
+    </div>
+  </footer>
+  <button
+    type="button"
+    class="sidebar-toggle"
+    data-sidebar-toggle
+    aria-controls="app-sidebar"
+    aria-expanded="true"
+    aria-label="Recolher menu lateral"
+  >
+    <span class="sidebar-toggle-icon" data-sidebar-toggle-icon aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" role="presentation" focusable="false" aria-hidden="true">
+        <path d="M16 6L10 12L16 18" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M19 5V19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+      </svg>
+    </span>
+  </button>
+</aside>

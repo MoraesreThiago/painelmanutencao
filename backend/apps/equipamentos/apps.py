@@ -1,0 +1,8 @@
+from django.apps import AppConfig
+
+
+class EquipamentosConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.equipamentos"
+    label = "equipamentos"
+    verbose_name = "Equipamentos"

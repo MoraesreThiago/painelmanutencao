@@ -1,0 +1,23 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ APP_NAME }}{% endblock %}</title>
+  <meta name="theme-color" content="#123047">
+  <link rel="icon" href="{% url 'brand-logo' %}">
+  <link rel="manifest" href="{% url 'manifest' %}">
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}{% if DEBUG %}?v={{ STATIC_DEV_VERSION }}{% endif %}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  {% include "common/_messages.html" %}
+  {% block page %}{% endblock %}
+  <script>
+    window.APP_DEBUG = {% if DEBUG %}true{% else %}false{% endif %};
+  </script>
+  <script src="{% static 'js/pwa.js' %}{% if DEBUG %}?v={{ STATIC_DEV_VERSION }}{% endif %}"></script>
+  <script src="{% static 'js/app.js' %}{% if DEBUG %}?v={{ STATIC_DEV_VERSION }}{% endif %}"></script>
+</body>
+</html>

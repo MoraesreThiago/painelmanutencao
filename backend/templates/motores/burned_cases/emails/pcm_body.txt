@@ -1,0 +1,31 @@
+Solicitacao de motor queimado / com defeito
+
+Processo: {{ case.process_code }}
+Motor: {{ motor_label }}
+MO: {{ case.motor_mo|default:"-" }}
+Potencia: {{ case.motor_power|default:"-" }}
+Fabricante: {{ case.motor_manufacturer|default:"-" }}
+Carcaca: {{ case.motor_frame|default:"-" }}
+RPM: {{ case.motor_rpm|default:"-" }}
+Tensao: {{ case.motor_voltage|default:"-" }}
+Corrente: {{ case.motor_current|default:"-" }}
+Fabrica: {{ fabrica_label }}
+Unidade produtiva: {{ unidade_label }}
+Local / setor: {{ location_label }}
+
+Data da ocorrencia: {{ case.occurred_at|date:"d/m/Y H:i" }}
+Solicitante: {{ case.requester_name }}
+Tipo do problema: {{ case.problem_type }}
+Prioridade: {{ case.get_priority_display }}
+Status inicial: {{ case.get_status_display }}
+
+Descricao do defeito:
+{{ case.defect_description }}
+
+Observacoes tecnicas:
+{{ case.technical_notes|default:"-" }}
+
+Observacoes do andamento:
+{{ case.progress_notes|default:"-" }}
+
+Processo aberto por: {{ opened_by_label }}

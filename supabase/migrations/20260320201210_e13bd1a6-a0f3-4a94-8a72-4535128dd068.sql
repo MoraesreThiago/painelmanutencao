@@ -1,1 +1,0 @@
-ALTER TABLE public.motores_eletricos ADD COLUMN carcaca text, ADD COLUMN fabricante text;

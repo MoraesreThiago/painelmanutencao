@@ -1,0 +1,10 @@
+{% if messages %}
+  <div class="flash-stack">
+    {% for message in messages %}
+      <div
+        class="flash flash-{{ message.tags|default:'info' }}"
+        {% if "flash-short" in message.tags %}data-flash-timeout="2000"{% endif %}
+      >{{ message }}</div>
+    {% endfor %}
+  </div>
+{% endif %}

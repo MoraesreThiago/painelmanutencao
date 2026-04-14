@@ -1,0 +1,90 @@
+from __future__ import annotations
+
+from enum import Enum
+
+
+class RoleName(str, Enum):
+    ADMIN = "ADMIN"
+    GERENTE = "GERENTE"
+    SUPERVISOR = "SUPERVISOR"
+    LIDER = "LIDER"
+    INSPETOR = "INSPETOR"
+    MANUTENTOR = "MANUTENTOR"
+
+
+class AreaCode(str, Enum):
+    ELETRICA = "ELETRICA"
+    MECANICA = "MECANICA"
+    INSTRUMENTACAO = "INSTRUMENTACAO"
+
+
+class RecordStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+
+
+class EquipmentType(str, Enum):
+    GENERIC = "GENERIC"
+    MOTOR = "MOTOR"
+    INSTRUMENT = "INSTRUMENT"
+
+
+class EquipmentStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    UNDER_MAINTENANCE = "UNDER_MAINTENANCE"
+    EXTERNAL_SERVICE = "EXTERNAL_SERVICE"
+    INACTIVE = "INACTIVE"
+
+
+class MotorStatus(str, Enum):
+    IN_OPERATION = "IN_OPERATION"
+    RESERVE = "RESERVE"
+    INTERNAL_MAINTENANCE = "INTERNAL_MAINTENANCE"
+    EXTERNAL_SERVICE = "EXTERNAL_SERVICE"
+    AWAITING_INSTALLATION = "AWAITING_INSTALLATION"
+    INACTIVE = "INACTIVE"
+
+
+class InstrumentStatus(str, Enum):
+    INSTALLED = "INSTALLED"
+    IN_STOCK = "IN_STOCK"
+    IN_CALIBRATION = "IN_CALIBRATION"
+    IN_MAINTENANCE = "IN_MAINTENANCE"
+    AWAITING_INSTALLATION = "AWAITING_INSTALLATION"
+    INACTIVE = "INACTIVE"
+
+
+class ExternalServiceStatus(str, Enum):
+    OPEN = "OPEN"
+    IN_PROGRESS = "IN_PROGRESS"
+    RETURNED = "RETURNED"
+    DELAYED = "DELAYED"
+    CANCELLED = "CANCELLED"
+
+
+class BurnedMotorStatus(str, Enum):
+    OPEN = "OPEN"
+    UNDER_ANALYSIS = "UNDER_ANALYSIS"
+    SENT_TO_REPAIR = "SENT_TO_REPAIR"
+    REPAIRED = "REPAIRED"
+    DISCARDED = "DISCARDED"
+
+
+class InstrumentServiceType(str, Enum):
+    MAINTENANCE = "MAINTENANCE"
+    CALIBRATION = "CALIBRATION"
+    THIRD_PARTY_REPAIR = "THIRD_PARTY_REPAIR"
+
+
+class InstrumentServiceStatus(str, Enum):
+    OPEN = "OPEN"
+    IN_PROGRESS = "IN_PROGRESS"
+    SENT_TO_VENDOR = "SENT_TO_VENDOR"
+    COMPLETED = "COMPLETED"
+    CANCELLED = "CANCELLED"
+
+
+class NotificationStatus(str, Enum):
+    PENDING = "PENDING"
+    PROCESSED = "PROCESSED"
+    ERROR = "ERROR"

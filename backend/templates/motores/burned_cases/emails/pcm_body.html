@@ -1,0 +1,55 @@
+<html>
+  <body style="font-family: Segoe UI, Arial, sans-serif; color: #122b36; background: #f5f8fa; margin: 0; padding: 24px;">
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width: 720px; margin: 0 auto; background: #ffffff; border: 1px solid rgba(18,43,54,.12); border-radius: 18px; overflow: hidden;">
+      <tr>
+        <td style="padding: 24px 28px; border-bottom: 1px solid rgba(18,43,54,.08);">
+          <h1 style="margin: 0 0 8px; font-size: 22px; line-height: 1.2;">Solicitacao de motor queimado / com defeito</h1>
+          <p style="margin: 0; color: #5d7283;">Processo {{ case.process_code }} | {{ location_label }}</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 24px 28px;">
+          <h2 style="margin: 0 0 12px; font-size: 16px;">Dados do motor</h2>
+          <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin-bottom: 24px;">
+            <tr><td style="padding: 6px 0; width: 220px; color: #5d7283;">Motor</td><td style="padding: 6px 0;"><strong>{{ motor_label }}</strong></td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">MO</td><td style="padding: 6px 0;">{{ case.motor_mo|default:"-" }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Potencia</td><td style="padding: 6px 0;">{{ case.motor_power|default:"-" }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Fabricante</td><td style="padding: 6px 0;">{{ case.motor_manufacturer|default:"-" }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Carcaca</td><td style="padding: 6px 0;">{{ case.motor_frame|default:"-" }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">RPM</td><td style="padding: 6px 0;">{{ case.motor_rpm|default:"-" }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Tensao</td><td style="padding: 6px 0;">{{ case.motor_voltage|default:"-" }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Corrente</td><td style="padding: 6px 0;">{{ case.motor_current|default:"-" }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Fabrica</td><td style="padding: 6px 0;">{{ fabrica_label }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Unidade produtiva</td><td style="padding: 6px 0;">{{ unidade_label }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Local / setor</td><td style="padding: 6px 0;">{{ location_label }}</td></tr>
+          </table>
+
+          <h2 style="margin: 0 0 12px; font-size: 16px;">Ocorrencia e processo</h2>
+          <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin-bottom: 24px;">
+            <tr><td style="padding: 6px 0; width: 220px; color: #5d7283;">Data da ocorrencia</td><td style="padding: 6px 0;">{{ case.occurred_at|date:"d/m/Y H:i" }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Solicitante</td><td style="padding: 6px 0;">{{ case.requester_name }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Tipo do problema</td><td style="padding: 6px 0;">{{ case.problem_type }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Prioridade</td><td style="padding: 6px 0;">{{ case.get_priority_display }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Status inicial</td><td style="padding: 6px 0;">{{ case.get_status_display }}</td></tr>
+            <tr><td style="padding: 6px 0; color: #5d7283;">Aberto por</td><td style="padding: 6px 0;">{{ opened_by_label }}</td></tr>
+          </table>
+
+          <div style="margin-bottom: 20px;">
+            <h2 style="margin: 0 0 8px; font-size: 16px;">Descricao do defeito</h2>
+            <p style="margin: 0; line-height: 1.6;">{{ case.defect_description|linebreaksbr }}</p>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <h2 style="margin: 0 0 8px; font-size: 16px;">Observacoes tecnicas</h2>
+            <p style="margin: 0; line-height: 1.6;">{{ case.technical_notes|default:"-"|linebreaksbr }}</p>
+          </div>
+
+          <div>
+            <h2 style="margin: 0 0 8px; font-size: 16px;">Observacoes do andamento</h2>
+            <p style="margin: 0; line-height: 1.6;">{{ case.progress_notes|default:"-"|linebreaksbr }}</p>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

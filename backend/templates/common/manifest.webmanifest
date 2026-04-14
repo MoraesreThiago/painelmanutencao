@@ -1,0 +1,17 @@
+{
+  "name": "{{ app_name|escapejs }}",
+  "short_name": "SGM",
+  "description": "{{ app_subtitle|escapejs }}",
+  "display": "standalone",
+  "background_color": "#0f2840",
+  "theme_color": "#123047",
+  "start_url": "/",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "{% url 'brand-logo' %}",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

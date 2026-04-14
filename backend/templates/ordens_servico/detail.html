@@ -1,0 +1,87 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | {{ page_title }}{% endblock %}
+
+{% block app_content %}
+  <section class="detail-grid">
+    <article class="panel">
+      <header><h2>Dados da ordem</h2></header>
+      <dl class="detail-list">
+        <div>
+          <dt>Numero da OS</dt>
+          <dd>{{ service_order.work_order_number }}</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>{{ service_order.get_service_status_display }}</dd>
+        </div>
+        <div>
+          <dt>Motor</dt>
+          <dd>{{ service_order.motor.unique_identifier }}</dd>
+        </div>
+        <div>
+          <dt>Equipamento</dt>
+          <dd><a href="{% url 'equipamentos:detail' service_order.motor.equipment.pk %}">{{ service_order.motor.equipment.code }}</a></dd>
+        </div>
+        <div>
+          <dt>Fornecedor</dt>
+          <dd>{{ service_order.vendor_name }}</dd>
+        </div>
+        <div>
+          <dt>Motivo</dt>
+          <dd>{{ service_order.reason }}</dd>
+        </div>
+        <div>
+          <dt>Enviado em</dt>
+          <dd>{{ service_order.sent_at|date:"d/m/Y H:i" }}</dd>
+        </div>
+        <div>
+          <dt>Retorno previsto</dt>
+          <dd>{{ service_order.expected_return_at|date:"d/m/Y H:i"|default:"-" }}</dd>
+        </div>
+        <div>
+          <dt>Retorno real</dt>
+          <dd>{{ service_order.actual_return_at|date:"d/m/Y H:i"|default:"-" }}</dd>
+        </div>
+        <div>
+          <dt>Autorizado por</dt>
+          <dd>{{ service_order.authorized_by_user.full_name }}</dd>
+        </div>
+        <div>
+          <dt>Registrado por</dt>
+          <dd>{{ service_order.registered_by_user.full_name }}</dd>
+        </div>
+        <div>
+          <dt>Area</dt>
+          <dd>{{ service_order.motor.equipment.area.name }}</dd>
+        </div>
+      </dl>
+      {% if service_order.notes %}
+        <div class="detail-notes">
+          <h3>Observacoes</h3>
+          <p>{{ service_order.notes|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+    </article>
+    <article class="panel">
+      <header><h2>Contexto tecnico</h2></header>
+      <div class="stack">
+        <div class="summary-card">
+          <span>Descricao do equipamento</span>
+          <strong>{{ service_order.motor.equipment.description }}</strong>
+          <small>{{ service_order.motor.equipment.location.name|default:"Sem local definido" }}</small>
+        </div>
+        <div class="summary-card">
+          <span>Status atual do motor</span>
+          <strong>{{ service_order.motor.get_current_status_display }}</strong>
+          <small>Identificador {{ service_order.motor.unique_identifier }}</small>
+        </div>
+        <div class="summary-card">
+          <span>Atalho rapido</span>
+          <strong><a href="{% url 'equipamentos:detail' service_order.motor.equipment.pk %}">Abrir equipamento</a></strong>
+          <small>Voltar para o cadastro tecnico vinculado</small>
+        </div>
+      </div>
+    </article>
+  </section>
+{% endblock %}

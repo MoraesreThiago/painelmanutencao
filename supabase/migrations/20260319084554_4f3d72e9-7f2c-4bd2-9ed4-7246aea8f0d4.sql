@@ -1,1 +1,0 @@
-ALTER TABLE public.ocorrencias ADD COLUMN area_responsavel text DEFAULT NULL;

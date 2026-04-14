@@ -1,0 +1,52 @@
+<section class="panel equipment-filter-panel">
+  <header class="panel-toolbar">
+    <div>
+      <h2>Filtros operacionais</h2>
+    </div>
+  </header>
+  <form
+    method="get"
+    class="filter-grid equipment-filter-grid equipment-filter-grid--compact"
+    hx-get="{% url 'equipamentos:list' %}"
+    hx-target="#equipment-list-content"
+    hx-push-url="true"
+    hx-trigger="input changed delay:350ms, search, change"
+  >
+    <div class="field">
+      <span>{{ filter_form.equipment_name.label }}</span>
+      {{ filter_form.equipment_name }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.tag_name.label }}</span>
+      {{ filter_form.tag_name }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.area.label }}</span>
+      {{ filter_form.area }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.fabrica.label }}</span>
+      {{ filter_form.fabrica }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.unidade.label }}</span>
+      {{ filter_form.unidade }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.location.label }}</span>
+      {{ filter_form.location }}
+    </div>
+    <div class="filter-actions">
+      <a href="{% url 'equipamentos:list' %}" class="ghost-button">Limpar</a>
+    </div>
+  </form>
+</section>
+
+<section class="panel equipment-table-panel">
+  <header class="panel-toolbar">
+    <div>
+      <h2>Equipamentos</h2>
+    </div>
+  </header>
+  {% include "equipamentos/partials/table.html" %}
+</section>

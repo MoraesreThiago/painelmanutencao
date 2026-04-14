@@ -1,0 +1,76 @@
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>MO</th>
+        <th>Unidade</th>
+        <th>Potencia</th>
+        <th>Fabricante</th>
+        <th>Carcaca</th>
+        <th>RPM</th>
+        <th>Tensao</th>
+        <th>Corrente</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for motor in object_list %}
+        <tr class="motor-table-row">
+          <td>
+            <div class="equipment-cell-primary">
+              <strong>{{ motor.mo }}</strong>
+              <span class="equipment-cell-meta">{{ motor.get_status_display }}</span>
+            </div>
+          </td>
+          <td>
+            {% if motor.unidade %}
+              <div class="equipment-cell-primary">
+                <strong>{{ motor.unidade.name }}</strong>
+                <span class="muted-copy">{{ motor.unidade.fabrica.name }}</span>
+              </div>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>{{ motor.power }}</td>
+          <td>{{ motor.manufacturer }}</td>
+          <td>{{ motor.frame }}</td>
+          <td>{{ motor.rpm }}</td>
+          <td>{{ motor.voltage }}</td>
+          <td>{{ motor.current }}</td>
+          <td>
+            <div class="motor-table-actions">
+              <a href="{% url 'motores:detail' motor.pk %}" class="equipment-table-link">Detalhes</a>
+              {% if can_manage_burned_motor_flow %}
+                <a href="{% url 'motores:burned-case-create' %}?motor={{ motor.pk }}{% if current_motor_area %}&area={{ current_motor_area.code }}{% endif %}" class="equipment-table-link">Motor queimado</a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="9">
+            <div class="equipment-empty-state">
+              <strong>Nenhum motor eletrico encontrado</strong>
+              <span>Ajuste os filtros para localizar outro motor.</span>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+  <div class="pagination">
+    <span>Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    <div class="filter-actions">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if filter_query %}&{{ filter_query }}{% endif %}" class="ghost-button">Anterior</a>
+      {% endif %}
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if filter_query %}&{{ filter_query }}{% endif %}" class="ghost-button">Proxima</a>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

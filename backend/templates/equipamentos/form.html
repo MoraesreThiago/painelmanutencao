@@ -1,0 +1,131 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | {{ page_title }}{% endblock %}
+
+{% block app_content %}
+<section class="panel equipment-form-intro">
+  <div>
+    <h2>{{ page_title }}</h2>
+    <p class="muted-copy">
+      Organize a identificacao tecnica do ativo, o enquadramento operacional e os dados de apoio ao time de manutencao.
+    </p>
+  </div>
+</section>
+
+<section class="panel equipment-form-panel">
+  <form method="post" class="equipment-form-shell">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="form-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <section class="equipment-form-section">
+      <header class="equipment-section-header">
+        <div>
+          <h2>Identificacao</h2>
+          <p>Informacoes principais para localizar e reconhecer o ativo.</p>
+        </div>
+      </header>
+      <div class="form-grid equipment-form-grid">
+        <label class="field">
+          <span>{{ form.code.label }}</span>
+          {{ form.code }}
+          {% if form.code.errors %}<small class="field-error">{{ form.code.errors|striptags }}</small>{% endif %}
+        </label>
+        <label class="field">
+          <span>{{ form.tag.label }}</span>
+          {{ form.tag }}
+          {% if form.tag.errors %}<small class="field-error">{{ form.tag.errors|striptags }}</small>{% endif %}
+        </label>
+        <label class="field field--wide">
+          <span>{{ form.description.label }}</span>
+          {{ form.description }}
+          {% if form.description.errors %}<small class="field-error">{{ form.description.errors|striptags }}</small>{% endif %}
+        </label>
+        <label class="field">
+          <span>{{ form.sector.label }}</span>
+          {{ form.sector }}
+          {% if form.sector.errors %}<small class="field-error">{{ form.sector.errors|striptags }}</small>{% endif %}
+        </label>
+      </div>
+    </section>
+
+    <section class="equipment-form-section">
+      <header class="equipment-section-header">
+        <div>
+          <h2>Contexto operacional</h2>
+          <p>Classificacao, status e vinculacao do equipamento na estrutura atual.</p>
+        </div>
+      </header>
+      <div class="form-grid equipment-form-grid">
+        <label class="field">
+          <span>{{ form.type.label }}</span>
+          {{ form.type }}
+          {% if form.type.errors %}<small class="field-error">{{ form.type.errors|striptags }}</small>{% endif %}
+        </label>
+        <label class="field">
+          <span>{{ form.status.label }}</span>
+          {{ form.status }}
+          {% if form.status.errors %}<small class="field-error">{{ form.status.errors|striptags }}</small>{% endif %}
+        </label>
+        <label class="field">
+          <span>{{ form.area.label }}</span>
+          {{ form.area }}
+          {% if form.area.errors %}<small class="field-error">{{ form.area.errors|striptags }}</small>{% endif %}
+        </label>
+        <label class="field">
+          <span>{{ form.unidade.label }}</span>
+          {{ form.unidade }}
+          {% if form.unidade.errors %}<small class="field-error">{{ form.unidade.errors|striptags }}</small>{% endif %}
+        </label>
+        <label class="field">
+          <span>{{ form.location.label }}</span>
+          {{ form.location }}
+          {% if form.location.errors %}<small class="field-error">{{ form.location.errors|striptags }}</small>{% endif %}
+        </label>
+        <label class="field">
+          <span>{{ form.registered_at.label }}</span>
+          {{ form.registered_at }}
+          {% if form.registered_at.errors %}<small class="field-error">{{ form.registered_at.errors|striptags }}</small>{% endif %}
+        </label>
+      </div>
+    </section>
+
+    <section class="equipment-form-section">
+      <header class="equipment-section-header">
+        <div>
+          <h2>Dados complementares</h2>
+          <p>Fabricante, modelo, rastreabilidade e observacoes tecnicas.</p>
+        </div>
+      </header>
+      <div class="form-grid equipment-form-grid">
+        <label class="field">
+          <span>{{ form.manufacturer.label }}</span>
+          {{ form.manufacturer }}
+          {% if form.manufacturer.errors %}<small class="field-error">{{ form.manufacturer.errors|striptags }}</small>{% endif %}
+        </label>
+        <label class="field">
+          <span>{{ form.model.label }}</span>
+          {{ form.model }}
+          {% if form.model.errors %}<small class="field-error">{{ form.model.errors|striptags }}</small>{% endif %}
+        </label>
+        <label class="field">
+          <span>{{ form.serial_number.label }}</span>
+          {{ form.serial_number }}
+          {% if form.serial_number.errors %}<small class="field-error">{{ form.serial_number.errors|striptags }}</small>{% endif %}
+        </label>
+        <label class="field field--wide">
+          <span>{{ form.notes.label }}</span>
+          {{ form.notes }}
+          {% if form.notes.errors %}<small class="field-error">{{ form.notes.errors|striptags }}</small>{% endif %}
+        </label>
+      </div>
+    </section>
+
+    <div class="form-actions">
+      <button type="submit" class="primary-button">Salvar</button>
+      <a href="{% url 'equipamentos:list' %}" class="ghost-button">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

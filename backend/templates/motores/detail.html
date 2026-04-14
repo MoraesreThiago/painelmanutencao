@@ -1,0 +1,210 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | {{ motor.mo }}{% endblock %}
+
+{% block header_actions %}
+  <div class="filter-actions">
+    {% if can_manage_burned_motor_flow %}
+      <a href="{% url 'motores:burned-case-create' %}?motor={{ motor.pk }}{% if current_motor_area %}&area={{ current_motor_area.code }}{% endif %}" class="ghost-button">Registrar motor queimado</a>
+    {% endif %}
+    {% if can_manage_motor_registry %}
+      <a href="{% url 'motores:update' motor.pk %}" class="primary-button">Editar motor</a>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block app_content %}
+  <section class="panel equipment-detail-hero">
+    <div class="equipment-detail-hero-copy">
+      <div class="equipment-detail-heading">
+      <div class="equipment-detail-overline">Motor eletrico</div>
+      <h2>{{ motor.mo }}</h2>
+      <p>
+        {{ motor.manufacturer }} | Carcaca {{ motor.frame }} | {{ motor.power }}
+        {% if motor.resolved_fabrica %} | {{ motor.resolved_fabrica.name }}{% endif %}
+        {% if motor.unidade %} | {{ motor.unidade.name }}{% endif %}
+      </p>
+      </div>
+      <div class="equipment-detail-badges">
+        <span class="equipment-badge equipment-badge--motor">{{ motor.get_status_display }}</span>
+        <span class="equipment-badge equipment-badge--tag">{{ motor.area.name }}</span>
+      </div>
+    </div>
+    <div class="equipment-kpi-grid">
+      <article class="equipment-kpi-card">
+        <span>Processos registrados</span>
+        <strong>{{ flow_summary.total_processes }}</strong>
+      </article>
+      <article class="equipment-kpi-card">
+        <span>Processos em aberto</span>
+        <strong>{{ flow_summary.open_processes }}</strong>
+      </article>
+      <article class="equipment-kpi-card">
+        <span>Concluidos</span>
+        <strong>{{ flow_summary.completed_processes }}</strong>
+      </article>
+      <article class="equipment-kpi-card">
+        <span>Ultimo status</span>
+        <strong>{{ flow_summary.last_status }}</strong>
+      </article>
+    </div>
+  </section>
+
+  <section class="detail-grid motor-detail-grid">
+    <article class="panel">
+      <header class="equipment-section-header">
+        <h2>Dados tecnicos</h2>
+        <p>Informacoes principais para cadastro, consulta e rastreabilidade do motor.</p>
+      </header>
+      <dl class="detail-list">
+        <div>
+          <dt>MO</dt>
+          <dd>{{ motor.mo }}</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>{{ motor.get_status_display }}</dd>
+        </div>
+        <div>
+          <dt>Fabrica</dt>
+          <dd>{{ motor.resolved_fabrica.name|default:"-" }}</dd>
+        </div>
+        <div>
+          <dt>Unidade produtiva</dt>
+          <dd>{{ motor.unidade.name|default:"-" }}</dd>
+        </div>
+        <div>
+          <dt>Local / setor</dt>
+          <dd>{{ motor.location_name|default:"-" }}</dd>
+        </div>
+        <div>
+          <dt>Potencia</dt>
+          <dd>{{ motor.power }}</dd>
+        </div>
+        <div>
+          <dt>Fabricante</dt>
+          <dd>{{ motor.manufacturer }}</dd>
+        </div>
+        <div>
+          <dt>Carcaca</dt>
+          <dd>{{ motor.frame }}</dd>
+        </div>
+        <div>
+          <dt>RPM</dt>
+          <dd>{{ motor.rpm }}</dd>
+        </div>
+        <div>
+          <dt>Tensao</dt>
+          <dd>{{ motor.voltage }}</dd>
+        </div>
+        <div>
+          <dt>Corrente</dt>
+          <dd>{{ motor.current }}</dd>
+        </div>
+        <div>
+          <dt>Data de cadastro</dt>
+          <dd>{{ motor.registered_at|date:"d/m/Y H:i" }}</dd>
+        </div>
+        <div>
+          <dt>Responsavel pelo cadastro</dt>
+          <dd>{{ motor.registered_by_user.full_name|default:"-" }}</dd>
+        </div>
+      </dl>
+      {% if motor.notes %}
+        <div class="detail-notes">
+          <h3>Observacao</h3>
+          <p>{{ motor.notes|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+    </article>
+
+    <article class="panel">
+      <header class="equipment-section-header">
+        <h2>Historico relacionado</h2>
+        <p>Eventos recentes vinculados ao motor e ao fluxo de motor queimado.</p>
+      </header>
+      <ul class="timeline-list">
+        {% for event in motor_history %}
+          <li class="timeline-item">
+            <span class="timeline-marker"></span>
+            <div class="timeline-content">
+              <strong>{{ event.title }}</strong>
+              <span>{{ event.timestamp|date:"d/m/Y H:i" }}</span>
+              <small class="muted-copy">{{ event.subtitle }}</small>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </article>
+  </section>
+
+  <section class="panel motor-process-panel">
+    <header class="panel-toolbar">
+      <div>
+        <h2>Processos de motores queimados</h2>
+        <p>Os processos operacionais deste motor agora sao acompanhados em uma pagina dedicada, com timeline e controle de etapas.</p>
+      </div>
+      {% if can_manage_burned_motor_flow %}
+        <a href="{% url 'motores:burned-case-create' %}?motor={{ motor.pk }}{% if current_motor_area %}&area={{ current_motor_area.code }}{% endif %}" class="ghost-button">Novo processo</a>
+      {% endif %}
+    </header>
+    <div class="stack motor-process-stack">
+      {% for process in related_cases %}
+        <article class="summary-card motor-process-card">
+          <div class="motor-process-card-head">
+            <div>
+              <strong>{{ process.process_code }}</strong>
+              <small class="muted-copy">{{ process.get_status_display }} | {{ process.occurred_at|date:"d/m/Y H:i" }}</small>
+            </div>
+            {% if can_manage_burned_motor_flow %}
+              <a href="{% url 'motores:burned-case-detail' process.pk %}" class="equipment-table-link">Ver processo</a>
+            {% endif %}
+          </div>
+          <dl class="detail-list motor-process-detail-list">
+            <div>
+              <dt>Tipo do problema</dt>
+              <dd>{{ process.problem_type|default:"-" }}</dd>
+            </div>
+            <div>
+              <dt>Enviado para PCM</dt>
+              <dd>{% if process.sent_to_pcm %}Sim{% else %}Nao{% endif %}</dd>
+            </div>
+            <div>
+              <dt>Financeiro</dt>
+              <dd>{% if process.sent_to_finance %}Enviado{% else %}Pendente{% endif %}</dd>
+            </div>
+            <div>
+              <dt>Aprovado</dt>
+              <dd>{% if process.approved %}Sim{% else %}Nao{% endif %}</dd>
+            </div>
+            <div>
+              <dt>Frete / coleta</dt>
+              <dd>{% if process.freight_requested %}Solicitado{% else %}Pendente{% endif %}</dd>
+            </div>
+            <div>
+              <dt>Rebobinamento</dt>
+              <dd>{% if process.rewinding_required %}Sim{% else %}Nao{% endif %}</dd>
+            </div>
+            <div>
+              <dt>Empresa terceira</dt>
+              <dd>{{ process.third_party_company|default:"-" }}</dd>
+            </div>
+            <div>
+              <dt>Atualizado por</dt>
+              <dd>{{ process.updated_by_user.full_name|default:"-" }}</dd>
+            </div>
+          </dl>
+          <p>{{ process.defect_description|linebreaksbr }}</p>
+          {% if process.progress_notes %}
+            <small class="muted-copy">{{ process.progress_notes|linebreaksbr }}</small>
+          {% endif %}
+        </article>
+      {% empty %}
+        <div class="equipment-empty-state">
+          <strong>Nenhum processo de motor queimado vinculado</strong>
+          <span>Use o botao acima para abrir o primeiro processo operacional deste motor.</span>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | Assistente IA{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'assistente:new' %}{% if current_area %}?area={{ current_area.code }}{% endif %}" class="ghost-button">Nova conversa</a>
+{% endblock %}
+
+{% block app_content %}
+<section class="assistant-layout">
+  <aside class="assistant-sidebar">
+    <article class="panel">
+      <header><h2>Perguntas sugeridas</h2></header>
+      <div class="assistant-suggestions">
+        {% for prompt in suggested_prompts %}
+          <button type="button" class="assistant-suggestion" data-chat-prompt="{{ prompt }}">{{ prompt }}</button>
+        {% endfor %}
+      </div>
+    </article>
+    <article class="panel">
+      <header><h2>Conversas recentes</h2></header>
+      <ul class="data-list">
+        {% for session in recent_sessions %}
+          <li>
+            <strong><a href="{% url 'assistente:chat' %}?session={{ session.id }}{% if session.area_id %}&area={{ session.area.code }}{% endif %}">{{ session.title|default:"Nova conversa" }}</a></strong>
+            <span class="muted-copy">{{ session.updated_at|date:"d/m/Y H:i" }}</span>
+          </li>
+        {% empty %}
+          <li><span class="muted-copy">Nenhuma conversa ainda.</span></li>
+        {% endfor %}
+      </ul>
+    </article>
+  </aside>
+  <section id="assistant-workspace" class="assistant-workspace">
+    {% include "assistente/partials/workspace.html" %}
+  </section>
+</section>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | Gestao da equipe{% endblock %}
+
+{% block app_content %}
+  <section id="team-management-content">
+    {% include "colaboradores/partials/list_content.html" %}
+  </section>
+{% endblock %}

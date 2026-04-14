@@ -1,227 +1,136 @@
-# ManutençãoPro
+# PainelManutenção
 
-Sistema de gestão de manutenção industrial com controle de acesso por perfil e área, desenvolvido com React + Supabase.
+Monólito modular em Django para gestão de manutenção industrial, com:
 
-**URL de produção:** https://painelmanutencao.lovable.app
+- Django Templates como frontend principal
+- HTMX para interações dinâmicas sem SPA
+- Django REST Framework em `/api/v1/`
+- PostgreSQL como banco principal
+- base de PWA com suporte offline parcial
 
----
+## Estrutura principal
 
-## Stack Tecnológica
-
-| Camada | Tecnologia |
-|---|---|
-| Frontend | React 18, TypeScript, Vite, Tailwind CSS |
-| UI Components | shadcn/ui (Radix primitives) |
-| Estado/Cache | TanStack React Query |
-| Roteamento | React Router v6 |
-| Backend/Auth | Supabase (PostgreSQL, Auth, Edge Functions) |
-| PWA | vite-plugin-pwa (Workbox) |
-| Mobile | Capacitor (Android) |
-
----
-
-## Estrutura de Pastas
-
-```
-src/
-├── components/        # Componentes reutilizáveis
-│   ├── ui/            # shadcn/ui (button, card, dialog, etc.)
-│   ├── AppSidebar.tsx # Navegação lateral com permissões
-│   ├── Layout.tsx     # Layout principal (sidebar + content)
-│   ├── NavLink.tsx    # Link de navegação ativo
-│   └── ProtectedRoute.tsx # Guard de autenticação
-├── contexts/
-│   └── AuthContext.tsx # Provider de autenticação (user + profile)
-├── hooks/             # Custom hooks (use-mobile, use-toast)
-├── integrations/
-│   └── supabase/
-│       ├── client.ts  # Cliente Supabase tipado
-│       └── types.ts   # Tipos gerados automaticamente (read-only)
-├── lib/
-│   ├── roles.ts       # Helpers de autorização (isAdmin, isLeader, etc.)
-│   ├── utils.ts       # Utilidades (cn, etc.)
-│   └── fetchAllEquipamentos.ts
-├── pages/             # Páginas/rotas do app
-│   ├── Login.tsx
-│   ├── Dashboard.tsx
-│   ├── Ocorrencias.tsx / OcorrenciaForm.tsx
-│   ├── Colaboradores.tsx
-│   ├── Equipamentos.tsx
-│   ├── MotoresEletricos.tsx / MotorEletricoForm.tsx
-│   ├── Historico.tsx
-│   ├── ResumoMensal.tsx
-│   ├── Automacoes.tsx
-│   ├── GerenciarUsuarios.tsx  # Admin-only
-│   └── NotFound.tsx
-├── types/
-│   └── database.ts    # Tipos de domínio (Profile, etc.)
-└── test/              # Setup de testes (Vitest)
-
-supabase/
-├── config.toml        # Configuração do projeto Supabase
-├── migrations/        # Migrações SQL (read-only após aplicadas)
-└── functions/
-    ├── create-user/   # Edge Function: criação de usuários (admin-only)
-    └── improve-description/ # Edge Function: IA para descrições técnicas
+```text
+repo/
+├── backend/
+│   ├── manage.py
+│   ├── config/
+│   │   ├── asgi.py
+│   │   ├── wsgi.py
+│   │   ├── urls.py
+│   │   └── settings/
+│   │       ├── base.py
+│   │       ├── dev.py
+│   │       └── prod.py
+│   ├── apps/
+│   │   ├── accounts/
+│   │   ├── access/
+│   │   ├── unidades/
+│   │   ├── colaboradores/
+│   │   ├── equipamentos/
+│   │   ├── ocorrencias/
+│   │   ├── ordens_servico/
+│   │   ├── relatorios/
+│   │   ├── notificacoes/
+│   │   ├── integracoes/
+│   │   └── auditoria/
+│   ├── api/
+│   │   └── v1/
+│   ├── common/
+│   ├── templates/
+│   ├── static/
+│   ├── requirements/
+│   └── tests/
+├── infra/
+├── docs/
+└── README.md
 ```
 
----
+## Como rodar localmente
 
-## Fluxo de Autenticação
+### 1. Instalar dependências
 
-```
-Usuário → /login → supabase.auth.signInWithPassword()
-                         ↓
-              AuthContext carrega session + profile
-                         ↓
-              ProtectedRoute verifica user !== null
-                         ↓
-              Layout renderiza sidebar + <Outlet />
+```powershell
+cd "C:\Users\user\OneDrive\Documentos\New project\repo"
+py -3.12 -m pip install -r .\backend\requirements\dev.txt
 ```
 
-### Regras Importantes
+### 2. Aplicar migrações
 
-1. **Sem cadastro público** — a opção "Allow new users to sign up" está desativada no Supabase.
-2. **Criação de usuários** — apenas administradores, via página `/usuarios`, que invoca a Edge Function `create-user` com `service_role_key`.
-3. **Perfis** — após criar o auth user, a função cria registros em `profiles` e `user_roles`.
-4. **JWT** — Edge Functions validam tokens via `getClaims()` em código (`verify_jwt = false` no config).
-
----
-
-## Perfis e Hierarquia de Acesso
-
-| Perfil | Área | Nível |
-|---|---|---|
-| `administrador` | Todas | Total |
-| `supervisor_eletrica` | Elétrica | Elevado |
-| `supervisor_mecanica` | Mecânica | Elevado |
-| `lider_eletrica` | Elétrica | Elevado |
-| `lider_mecanica` | Mecânica | Elevado |
-| `manutencao_eletrica` | Elétrica | Básico |
-| `manutencao_mecanica` | Mecânica | Básico |
-
-**Funções de banco auxiliares:** `has_role()`, `is_leader_or_above()`, `get_user_area()` — todas `SECURITY DEFINER`.
-
----
-
-## Tabelas Principais
-
-### `profiles`
-Dados do usuário (nome, email, perfil, área). Chave primária = `auth.users.id`.
-
-### `user_roles`
-Vínculo usuário ↔ role (`app_role` enum). Usado pelas RLS policies via `has_role()`.
-
-### `ocorrencias`
-Registros de manutenção com área, turno, equipamento, descrição, status de OS, parada, etc.
-
-### `colaboradores`
-Equipe de manutenção (nome, turno, área, cargo, status).
-
-### `equipamentos`
-Cadastro de equipamentos com tag, área, local e status.
-
-### `motores_eletricos`
-Controle de saída/retorno de motores para serviço externo.
-
-### `ocorrencias_importacao`
-Staging de importações em lote (admin-only).
-
-### Views (`vw_equipamentos_*`)
-Views consolidadas de equipamentos com `SECURITY DEFINER`.
-
----
-
-## Regras de Acesso (RLS)
-
-Todas as tabelas possuem Row Level Security habilitado. Resumo:
-
-| Tabela | SELECT | INSERT | UPDATE | DELETE |
-|---|---|---|---|---|
-| `profiles` | Admin: todos · Líder/Sup: área · Usuário: próprio | Próprio perfil | Próprio (sem mudar perfil/área) | ✗ |
-| `user_roles` | Próprio + Admin (ALL) | Admin | Admin | Admin |
-| `colaboradores` | Admin + área | Líder/Sup da área | Líder/Sup da área | Líder/Sup da área |
-| `ocorrencias` | Admin + área | Área do usuário | Admin/Líder: área · Usuário: área + <24h | Líder/Sup da área |
-| `equipamentos` | Admin + área (ou NULL) | Admin | Admin | Admin |
-| `motores_eletricos` | Admin + área | Área do usuário | Área do usuário | Líder/Sup da área |
-| `ocorrencias_importacao` | Admin | Admin | Admin | Admin |
-
----
-
-## Edge Functions
-
-### `create-user`
-- **Propósito:** Criar usuários (auth + profile + role)
-- **Autenticação:** Verifica se o chamador é `administrador` via consulta a `user_roles`
-- **Segurança:** Usa `SUPABASE_SERVICE_ROLE_KEY` para `admin.createUser()`
-
-### `improve-description`
-- **Propósito:** Reescrever descrições de ocorrências com IA (terminologia técnica)
-- **Autenticação:** `getClaims()` valida JWT
-- **CORS:** Restrito aos domínios do app
-- **API:** Lovable AI Gateway (`google/gemini-3-flash-preview`)
-
----
-
-## Como Rodar Localmente
-
-### Pré-requisitos
-- Node.js ≥ 18
-- npm ou bun
-
-### Setup
-
-```bash
-git clone <repo-url>
-cd <repo-dir>
-npm install
-npm run dev
-# Acesse http://localhost:8080
+```powershell
+cd "C:\Users\user\OneDrive\Documentos\New project\repo"
+py -3.12 .\backend\manage.py migrate
 ```
 
-As variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` já estão no `.env`.
+### 3. Criar dados iniciais
 
-### Testes
-
-```bash
-npm test             # Vitest (unit tests)
-npx playwright test  # E2E tests
+```powershell
+cd "C:\Users\user\OneDrive\Documentos\New project\repo"
+py -3.12 .\backend\manage.py bootstrap_system
 ```
 
-### Build de Produção
+### 4. Subir a aplicação Django
 
-```bash
-npm run build
-npm run preview
+```powershell
+cd "C:\Users\user\OneDrive\Documentos\New project\repo"
+py -3.12 .\backend\manage.py runserver 0.0.0.0:8000
 ```
 
-### Android (Capacitor)
+### URLs principais
 
-```bash
-npx cap sync android
-npx cap open android
+- App web: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- Admin Django: [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
+- API DRF: [http://127.0.0.1:8000/api/v1/](http://127.0.0.1:8000/api/v1/)
+
+Credenciais iniciais:
+
+- e-mail: `admin@maintenance.example.com`
+- senha: `Admin@123`
+
+## Docker Compose
+
+```powershell
+cd "C:\Users\user\OneDrive\Documentos\New project\repo"
+docker compose up --build
 ```
 
----
+Serviços:
 
-## Variáveis de Ambiente
+- `db`: PostgreSQL 16
+- `backend`: Django + Gunicorn
 
-| Variável | Descrição |
-|---|---|
-| `VITE_SUPABASE_URL` | URL do projeto Supabase |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Chave anon (pública) |
-| `VITE_SUPABASE_PROJECT_ID` | ID do projeto |
+## Variáveis de ambiente
 
-Secrets das Edge Functions (configurados no painel Supabase):
-`SUPABASE_SERVICE_ROLE_KEY`, `LOVABLE_API_KEY`
+Veja `.env.example`.
 
----
+As principais são:
 
-## Decisões de Arquitetura
+- `BACKEND_SECRET_KEY`
+- `DJANGO_ALLOWED_HOSTS`
+- `DJANGO_CSRF_TRUSTED_ORIGINS`
+- `DATABASE_URL`
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `DEFAULT_ADMIN_EMAIL`
+- `DEFAULT_ADMIN_PASSWORD`
 
-1. **RBAC via banco** — roles em tabela separada (`user_roles`) com funções `SECURITY DEFINER` para evitar recursão em RLS.
-2. **Segregação por área** — dados filtrados automaticamente pela área do usuário no nível do banco.
-3. **Sem registro público** — signup desabilitado no Supabase Auth; criação centralizada via Edge Function.
-4. **PWA** — app instalável com service worker para cache offline.
-5. **IA integrada** — descrições de ocorrências podem ser aprimoradas via LLM com terminologia industrial.
-6. **Paginação server-side** — todas as listagens (Ocorrências, Histórico, Equipamentos, Motores Elétricos) usam paginação de 20 itens com `range()` do Supabase e contagem paralela via `Promise.all` para melhor performance.
+## Organização de código
+
+- Views ficam enxutas.
+- Regras de negócio ficam em `services.py`.
+- Templates ficam em `backend/templates`.
+- Assets, manifest e service worker ficam em `backend/static`.
+- A API interna fica em `backend/api/v1`.
+- Componentes transversais ficam em `backend/common`.
+
+## Situação da migração
+
+A nova espinha dorsal Django já está criada e validada com:
+
+- `manage.py check`
+- migrations iniciais
+- bootstrap inicial
+- smoke tests básicos
+
+As pastas antigas `api/` e `web/` ainda permanecem no repositório como referência para a próxima fase de portabilidade de regras e telas. Elas ainda não foram removidas automaticamente nesta etapa.

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ APP_NAME }} | Offline{% endblock %}
+
+{% block page %}
+<main class="offline-layout">
+  <img src="{% url 'brand-logo' %}" alt="SGM" class="offline-logo">
+  <h1>Sem conexão</h1>
+  <p>Os dados essenciais continuam disponiveis e novas ocorrencias entram na fila local ate a internet voltar.</p>
+</main>
+{% endblock %}

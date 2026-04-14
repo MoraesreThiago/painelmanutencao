@@ -1,0 +1,15 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | Motores Queimados{% endblock %}
+
+{% block header_actions %}
+  <a href="{% url 'motores:burned-case-create' %}{% if current_motor_area %}?area={{ current_motor_area.code }}{% endif %}" class="primary-button">
+    Novo processo
+  </a>
+{% endblock %}
+
+{% block app_content %}
+  <section id="burned-case-list-content">
+    {% include "motores/burned_cases/partials/list_content.html" %}
+  </section>
+{% endblock %}

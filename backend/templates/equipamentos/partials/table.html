@@ -1,0 +1,83 @@
+<div class="table-wrap">
+  <table class="data-table equipment-table">
+    <thead>
+      <tr>
+        <th>Equipamento</th>
+        <th>Local</th>
+        <th>Tag</th>
+        <th>Ativo</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for equipment in object_list %}
+        <tr class="equipment-table-row">
+          <td>
+            <div class="equipment-cell-primary">
+              <strong>{{ equipment.description }}</strong>
+              <span class="muted-copy">{{ equipment.code }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="equipment-cell-primary">
+              <strong>
+                {% if equipment.resolved_fabrica and equipment.resolved_unidade %}
+                  {{ equipment.resolved_fabrica.name }} / {{ equipment.resolved_unidade.name }}
+                {% elif equipment.resolved_unidade %}
+                  {{ equipment.resolved_unidade.name }}
+                {% else %}
+                  -
+                {% endif %}
+              </strong>
+              <span class="muted-copy">{{ equipment.location.name|default:equipment.sector|default:"-" }}</span>
+            </div>
+          </td>
+          <td>{{ equipment.tag|default:"-" }}</td>
+          <td>
+            <span class="equipment-badge equipment-badge--status {% if equipment.status == 'INACTIVE' %}equipment-badge--inactive{% else %}equipment-badge--active{% endif %}">
+              {% if equipment.status == "INACTIVE" %}Inativo{% else %}Ativo{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="{% url 'equipamentos:detail' equipment.pk %}" class="equipment-table-link">Ver detalhe</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5">
+            <div class="equipment-empty-state">
+              <strong>Nenhum equipamento encontrado</strong>
+              <span class="muted-copy">Ajuste os filtros de area, fabrica, unidade ou busca para localizar outro ativo.</span>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+  <nav class="pagination">
+    {% if page_obj.has_previous %}
+      <a
+        href="{% url 'equipamentos:list' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+        hx-get="{% url 'equipamentos:list' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+        hx-target="#equipment-list-content"
+        hx-push-url="true"
+      >
+        Anterior
+      </a>
+    {% endif %}
+    <span>Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a
+        href="{% url 'equipamentos:list' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+        hx-get="{% url 'equipamentos:list' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+        hx-target="#equipment-list-content"
+        hx-push-url="true"
+      >
+        Proxima
+      </a>
+    {% endif %}
+  </nav>
+{% endif %}

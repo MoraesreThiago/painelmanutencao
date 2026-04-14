@@ -1,0 +1,110 @@
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Colaborador</th>
+        <th>Matricula</th>
+        <th>Cargo</th>
+        <th>Escopo fisico</th>
+        <th>Contato</th>
+        <th>Acesso</th>
+        <th>Perfil</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for collaborator in object_list %}
+        <tr>
+          <td>
+            <div class="equipment-cell-primary">
+              <strong>{{ collaborator.full_name }}</strong>
+              <span class="muted-copy">{{ collaborator.area.name }}</span>
+            </div>
+          </td>
+          <td>{{ collaborator.registration_number }}</td>
+          <td>{{ collaborator.job_title }}</td>
+          <td>
+            <div class="equipment-cell-primary">
+              <strong>
+                {% if collaborator.linked_user.unidade %}
+                  {{ collaborator.linked_user.unidade.name }}
+                {% elif collaborator.linked_user.fabrica %}
+                  {{ collaborator.linked_user.fabrica.name }}
+                {% else %}
+                  Nao definido
+                {% endif %}
+              </strong>
+              <span class="muted-copy">
+                {% if collaborator.linked_user.unidade %}
+                  {{ collaborator.linked_user.unidade.fabrica.name }}
+                {% elif collaborator.linked_user.fabrica %}
+                  Escopo por fabrica
+                {% else %}
+                  Sem unidade ou fabrica vinculada
+                {% endif %}
+              </span>
+            </div>
+          </td>
+          <td>{{ collaborator.contact_phone|default:"-" }}</td>
+          <td>
+            {% if collaborator.linked_user %}
+              <div class="equipment-cell-primary">
+                <strong>{{ collaborator.linked_user.full_name }}</strong>
+                <span class="muted-copy">{{ collaborator.linked_user.email }}</span>
+              </div>
+            {% else %}
+              <span class="muted-copy">Sem usuario vinculado</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if collaborator.linked_user and collaborator.linked_user.role %}
+              <span class="equipment-badge equipment-badge--tag">{{ collaborator.linked_user.role.get_name_display }}</span>
+            {% else %}
+              <span class="equipment-badge equipment-badge--generic">Nao definido</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="equipment-badge equipment-badge--status {% if collaborator.status == 'ACTIVE' %}equipment-badge--active{% else %}equipment-badge--inactive{% endif %}">
+              {{ collaborator.get_status_display }}
+            </span>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="8">
+            <div class="equipment-empty-state">
+              <strong>Nenhum colaborador encontrado</strong>
+              <span>Ajuste os filtros de area, fabrica ou unidade para localizar a equipe desejada.</span>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+  <nav class="pagination">
+    {% if page_obj.has_previous %}
+      <a
+        href="{% url 'colaboradores:team' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+        hx-get="{% url 'colaboradores:team' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+        hx-target="#team-management-content"
+        hx-push-url="true"
+      >
+        Anterior
+      </a>
+    {% endif %}
+    <span>Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a
+        href="{% url 'colaboradores:team' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+        hx-get="{% url 'colaboradores:team' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+        hx-target="#team-management-content"
+        hx-push-url="true"
+      >
+        Proxima
+      </a>
+    {% endif %}
+  </nav>
+{% endif %}

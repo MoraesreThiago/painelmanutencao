@@ -1,0 +1,78 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | Resumo Mensal{% endblock %}
+
+{% block app_content %}
+<section class="metrics-grid">
+  {% for metric in metrics %}
+    <article class="metric-card">
+      <span>{{ metric.label }}</span>
+      <strong>
+        {% if metric.label == "Tempo de parada" %}
+          {{ metric.value }} min
+        {% else %}
+          {{ metric.value }}
+        {% endif %}
+      </strong>
+    </article>
+  {% endfor %}
+</section>
+
+<section class="panel-grid">
+  <article class="panel">
+    <header><h2>Status das ocorrências</h2></header>
+    <ul class="data-list">
+      {% for item in status_summary %}
+        <li>
+          <strong>{{ item.label }}</strong>
+          <span class="muted-copy">{{ item.total }} registro(s) no mês.</span>
+        </li>
+      {% empty %}
+        <li><span class="muted-copy">Sem ocorrências registradas neste mês.</span></li>
+      {% endfor %}
+    </ul>
+  </article>
+  <article class="panel">
+    <header><h2>Classificações</h2></header>
+    <ul class="data-list">
+      {% for item in classification_summary %}
+        <li>
+          <strong>{{ item.label }}</strong>
+          <span class="muted-copy">{{ item.total }} ocorrência(s).</span>
+        </li>
+      {% empty %}
+        <li><span class="muted-copy">Sem classificações registradas neste mês.</span></li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+
+<section class="panel-grid">
+  <article class="panel">
+    <header><h2>Resumo por área</h2></header>
+    <ul class="data-list">
+      {% for item in area_summary %}
+        <li>
+          <strong>{{ item.area__name }}</strong>
+          <span class="muted-copy">{{ item.total }} ocorrência(s) no mês.</span>
+        </li>
+      {% empty %}
+        <li><span class="muted-copy">Sem dados consolidados para o período.</span></li>
+      {% endfor %}
+    </ul>
+  </article>
+  <article class="panel">
+    <header><h2>Ocorrências recentes do mês</h2></header>
+    <ul class="data-list">
+      {% for occurrence in recent_occurrences %}
+        <li>
+          <strong>{{ occurrence.equipment.code }} · {{ occurrence.get_status_display }}</strong>
+          <span class="muted-copy">{{ occurrence.occurred_at|date:"d/m/Y H:i" }} · {{ occurrence.description|truncatechars:90 }}</span>
+        </li>
+      {% empty %}
+        <li><span class="muted-copy">Nenhuma ocorrência registrada no mês atual.</span></li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+{% endblock %}

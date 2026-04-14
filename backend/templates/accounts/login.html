@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{{ APP_NAME }} | Login{% endblock %}
+
+{% block body_class %}auth-screen{% endblock %}
+
+{% block page %}
+<main class="auth-layout">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <img src="{% url 'brand-logo' %}" alt="SGM" class="auth-brand-logo">
+      <div>
+        <p class="auth-brand-eyebrow auth-brand-eyebrow--subtitle">{{ APP_SUBTITLE }}</p>
+        <h1 class="auth-brand-title">{{ APP_NAME }}</h1>
+      </div>
+    </div>
+
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="form-error">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <label class="field">
+        <span>{{ form.email.label }}</span>
+        {{ form.email }}
+      </label>
+      <label class="field">
+        <span>{{ form.password.label }}</span>
+        {{ form.password }}
+      </label>
+      <label class="checkbox-field">
+        {{ form.remember_me }}
+        <span>{{ form.remember_me.label }}</span>
+      </label>
+      <button type="submit" class="primary-button">Entrar</button>
+    </form>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,73 @@
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Equipamento</th>
+        <th>Area</th>
+        <th>Fabrica</th>
+        <th>Unidade</th>
+        <th>Local</th>
+        <th>Classificacao</th>
+        <th>Status</th>
+        <th>Parada</th>
+        <th>Ocorrida em</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for occurrence in object_list %}
+        <tr>
+          <td>
+            <strong>{{ occurrence.equipment.code }}</strong><br>
+            <small>{{ occurrence.description|truncatechars:70 }}</small>
+          </td>
+          <td>{{ occurrence.area.name }}</td>
+          <td>{{ occurrence.resolved_fabrica.name|default:"-" }}</td>
+          <td>{{ occurrence.resolved_unidade.name|default:"-" }}</td>
+          <td>{{ occurrence.location.name|default:"-" }}</td>
+          <td>{{ occurrence.get_classification_display }}</td>
+          <td>{{ occurrence.get_status_display }}</td>
+          <td>
+            {% if occurrence.had_downtime %}
+              {{ occurrence.downtime_minutes|default:"-" }} min
+            {% else %}
+              Sem parada
+            {% endif %}
+          </td>
+          <td>{{ occurrence.occurred_at|date:"d/m/Y H:i" }}</td>
+          <td><a href="{% url 'ocorrencias:detail' occurrence.pk %}">Abrir</a></td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="10">Nenhuma ocorrencia encontrada com os filtros atuais.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+  <nav class="pagination">
+    {% if page_obj.has_previous %}
+      <a
+        href="{% url 'ocorrencias:list' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+        hx-get="{% url 'ocorrencias:list' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+        hx-target="#occurrence-list-content"
+        hx-push-url="true"
+      >
+        Anterior
+      </a>
+    {% endif %}
+    <span>Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a
+        href="{% url 'ocorrencias:list' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+        hx-get="{% url 'ocorrencias:list' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+        hx-target="#occurrence-list-content"
+        hx-push-url="true"
+      >
+        Proxima
+      </a>
+    {% endif %}
+  </nav>
+{% endif %}

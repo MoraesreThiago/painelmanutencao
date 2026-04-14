@@ -1,1 +1,0 @@
-ALTER TABLE public.motores_eletricos ALTER COLUMN numero_nf DROP NOT NULL;

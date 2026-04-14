@@ -1,0 +1,15 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | Ocorrencias{% endblock %}
+
+{% block header_actions %}
+  {% if can_create_occurrence %}
+    <a href="{% url 'ocorrencias:create' %}" class="primary-button">Nova ocorrencia</a>
+  {% endif %}
+{% endblock %}
+
+{% block app_content %}
+  <section id="occurrence-list-content">
+    {% include "ocorrencias/partials/list_content.html" %}
+  </section>
+{% endblock %}

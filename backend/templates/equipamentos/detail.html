@@ -1,0 +1,156 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | {{ equipment.code }}{% endblock %}
+
+{% block header_actions %}
+  {% if can_create_occurrence %}
+    <a href="{% url 'ocorrencias:create' %}?equipment={{ equipment.pk }}" class="ghost-button">Nova ocorrencia</a>
+  {% endif %}
+  {% if can_manage_equipment %}
+    <a href="{% url 'equipamentos:update' equipment.pk %}" class="ghost-button">Editar</a>
+    <form method="post" action="{% url 'equipamentos:toggle-status' equipment.pk %}" class="inline-form">
+      {% csrf_token %}
+      <button type="submit" class="primary-button">
+        {% if equipment.status == "INACTIVE" %}Ativar{% else %}Inativar{% endif %}
+      </button>
+    </form>
+  {% endif %}
+{% endblock %}
+
+{% block app_content %}
+<section class="panel equipment-detail-hero">
+  <div class="equipment-detail-hero-copy">
+    <div class="equipment-detail-heading">
+      <div class="equipment-detail-overline">Ativo monitorado</div>
+      <h2>{{ equipment.code }} &middot; {{ equipment.description }}</h2>
+      <p>
+        {{ equipment.area.name }}
+        {% if equipment.resolved_fabrica %} &middot; {{ equipment.resolved_fabrica.name }}{% endif %}
+        {% if equipment.resolved_unidade %} &middot; {{ equipment.resolved_unidade.name }}{% endif %}
+        {% if equipment.location %} &middot; {{ equipment.location.name }}{% endif %}
+        {% if equipment.sector %} &middot; {{ equipment.sector }}{% endif %}
+      </p>
+    </div>
+    <div class="equipment-detail-badges">
+      <span class="equipment-badge equipment-badge--{{ equipment.type|lower }}">{{ equipment.get_type_display }}</span>
+      <span class="equipment-badge equipment-badge--status equipment-badge--{{ equipment.status|lower }}">
+        {{ equipment.get_status_display }}
+      </span>
+      {% if equipment.tag %}
+        <span class="equipment-badge equipment-badge--tag">{{ equipment.tag }}</span>
+      {% endif %}
+    </div>
+  </div>
+  <div class="equipment-kpi-grid">
+    <article class="equipment-kpi-card">
+      <span>Ocorrencias registradas</span>
+      <strong>{{ operational_summary.total_occurrences }}</strong>
+    </article>
+    <article class="equipment-kpi-card">
+      <span>Ocorrencias em aberto</span>
+      <strong>{{ operational_summary.open_occurrences }}</strong>
+    </article>
+    <article class="equipment-kpi-card">
+      <span>Movimentacoes</span>
+      <strong>{{ operational_summary.movements }}</strong>
+    </article>
+    <article class="equipment-kpi-card">
+      <span>Registrado em</span>
+      <strong>{{ operational_summary.registered_at|date:"d/m/Y" }}</strong>
+    </article>
+  </div>
+</section>
+
+<div class="detail-grid">
+  <section class="panel equipment-panel">
+    <header class="equipment-section-header">
+      <div>
+        <h2>Cadastro tecnico</h2>
+        <p>Dados base para identificacao, rastreabilidade e contexto do ativo.</p>
+      </div>
+    </header>
+    <dl class="detail-list">
+      <div><dt>Codigo</dt><dd>{{ equipment.code }}</dd></div>
+      <div><dt>Descricao</dt><dd>{{ equipment.description }}</dd></div>
+      <div><dt>Tag</dt><dd>{{ equipment.tag|default:"-" }}</dd></div>
+      <div><dt>Area</dt><dd>{{ equipment.area.name }}</dd></div>
+      <div><dt>Fabrica</dt><dd>{{ equipment.resolved_fabrica.name|default:"-" }}</dd></div>
+      <div><dt>Unidade produtiva</dt><dd>{{ equipment.resolved_unidade.name|default:"-" }}</dd></div>
+      <div><dt>Local</dt><dd>{{ equipment.location.name|default:"-" }}</dd></div>
+      <div><dt>Classificacao</dt><dd>{{ equipment.get_type_display }}</dd></div>
+      <div><dt>Status</dt><dd>{{ equipment.get_status_display }}</dd></div>
+      <div><dt>Setor</dt><dd>{{ equipment.sector }}</dd></div>
+      <div><dt>Fabricante</dt><dd>{{ equipment.manufacturer|default:"-" }}</dd></div>
+      <div><dt>Modelo</dt><dd>{{ equipment.model|default:"-" }}</dd></div>
+      <div><dt>Serie</dt><dd>{{ equipment.serial_number|default:"-" }}</dd></div>
+      <div><dt>Registrado em</dt><dd>{{ equipment.registered_at|date:"d/m/Y H:i" }}</dd></div>
+    </dl>
+    {% if equipment.notes %}
+      <div class="detail-notes">
+        <strong>Observacoes</strong>
+        <p>{{ equipment.notes }}</p>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="panel equipment-panel">
+    <header class="equipment-section-header">
+      <div>
+        <h2>Contexto operacional</h2>
+        <p>Vinculos e indicadores que ajudam a localizar este ativo no fluxo da manutencao.</p>
+      </div>
+    </header>
+    <div class="stack">
+      <article class="summary-card">
+        <strong>Motor</strong>
+        <span>{% if equipment.motor %}{{ equipment.motor.unique_identifier }}{% else %}Nao vinculado{% endif %}</span>
+      </article>
+      <article class="summary-card">
+        <strong>Instrumento</strong>
+        <span>{% if equipment.instrument %}{{ equipment.instrument.unique_identifier }}{% else %}Nao vinculado{% endif %}</span>
+      </article>
+    </div>
+  </section>
+</div>
+
+<section class="panel equipment-panel">
+  <header class="panel-toolbar">
+    <div>
+      <h2>Ocorrencias recentes</h2>
+      <p>Resumo operacional vinculado a este equipamento.</p>
+    </div>
+    {% if can_create_occurrence %}
+      <a href="{% url 'ocorrencias:create' %}?equipment={{ equipment.pk }}" class="ghost-button">Registrar ocorrencia</a>
+    {% endif %}
+  </header>
+  <ul class="data-list">
+    {% for occurrence in recent_occurrences %}
+      <li>
+        <strong><a href="{% url 'ocorrencias:detail' occurrence.pk %}">{{ occurrence.get_status_display }}</a></strong>
+        <span>{{ occurrence.occurred_at|date:"d/m/Y H:i" }} &middot; {{ occurrence.description|truncatechars:100 }}</span>
+      </li>
+    {% empty %}
+      <li>Nenhuma ocorrencia registrada para este equipamento.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="panel equipment-panel">
+  <header class="equipment-section-header">
+    <div>
+      <h2>Historico recente</h2>
+      <p>Movimentacoes e alteracoes recentes relacionadas ao equipamento.</p>
+    </div>
+  </header>
+  <ul class="data-list">
+    {% for movement in movements %}
+      <li>
+        <strong>{{ movement.reason }}</strong>
+        <span>{{ movement.moved_at|date:"d/m/Y H:i" }} por {{ movement.moved_by_user.full_name }}</span>
+      </li>
+    {% empty %}
+      <li>Sem movimentacoes registradas para este equipamento.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

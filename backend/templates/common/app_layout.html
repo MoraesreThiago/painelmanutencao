@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block body_class %}app-shell-body{% endblock %}
+
+{% block page %}
+<div class="app-shell{% if request.COOKIES.sgm_sidebar_collapsed == 'true' %} is-sidebar-collapsed{% endif %}" data-sidebar-shell>
+  {% include "common/_sidebar.html" %}
+  <main class="content">
+    <header class="content-header">
+      <div>
+        <h1>{{ page_title }}</h1>
+      </div>
+      {% block header_actions %}{% endblock %}
+    </header>
+    {% block app_content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

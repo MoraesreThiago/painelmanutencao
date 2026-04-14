@@ -1,0 +1,79 @@
+<section class="panel">
+  <form
+    method="get"
+    class="filter-grid"
+    hx-get="{% url 'ocorrencias:history' %}"
+    hx-target="#history-list-content"
+    hx-push-url="true"
+  >
+    <div class="field">
+      <span>{{ filter_form.search.label }}</span>
+      {{ filter_form.search }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.area.label }}</span>
+      {{ filter_form.area }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.action.label }}</span>
+      {{ filter_form.action }}
+    </div>
+    <div class="filter-actions">
+      <button type="submit" class="ghost-button">Filtrar</button>
+      <a href="{% url 'ocorrencias:history' %}" class="ghost-button">Limpar</a>
+    </div>
+  </form>
+</section>
+
+<section class="panel">
+  <header class="panel-toolbar">
+    <div>
+      <h2>Timeline operacional</h2>
+      <p>{{ total_count }} evento(s) encontrados.</p>
+    </div>
+  </header>
+  <ul class="timeline-list">
+    {% for event in object_list %}
+      <li class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="timeline-content">
+          <strong>{{ event.summary|default:"Evento operacional" }}</strong>
+          <span>{{ event.created_at|date:"d/m/Y H:i" }}{% if event.actor_user %} · {{ event.actor_user.full_name }}{% endif %}</span>
+        </div>
+      </li>
+    {% empty %}
+      <li class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="timeline-content">
+          <strong>Nenhum evento encontrado com os filtros atuais.</strong>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="pagination">
+      {% if page_obj.has_previous %}
+        <a
+          href="{% url 'ocorrencias:history' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+          hx-get="{% url 'ocorrencias:history' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+          hx-target="#history-list-content"
+          hx-push-url="true"
+        >
+          Anterior
+        </a>
+      {% endif %}
+      <span>Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a
+          href="{% url 'ocorrencias:history' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+          hx-get="{% url 'ocorrencias:history' %}?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+          hx-target="#history-list-content"
+          hx-push-url="true"
+        >
+          Proxima
+        </a>
+      {% endif %}
+    </nav>
+  {% endif %}
+</section>

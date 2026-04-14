@@ -1,0 +1,25 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | {{ page_title }}{% endblock %}
+
+{% block app_content %}
+<section class="panel">
+  <form method="post" class="form-grid">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="form-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+    {% for field in form %}
+      <label class="field">
+        <span>{{ field.label }}</span>
+        {{ field }}
+        {% if field.errors %}<small class="field-error">{{ field.errors|striptags }}</small>{% endif %}
+      </label>
+    {% endfor %}
+    <div class="form-actions">
+      <button type="submit" class="primary-button">Salvar</button>
+      <a href="{% url 'ocorrencias:list' %}" class="ghost-button">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | Ocorrencia {{ occurrence.equipment.code }}{% endblock %}
+
+{% block header_actions %}
+  <a href="{% url 'equipamentos:detail' occurrence.equipment.pk %}" class="ghost-button">Ver equipamento</a>
+  {% if can_edit_occurrence %}
+    <a href="{% url 'ocorrencias:update' occurrence.pk %}" class="primary-button">Editar ocorrencia</a>
+  {% endif %}
+{% endblock %}
+
+{% block app_content %}
+<div class="detail-grid">
+  <section class="panel">
+    <header><h2>Informacoes principais</h2></header>
+    <dl class="detail-list">
+      <div><dt>Equipamento</dt><dd><a href="{% url 'equipamentos:detail' occurrence.equipment.pk %}">{{ occurrence.equipment.code }}</a></dd></div>
+      <div><dt>Area</dt><dd>{{ occurrence.area.name }}</dd></div>
+      <div><dt>Fabrica</dt><dd>{{ occurrence.resolved_fabrica.name|default:"-" }}</dd></div>
+      <div><dt>Unidade produtiva</dt><dd>{{ occurrence.resolved_unidade.name|default:"-" }}</dd></div>
+      <div><dt>Local</dt><dd>{{ occurrence.location.name|default:"-" }}</dd></div>
+      <div><dt>Classificacao</dt><dd>{{ occurrence.get_classification_display }}</dd></div>
+      <div><dt>Status</dt><dd>{{ occurrence.get_status_display }}</dd></div>
+      <div><dt>Ocorrida em</dt><dd>{{ occurrence.occurred_at|date:"d/m/Y H:i" }}</dd></div>
+      <div><dt>Responsavel</dt><dd>{{ occurrence.responsible_collaborator.full_name|default:"-" }}</dd></div>
+      <div><dt>Registrada por</dt><dd>{{ occurrence.reported_by_user.full_name|default:"-" }}</dd></div>
+      <div><dt>Houve parada</dt><dd>{% if occurrence.had_downtime %}Sim{% else %}Nao{% endif %}</dd></div>
+      <div><dt>Tempo de parada</dt><dd>{{ occurrence.downtime_minutes|default:"-" }} min</dd></div>
+      <div><dt>Resolvida em</dt><dd>{{ occurrence.resolved_at|date:"d/m/Y H:i"|default:"-" }}</dd></div>
+    </dl>
+    <div class="detail-notes">
+      <strong>Descricao</strong>
+      <p>{{ occurrence.description }}</p>
+    </div>
+    {% if occurrence.notes %}
+      <div class="detail-notes">
+        <strong>Observacoes</strong>
+        <p>{{ occurrence.notes }}</p>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <header><h2>Status operacional</h2></header>
+    {% if can_edit_occurrence %}
+      <form method="post" action="{% url 'ocorrencias:update-status' occurrence.pk %}" class="status-update-form">
+        {% csrf_token %}
+        <label class="field">
+          <span>{{ status_form.status.label }}</span>
+          {{ status_form.status }}
+        </label>
+        <label class="field">
+          <span>{{ status_form.note.label }}</span>
+          {{ status_form.note }}
+        </label>
+        <button type="submit" class="primary-button">Atualizar status</button>
+      </form>
+    {% else %}
+      <p class="muted-copy">Seu perfil pode consultar a timeline, mas nao pode alterar o status desta ocorrencia.</p>
+    {% endif %}
+  </section>
+</div>
+
+<div class="panel-grid">
+  <section class="panel">
+    <header><h2>Timeline da ocorrencia</h2></header>
+    <ul class="timeline-list">
+      {% for event in timeline_events %}
+        <li class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <strong>{{ event.summary|default:"Atualizacao operacional" }}</strong>
+            <span>{{ event.created_at|date:"d/m/Y H:i" }}{% if event.actor_user %} por {{ event.actor_user.full_name }}{% endif %}</span>
+          </div>
+        </li>
+      {% empty %}
+        <li class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <strong>Nenhum evento registrado.</strong>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="panel">
+    <header><h2>Outras ocorrencias do equipamento</h2></header>
+    <ul class="data-list">
+      {% for related in related_occurrences %}
+        <li>
+          <strong><a href="{% url 'ocorrencias:detail' related.pk %}">{{ related.get_status_display }}</a></strong>
+          <span>{{ related.occurred_at|date:"d/m/Y H:i" }} · {{ related.description|truncatechars:90 }}</span>
+        </li>
+      {% empty %}
+        <li>Nao ha outras ocorrencias recentes para este equipamento.</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}

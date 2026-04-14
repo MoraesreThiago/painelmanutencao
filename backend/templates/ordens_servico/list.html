@@ -1,0 +1,9 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | Ordens de Serviço{% endblock %}
+
+{% block app_content %}
+  <section id="service-order-list-content">
+    {% include "ordens_servico/partials/list_content.html" %}
+  </section>
+{% endblock %}

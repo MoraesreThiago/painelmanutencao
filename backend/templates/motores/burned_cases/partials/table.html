@@ -1,0 +1,108 @@
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Processo</th>
+        <th>Motor</th>
+        <th>MO</th>
+        <th>Unidade</th>
+        <th>Local / setor</th>
+        <th>Ocorrência</th>
+        <th>Solicitante</th>
+        <th>Status</th>
+        <th>PCM</th>
+        <th>Financeiro</th>
+        <th>Empresa terceira</th>
+        <th>Frete / coleta</th>
+        <th>Última atualização</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for case in object_list %}
+        <tr class="motor-table-row {% if case.is_overdue %}burned-case-row--overdue{% endif %}">
+          <td>
+            <div class="equipment-cell-primary">
+              <strong>{{ case.process_code }}</strong>
+              <span class="equipment-cell-meta">{{ case.get_data_origin_display }}</span>
+            </div>
+          </td>
+          <td>{{ case.display_motor_label }}</td>
+          <td>{{ case.motor_mo|default:"-" }}</td>
+          <td>
+            {% if case.resolved_unidade %}
+              <div class="equipment-cell-primary">
+                <strong>{{ case.resolved_unidade.name }}</strong>
+                <span class="muted-copy">{{ case.resolved_fabrica.name|default:"-" }}</span>
+              </div>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>{{ case.motor_location|default:"-" }}</td>
+          <td>{{ case.occurred_at|date:"d/m/Y H:i" }}</td>
+          <td>{{ case.requester_name }}</td>
+          <td>
+            <span class="equipment-badge equipment-badge--tag">{{ case.get_status_display }}</span>
+            {% if case.is_overdue %}
+              <span class="equipment-badge equipment-badge--status equipment-badge--under_maintenance">Atrasado</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if case.needs_pcm %}
+              {% if case.sent_to_pcm %}
+                <span class="equipment-badge equipment-badge--motor">Enviado</span>
+              {% else %}
+                <span class="equipment-badge equipment-badge--tag">Pendente</span>
+              {% endif %}
+            {% else %}
+              <span class="equipment-badge equipment-badge--generic">Dispensado</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if case.sent_to_finance %}
+              <span class="equipment-badge equipment-badge--motor">Enviado</span>
+            {% else %}
+              <span class="equipment-badge equipment-badge--tag">Pendente</span>
+            {% endif %}
+          </td>
+          <td>{{ case.third_party_company|default:"-" }}</td>
+          <td>
+            {% if case.freight_requested %}
+              <span class="equipment-badge equipment-badge--instrument">Solicitado</span>
+            {% else %}
+              <span class="equipment-badge equipment-badge--tag">Pendente</span>
+            {% endif %}
+          </td>
+          <td>{{ case.updated_at|date:"d/m/Y H:i" }}</td>
+          <td>
+            <a href="{% url 'motores:burned-case-detail' case.pk %}" class="equipment-table-link">Detalhes</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="14">
+            <div class="equipment-empty-state">
+              <strong>Nenhum processo de motor queimado encontrado</strong>
+              <span>Abra um novo processo ou ajuste os filtros para localizar outro item.</span>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+  <div class="pagination">
+    <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+    <div class="filter-actions">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if filter_query %}&{{ filter_query }}{% endif %}" class="ghost-button">Anterior</a>
+      {% endif %}
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if filter_query %}&{{ filter_query }}{% endif %}" class="ghost-button">Próxima</a>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

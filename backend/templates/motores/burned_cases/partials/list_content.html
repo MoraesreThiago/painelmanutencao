@@ -1,0 +1,84 @@
+<section class="panel motor-filter-panel">
+  <header class="panel-toolbar">
+    <div>
+      <h2>Busca e filtros</h2>
+      <p>Controle os processos de motores queimados desde a oficina até o retorno final.</p>
+    </div>
+  </header>
+  <form
+    method="get"
+    class="filter-grid burned-case-filter-grid"
+    hx-get="{% url 'motores:burned-case-list' %}"
+    hx-target="#burned-case-list-content"
+    hx-push-url="true"
+    hx-trigger="input changed delay:350ms, search, change"
+  >
+    <div class="field">
+      <span>{{ filter_form.search.label }}</span>
+      {{ filter_form.search }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.status.label }}</span>
+      {{ filter_form.status }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.process_stage.label }}</span>
+      {{ filter_form.process_stage }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.fabrica.label }}</span>
+      {{ filter_form.fabrica }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.unidade.label }}</span>
+      {{ filter_form.unidade }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.location.label }}</span>
+      {{ filter_form.location }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.start_date.label }}</span>
+      {{ filter_form.start_date }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.end_date.label }}</span>
+      {{ filter_form.end_date }}
+    </div>
+    {% if current_motor_area %}
+      <input type="hidden" name="area" value="{{ current_motor_area.code }}">
+    {% endif %}
+    <div class="filter-actions">
+      <a href="{% url 'motores:burned-case-list' %}{% if current_motor_area %}?area={{ current_motor_area.code }}{% endif %}" class="ghost-button">Limpar</a>
+    </div>
+  </form>
+</section>
+
+<section class="summary-grid burned-case-summary-grid">
+  <article class="summary-card">
+    <span>Processos em aberto</span>
+    <strong>{{ case_summary.open_count }}</strong>
+  </article>
+  <article class="summary-card">
+    <span>Aguardando PCM</span>
+    <strong>{{ case_summary.awaiting_pcm_count }}</strong>
+  </article>
+  <article class="summary-card">
+    <span>Aguardando financeiro</span>
+    <strong>{{ case_summary.awaiting_finance_count }}</strong>
+  </article>
+  <article class="summary-card">
+    <span>Atrasados</span>
+    <strong>{{ case_summary.overdue_count }}</strong>
+  </article>
+</section>
+
+<section class="panel motor-table-panel">
+  <header class="panel-toolbar">
+    <div>
+      <h2>Motores queimados</h2>
+      <p>{{ total_count }} processo(s) encontrado(s).</p>
+    </div>
+  </header>
+  {% include "motores/burned_cases/partials/table.html" %}
+</section>

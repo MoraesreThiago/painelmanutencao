@@ -1,0 +1,20 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | Dashboard{% endblock %}
+
+{% block header_actions %}
+<button
+  class="ghost-button"
+  hx-get="{% url 'access:dashboard-metrics' %}"
+  hx-target="#dashboard-metrics"
+  hx-swap="innerHTML"
+>
+  Atualizar painel
+</button>
+{% endblock %}
+
+{% block app_content %}
+<section id="dashboard-metrics">
+  {% include "access/partials/dashboard_metrics.html" %}
+</section>
+{% endblock %}

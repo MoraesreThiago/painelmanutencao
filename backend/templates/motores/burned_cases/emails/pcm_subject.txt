@@ -1,0 +1,1 @@
+Motor Queimado - Abertura de Processo - {{ case.motor_mo|default:case.process_code }} - {{ case.motor_location|default:case.area.name }}

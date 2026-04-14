@@ -1,0 +1,56 @@
+<section class="panel">
+  <form
+    method="get"
+    class="filter-grid"
+    hx-get="{% url 'ocorrencias:list' %}"
+    hx-target="#occurrence-list-content"
+    hx-push-url="true"
+  >
+    <div class="field">
+      <span>{{ filter_form.search.label }}</span>
+      {{ filter_form.search }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.area.label }}</span>
+      {{ filter_form.area }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.fabrica.label }}</span>
+      {{ filter_form.fabrica }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.unidade.label }}</span>
+      {{ filter_form.unidade }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.location.label }}</span>
+      {{ filter_form.location }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.classification.label }}</span>
+      {{ filter_form.classification }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.status.label }}</span>
+      {{ filter_form.status }}
+    </div>
+    <div class="field">
+      <span>{{ filter_form.downtime.label }}</span>
+      {{ filter_form.downtime }}
+    </div>
+    <div class="filter-actions">
+      <button type="submit" class="ghost-button">Filtrar</button>
+      <a href="{% url 'ocorrencias:list' %}" class="ghost-button">Limpar</a>
+    </div>
+  </form>
+</section>
+
+<section class="panel">
+  <header class="panel-toolbar">
+    <div>
+      <h2>Ocorrencias registradas</h2>
+      <p>{{ total_count }} registro(s) encontrados.</p>
+    </div>
+  </header>
+  {% include "ocorrencias/partials/table.html" %}
+</section>

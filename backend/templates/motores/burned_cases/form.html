@@ -1,0 +1,285 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | {{ page_title }}{% endblock %}
+
+{% block app_content %}
+  {{ motor_catalog_map|json_script:"burned-motor-catalog" }}
+  <section class="panel equipment-form-panel">
+    <div class="equipment-form-shell">
+      <div class="equipment-form-intro">
+        <h2>{{ page_title }}</h2>
+        <p>Abra e acompanhe o fluxo de motores queimados sem depender obrigatoriamente do cadastro completo do motor.</p>
+      </div>
+
+      <form method="post" class="form-grid equipment-form-grid" data-burned-case-form>
+        {% csrf_token %}
+
+        <section class="equipment-form-section field--wide">
+          <header class="equipment-section-header">
+            <h2>Identificação do motor</h2>
+            <p>Selecione um motor do cadastro quando ele existir ou informe os dados manualmente para abrir o processo.</p>
+          </header>
+          <div class="form-grid equipment-form-grid">
+            <div class="field field--wide">
+              <span>Buscar motor cadastrado</span>
+              <input type="search" placeholder="Filtrar opções por MO, fabricante ou descrição" data-burned-case-motor-filter>
+            </div>
+            <div class="field field--wide">
+              <span>{{ form.motor_lookup.label }}</span>
+              {{ form.motor_lookup }}
+              {{ form.motor_lookup.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.unidade.label }}</span>
+              {{ form.unidade }}
+              {{ form.unidade.errors }}
+            </div>
+            <div class="field field--wide">
+              <span>Origem dos dados</span>
+              <div class="summary-card burned-case-source-card">
+                <strong data-burned-case-source>Preenchimento manual</strong>
+                <small>Ao selecionar um motor cadastrado, os campos técnicos são preenchidos automaticamente e podem ser complementados.</small>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="equipment-form-section field--wide">
+          <header class="equipment-section-header">
+            <h2>Snapshot técnico do motor</h2>
+            <p>Esses dados são congelados no momento da abertura do processo e permanecem registrados mesmo se o cadastro do motor mudar no futuro.</p>
+          </header>
+          <div class="form-grid equipment-form-grid">
+            <div class="field field--wide">
+              <span>{{ form.motor_description.label }}</span>
+              {{ form.motor_description }}
+              {{ form.motor_description.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.motor_mo.label }}</span>
+              {{ form.motor_mo }}
+              {{ form.motor_mo.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.motor_power.label }}</span>
+              {{ form.motor_power }}
+              {{ form.motor_power.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.motor_manufacturer.label }}</span>
+              {{ form.motor_manufacturer }}
+              {{ form.motor_manufacturer.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.motor_frame.label }}</span>
+              {{ form.motor_frame }}
+              {{ form.motor_frame.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.motor_rpm.label }}</span>
+              {{ form.motor_rpm }}
+              {{ form.motor_rpm.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.motor_voltage.label }}</span>
+              {{ form.motor_voltage }}
+              {{ form.motor_voltage.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.motor_current.label }}</span>
+              {{ form.motor_current }}
+              {{ form.motor_current.errors }}
+            </div>
+            <div class="field field--wide">
+              <span>{{ form.motor_location.label }}</span>
+              {{ form.motor_location }}
+              {{ form.motor_location.errors }}
+            </div>
+            <div class="field field--wide">
+              <span>{{ form.create_provisional_motor.label }}</span>
+              <label class="motor-checkbox-field">
+                {{ form.create_provisional_motor }}
+                <span>Criar cadastro provisório do motor a partir destes dados</span>
+              </label>
+              {{ form.create_provisional_motor.errors }}
+            </div>
+          </div>
+        </section>
+
+        <section class="equipment-form-section field--wide">
+          <header class="equipment-section-header">
+            <h2>Ocorrência</h2>
+            <p>Registre quem identificou o problema, quando ele ocorreu e qual o defeito observado na oficina.</p>
+          </header>
+          <div class="form-grid equipment-form-grid">
+            <div class="field">
+              <span>{{ form.occurred_at.label }}</span>
+              {{ form.occurred_at }}
+              {{ form.occurred_at.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.requester_name.label }}</span>
+              {{ form.requester_name }}
+              {{ form.requester_name.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.problem_type.label }}</span>
+              {{ form.problem_type }}
+              {{ form.problem_type.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.priority.label }}</span>
+              {{ form.priority }}
+              {{ form.priority.errors }}
+            </div>
+            <div class="field field--wide">
+              <span>{{ form.defect_description.label }}</span>
+              {{ form.defect_description }}
+              {{ form.defect_description.errors }}
+            </div>
+            <div class="field field--wide">
+              <span>{{ form.technical_notes.label }}</span>
+              {{ form.technical_notes }}
+              {{ form.technical_notes.errors }}
+            </div>
+          </div>
+        </section>
+
+        <section class="equipment-form-section field--wide">
+          <header class="equipment-section-header">
+            <h2>Andamento do processo</h2>
+            <p>Controle PCM, financeiro, solução definida, empresa terceira, frete e previsão de retorno.</p>
+          </header>
+          <div class="form-grid equipment-form-grid">
+            <div class="field">
+              <span>{{ form.status.label }}</span>
+              {{ form.status }}
+              {{ form.status.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.solution_type.label }}</span>
+              {{ form.solution_type }}
+              {{ form.solution_type.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.needs_pcm.label }}</span>
+              <label class="motor-checkbox-field">
+                {{ form.needs_pcm }}
+                <span>Fluxo precisa passar pelo PCM</span>
+              </label>
+              {{ form.needs_pcm.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.sent_to_pcm.label }}</span>
+              <label class="motor-checkbox-field">
+                {{ form.sent_to_pcm }}
+                <span>Já enviado ao PCM</span>
+              </label>
+              {{ form.sent_to_pcm.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.sent_to_pcm_at.label }}</span>
+              {{ form.sent_to_pcm_at }}
+              {{ form.sent_to_pcm_at.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.pcm_responsible.label }}</span>
+              {{ form.pcm_responsible }}
+              {{ form.pcm_responsible.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.sent_to_finance.label }}</span>
+              <label class="motor-checkbox-field">
+                {{ form.sent_to_finance }}
+                <span>Enviado ao financeiro</span>
+              </label>
+              {{ form.sent_to_finance.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.finance_sent_at.label }}</span>
+              {{ form.finance_sent_at }}
+              {{ form.finance_sent_at.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.approved.label }}</span>
+              <label class="motor-checkbox-field">
+                {{ form.approved }}
+                <span>Pedido aprovado</span>
+              </label>
+              {{ form.approved.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.approved_at.label }}</span>
+              {{ form.approved_at }}
+              {{ form.approved_at.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.purchase_new_motor.label }}</span>
+              <label class="motor-checkbox-field">
+                {{ form.purchase_new_motor }}
+                <span>Compra de motor novo</span>
+              </label>
+              {{ form.purchase_new_motor.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.rewinding_required.label }}</span>
+              <label class="motor-checkbox-field">
+                {{ form.rewinding_required }}
+                <span>Precisa de rebobinamento</span>
+              </label>
+              {{ form.rewinding_required.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.third_party_company.label }}</span>
+              {{ form.third_party_company }}
+              {{ form.third_party_company.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.third_party_contact.label }}</span>
+              {{ form.third_party_contact }}
+              {{ form.third_party_contact.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.freight_requested.label }}</span>
+              <label class="motor-checkbox-field">
+                {{ form.freight_requested }}
+                <span>Frete / coleta solicitado</span>
+              </label>
+              {{ form.freight_requested.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.pickup_at.label }}</span>
+              {{ form.pickup_at }}
+              {{ form.pickup_at.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.expected_return_at.label }}</span>
+              {{ form.expected_return_at }}
+              {{ form.expected_return_at.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.arrived_at.label }}</span>
+              {{ form.arrived_at }}
+              {{ form.arrived_at.errors }}
+            </div>
+            <div class="field field--wide">
+              <span>{{ form.progress_notes.label }}</span>
+              {{ form.progress_notes }}
+              {{ form.progress_notes.errors }}
+            </div>
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <button type="submit" class="primary-button">{{ submit_label }}</button>
+          {% if can_send_pcm_from_form %}
+            {% if form.needs_pcm.value or not object %}
+              <button type="submit" name="_send_pcm" value="1" class="ghost-button">Salvar e enviar ao PCM</button>
+            {% endif %}
+          {% endif %}
+          <a href="{% url 'motores:burned-case-list' %}{% if current_motor_area %}?area={{ current_motor_area.code }}{% endif %}" class="ghost-button">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock %}

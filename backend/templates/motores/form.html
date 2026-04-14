@@ -1,0 +1,106 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | {{ page_title }}{% endblock %}
+
+{% block app_content %}
+  <section class="panel equipment-form-panel">
+    <div class="equipment-form-shell">
+      <div class="equipment-form-intro">
+        <h2>{{ page_title }}</h2>
+        <p>Cadastre e atualize os dados tecnicos dos motores eletricos monitorados pela area eletrica.</p>
+      </div>
+      <form method="post" class="form-grid equipment-form-grid">
+        {% csrf_token %}
+        <section class="equipment-form-section field--wide">
+          <header class="equipment-section-header">
+            <h2>Identificacao tecnica</h2>
+            <p>Dados principais para rastreabilidade, listagem e busca do motor.</p>
+          </header>
+          <div class="form-grid equipment-form-grid">
+            <div class="field">
+              <span>{{ form.mo.label }}</span>
+              {{ form.mo }}
+              {{ form.mo.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.unidade.label }}</span>
+              {{ form.unidade }}
+              {{ form.unidade.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.status.label }}</span>
+              {{ form.status }}
+              {{ form.status.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.location_name.label }}</span>
+              {{ form.location_name }}
+              {{ form.location_name.errors }}
+            </div>
+            <div class="field field--wide">
+              <span>{{ form.description.label }}</span>
+              {{ form.description }}
+              {{ form.description.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.manufacturer.label }}</span>
+              {{ form.manufacturer }}
+              {{ form.manufacturer.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.frame.label }}</span>
+              {{ form.frame }}
+              {{ form.frame.errors }}
+            </div>
+          </div>
+        </section>
+
+        <section class="equipment-form-section field--wide">
+          <header class="equipment-section-header">
+            <h2>Dados eletricos</h2>
+            <p>Caracteristicas tecnicas para comparacao, especificacao e manutencao.</p>
+          </header>
+          <div class="form-grid equipment-form-grid">
+            <div class="field">
+              <span>{{ form.power.label }}</span>
+              {{ form.power }}
+              {{ form.power.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.rpm.label }}</span>
+              {{ form.rpm }}
+              {{ form.rpm.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.voltage.label }}</span>
+              {{ form.voltage }}
+              {{ form.voltage.errors }}
+            </div>
+            <div class="field">
+              <span>{{ form.current.label }}</span>
+              {{ form.current }}
+              {{ form.current.errors }}
+            </div>
+          </div>
+        </section>
+
+        <section class="equipment-form-section field--wide">
+          <header class="equipment-section-header">
+            <h2>Observacoes</h2>
+            <p>Use este campo para registrar orientacoes relevantes para operacao ou manutencao.</p>
+          </header>
+          <div class="field">
+            <span>{{ form.notes.label }}</span>
+            {{ form.notes }}
+            {{ form.notes.errors }}
+          </div>
+        </section>
+
+        <div class="form-actions">
+          <button type="submit" class="primary-button">{{ submit_label }}</button>
+          <a href="{% url 'motores:list' %}{% if current_motor_area %}?area={{ current_motor_area.code }}{% endif %}" class="ghost-button">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock %}

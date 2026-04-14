@@ -1,0 +1,9 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | {{ area.name }}{% endblock %}
+
+{% block app_content %}
+<section id="dashboard-metrics">
+  {% include "access/partials/dashboard_metrics.html" %}
+</section>
+{% endblock %}

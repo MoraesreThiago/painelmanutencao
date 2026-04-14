@@ -1,0 +1,175 @@
+{% extends "common/app_layout.html" %}
+
+{% block title %}{{ APP_NAME }} | {{ case.process_code }}{% endblock %}
+
+{% block header_actions %}
+  <div class="filter-actions">
+    {% if can_send_pcm_email %}
+      <form method="post" action="{% url 'motores:burned-case-send-pcm' case.pk %}" class="inline-form">
+        {% csrf_token %}
+        <button type="submit" class="ghost-button">Enviar ao PCM</button>
+      </form>
+    {% endif %}
+    <a href="{% url 'motores:burned-case-update' case.pk %}" class="primary-button">Editar processo</a>
+  </div>
+{% endblock %}
+
+{% block app_content %}
+  <section class="panel equipment-detail-hero">
+    <div class="equipment-detail-hero-copy">
+      <div class="equipment-detail-heading">
+        <div class="equipment-detail-overline">Motores queimados</div>
+        <h2>{{ case.process_code }}</h2>
+        <p>
+          {{ case.display_motor_label }} | {{ case.motor_location|default:case.area.name }}
+          {% if case.resolved_fabrica %} | {{ case.resolved_fabrica.name }}{% endif %}
+          {% if case.resolved_unidade %} | {{ case.resolved_unidade.name }}{% endif %}
+        </p>
+      </div>
+      <div class="equipment-detail-badges">
+        <span class="equipment-badge equipment-badge--motor">{{ case.get_status_display }}</span>
+        <span class="equipment-badge equipment-badge--tag">{{ case.get_data_origin_display }}</span>
+        {% if case.is_overdue %}
+          <span class="equipment-badge equipment-badge--status equipment-badge--under_maintenance">Atrasado</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="equipment-kpi-grid">
+      <article class="equipment-kpi-card">
+        <span>PCM</span>
+        <strong>{% if case.sent_to_pcm %}Enviado{% else %}Pendente{% endif %}</strong>
+      </article>
+      <article class="equipment-kpi-card">
+        <span>Financeiro</span>
+        <strong>{% if case.sent_to_finance %}Enviado{% else %}Pendente{% endif %}</strong>
+      </article>
+      <article class="equipment-kpi-card">
+        <span>E-mail ao PCM</span>
+        <strong>{% if case.pcm_email_sent %}Enviado{% else %}Não enviado{% endif %}</strong>
+      </article>
+      <article class="equipment-kpi-card">
+        <span>Última atualização</span>
+        <strong>{{ case.updated_at|date:"d/m/Y H:i" }}</strong>
+      </article>
+    </div>
+  </section>
+
+  <section class="detail-grid motor-detail-grid">
+    <article class="panel">
+      <header class="equipment-section-header">
+        <h2>Dados do motor e da ocorrência</h2>
+        <p>Snapshot técnico registrado no momento da abertura do processo.</p>
+      </header>
+      <dl class="detail-list">
+        <div><dt>Motor</dt><dd>{{ case.display_motor_label }}</dd></div>
+        <div><dt>MO</dt><dd>{{ case.motor_mo|default:"-" }}</dd></div>
+        <div><dt>Potência</dt><dd>{{ case.motor_power|default:"-" }}</dd></div>
+        <div><dt>Fabricante</dt><dd>{{ case.motor_manufacturer|default:"-" }}</dd></div>
+        <div><dt>Carcaça</dt><dd>{{ case.motor_frame|default:"-" }}</dd></div>
+        <div><dt>RPM</dt><dd>{{ case.motor_rpm|default:"-" }}</dd></div>
+        <div><dt>Tensão</dt><dd>{{ case.motor_voltage|default:"-" }}</dd></div>
+        <div><dt>Corrente</dt><dd>{{ case.motor_current|default:"-" }}</dd></div>
+        <div><dt>Fabrica</dt><dd>{{ case.resolved_fabrica.name|default:"-" }}</dd></div>
+        <div><dt>Unidade produtiva</dt><dd>{{ case.resolved_unidade.name|default:"-" }}</dd></div>
+        <div><dt>Local / setor</dt><dd>{{ case.motor_location|default:"-" }}</dd></div>
+        <div><dt>Data da ocorrência</dt><dd>{{ case.occurred_at|date:"d/m/Y H:i" }}</dd></div>
+        <div><dt>Solicitante</dt><dd>{{ case.requester_name }}</dd></div>
+        <div><dt>Prioridade</dt><dd>{{ case.get_priority_display }}</dd></div>
+        <div><dt>Aberto por</dt><dd>{{ case.opened_by_user.full_name|default:"-" }}</dd></div>
+        <div><dt>Registrado em</dt><dd>{{ case.recorded_at|date:"d/m/Y H:i" }}</dd></div>
+      </dl>
+      <div class="detail-notes">
+        <strong>Defeito informado</strong>
+        <p>{{ case.defect_description|linebreaksbr }}</p>
+      </div>
+      {% if case.technical_notes %}
+        <div class="detail-notes">
+          <strong>Observações técnicas</strong>
+          <p>{{ case.technical_notes|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+    </article>
+
+    <article class="panel">
+      <header class="equipment-section-header">
+        <h2>Status operacional</h2>
+        <p>Atualize rapidamente a etapa atual sem precisar reabrir o formulário completo.</p>
+      </header>
+      <form method="post" action="{% url 'motores:burned-case-status' case.pk %}" class="status-update-form">
+        {% csrf_token %}
+        <label class="field">
+          <span>{{ status_form.status.label }}</span>
+          {{ status_form.status }}
+        </label>
+        <label class="field">
+          <span>{{ status_form.progress_notes.label }}</span>
+          {{ status_form.progress_notes }}
+        </label>
+        <button type="submit" class="primary-button">Atualizar status</button>
+      </form>
+    </article>
+  </section>
+
+  <div class="panel-grid">
+    <section class="panel">
+      <header class="equipment-section-header">
+        <h2>Processo e logística</h2>
+        <p>Acompanhe PCM, financeiro, empresa terceira, frete e retorno.</p>
+      </header>
+      <dl class="detail-list">
+        <div><dt>Precisa PCM</dt><dd>{% if case.needs_pcm %}Sim{% else %}Não{% endif %}</dd></div>
+        <div><dt>Enviado ao PCM</dt><dd>{% if case.sent_to_pcm %}Sim{% else %}Não{% endif %}</dd></div>
+        <div><dt>Data envio PCM</dt><dd>{{ case.sent_to_pcm_at|date:"d/m/Y H:i"|default:"-" }}</dd></div>
+        <div><dt>PCM responsável</dt><dd>{{ case.pcm_responsible|default:"-" }}</dd></div>
+        <div><dt>Enviado ao financeiro</dt><dd>{% if case.sent_to_finance %}Sim{% else %}Não{% endif %}</dd></div>
+        <div><dt>Data envio financeiro</dt><dd>{{ case.finance_sent_at|date:"d/m/Y H:i"|default:"-" }}</dd></div>
+        <div><dt>Aprovado</dt><dd>{% if case.approved %}Sim{% else %}Não{% endif %}</dd></div>
+        <div><dt>Data da aprovação</dt><dd>{{ case.approved_at|date:"d/m/Y H:i"|default:"-" }}</dd></div>
+        <div><dt>Tipo de solução</dt><dd>{{ case.get_solution_type_display }}</dd></div>
+        <div><dt>Compra de motor novo</dt><dd>{% if case.purchase_new_motor %}Sim{% else %}Não{% endif %}</dd></div>
+        <div><dt>Rebobinamento</dt><dd>{% if case.rewinding_required %}Sim{% else %}Não{% endif %}</dd></div>
+        <div><dt>Empresa terceira</dt><dd>{{ case.third_party_company|default:"-" }}</dd></div>
+        <div><dt>Contato da empresa</dt><dd>{{ case.third_party_contact|default:"-" }}</dd></div>
+        <div><dt>Frete / coleta</dt><dd>{% if case.freight_requested %}Solicitado{% else %}Pendente{% endif %}</dd></div>
+        <div><dt>Coleta</dt><dd>{{ case.pickup_at|date:"d/m/Y H:i"|default:"-" }}</dd></div>
+        <div><dt>Previsto retorno</dt><dd>{{ case.expected_return_at|date:"d/m/Y H:i"|default:"-" }}</dd></div>
+        <div><dt>Chegada</dt><dd>{{ case.arrived_at|date:"d/m/Y H:i"|default:"-" }}</dd></div>
+        <div><dt>E-mail ao PCM</dt><dd>{% if case.pcm_email_sent %}Enviado em {{ case.pcm_email_sent_at|date:"d/m/Y H:i" }}{% else %}Não enviado{% endif %}</dd></div>
+      </dl>
+      {% if case.progress_notes %}
+        <div class="detail-notes">
+          <strong>Observações do andamento</strong>
+          <p>{{ case.progress_notes|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="panel">
+      <header class="equipment-section-header">
+        <h2>Histórico / linha do tempo</h2>
+        <p>Cada atualização importante do processo fica registrada aqui.</p>
+      </header>
+      <ul class="timeline-list">
+        {% for event in timeline_events %}
+          <li class="timeline-item">
+            <span class="timeline-marker"></span>
+            <div class="timeline-content">
+              <strong>{{ event.title }}</strong>
+              <span>{{ event.event_at|date:"d/m/Y H:i" }}{% if event.actor_user %} por {{ event.actor_user.full_name }}{% endif %}</span>
+              {% if event.details %}
+                <small class="muted-copy">{{ event.details|linebreaksbr }}</small>
+              {% endif %}
+            </div>
+          </li>
+        {% empty %}
+          <li class="timeline-item">
+            <span class="timeline-marker"></span>
+            <div class="timeline-content">
+              <strong>Nenhum evento registrado.</strong>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+{% endblock %}
