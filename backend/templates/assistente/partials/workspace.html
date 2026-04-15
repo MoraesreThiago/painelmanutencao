@@ -1,9 +1,13 @@
+{% if history_oob %}
+  {% include "assistente/partials/history.html" %}
+{% endif %}
+
 <div class="assistant-chat-shell">
   <article class="panel assistant-thread-panel">
     <header class="assistant-thread-header">
       <div>
         <h2>Chat operacional</h2>
-        <p class="muted-copy">Pergunte sobre ocorrencias, periodos, motivos e padroes operacionais.</p>
+        <p class="muted-copy">Escopo atual: {{ assistant_scope_label }}.</p>
       </div>
     </header>
     <div class="assistant-thread" id="assistant-thread">
@@ -19,7 +23,12 @@
       {% else %}
         <article class="assistant-empty-state">
           <strong>O assistente esta pronto.</strong>
-          <p>Voce pode perguntar, por exemplo: "Me mostre as ocorrencias dos ultimos 3 meses" ou "Quais foram os principais motivos das ocorrencias recentes?".</p>
+          <p>Ele vai responder usando apenas o contexto operacional disponivel para {{ assistant_scope_label|lower }}.</p>
+          <div class="assistant-suggestions">
+            {% for prompt in suggested_prompts %}
+              <button type="button" class="assistant-suggestion" data-chat-prompt="{{ prompt }}">{{ prompt }}</button>
+            {% endfor %}
+          </div>
         </article>
       {% endif %}
     </div>
@@ -27,29 +36,22 @@
 
   <form
     method="post"
-    class="panel assistant-form"
+    class="panel assistant-composer"
     data-chat-form
-    hx-post="{% url 'assistente:submit' %}"
+    hx-post="{{ chat_submit_url }}"
     hx-target="#assistant-workspace"
     hx-swap="innerHTML"
   >
     {% csrf_token %}
     {{ chat_form.session_id }}
-    <div class="form-grid assistant-form-grid">
-      <div class="field">
-        <span>{{ chat_form.area.label }}</span>
-        {{ chat_form.area }}
-      </div>
-      <div class="field assistant-form-field assistant-form-field--prompt">
-        <span>{{ chat_form.prompt.label }}</span>
+    <div class="assistant-composer-grid">
+      <div class="field assistant-composer-field">
         {{ chat_form.prompt }}
         {% if chat_form.prompt.errors %}
           <small class="field-error">{{ chat_form.prompt.errors.0 }}</small>
         {% endif %}
       </div>
-      <div class="form-actions assistant-form-actions">
-        <button type="submit" class="primary-button">Perguntar ao assistente</button>
-      </div>
+      <button type="submit" class="primary-button assistant-composer-submit">Enviar</button>
     </div>
   </form>
 </div>

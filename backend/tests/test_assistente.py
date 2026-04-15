@@ -30,6 +30,8 @@ class AssistantChatTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Assistente IA")
         self.assertContains(response, "Chat IA")
+        self.assertContains(response, "Area atual: Eletrica.")
+        self.assertNotContains(response, 'name="area"', html=False)
 
     @override_settings(OPENAI_API_KEY=None)
     def test_chat_submit_creates_session_and_fallback_reply(self):
@@ -37,16 +39,17 @@ class AssistantChatTests(TestCase):
             reverse("assistente:submit"),
             {
                 "prompt": "Mostre as ocorrencias dos ultimos 3 meses.",
-                "area": str(self.area.code),
             },
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(ChatSession.objects.count(), 1)
         self.assertEqual(ChatMessage.objects.count(), 2)
+        self.assertEqual(ChatSession.objects.first().area, self.area)
         assistant_message = ChatMessage.objects.filter(role=ChatMessage.Role.ASSISTANT).first()
         self.assertIsNotNone(assistant_message)
         self.assertIn("OPENAI_API_KEY", assistant_message.content)
         self.assertIn("HX-Push-Url", response.headers)
+        self.assertIn("area=ELETRICA", response.headers["HX-Push-Url"])
 
     def test_chat_area_scope_requires_access(self):
         response = self.client.get(reverse("assistente:chat"), {"area": str(self.other_area.code)})

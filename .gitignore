@@ -34,10 +34,6 @@ backend/media/
 .reflex/
 .web/
 .states/
-web/.reflex/
-web/.web/
-web/.states/
-web/reflex.db
 
 # Build and packaging artifacts
 build/

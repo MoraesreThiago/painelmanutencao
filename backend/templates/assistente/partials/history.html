@@ -1,0 +1,30 @@
+<aside id="assistant-history" class="assistant-sidebar"{% if history_oob %} hx-swap-oob="outerHTML"{% endif %}>
+  <article class="panel assistant-history-panel">
+    <header class="assistant-history-header">
+      <div>
+        <h2>Historico de conversas</h2>
+        <p class="muted-copy">Area atual: {{ assistant_scope_label }}.</p>
+      </div>
+      <a href="{{ chat_new_url }}" class="ghost-button assistant-history-new">Nova</a>
+    </header>
+    <div class="assistant-history-list">
+      {% for session in recent_sessions %}
+        <a
+          href="{% url 'assistente:chat' %}?session={{ session.id }}{% if current_area %}&area={{ current_area.code }}{% elif session.area_id %}&area={{ session.area.code }}{% endif %}"
+          class="assistant-session-link{% if chat_session and session.id == chat_session.id %} is-active{% endif %}"
+        >
+          <strong>{{ session.title|default:"Nova conversa" }}</strong>
+          <span>{{ session.updated_at|date:"d/m/Y H:i" }}</span>
+          {% if not current_area and session.area_id %}
+            <small>{{ session.area.name }}</small>
+          {% endif %}
+        </a>
+      {% empty %}
+        <article class="assistant-history-empty">
+          <strong>Nenhuma conversa ainda.</strong>
+          <p class="muted-copy">Assim que voce enviar a primeira pergunta, ela aparecera aqui.</p>
+        </article>
+      {% endfor %}
+    </div>
+  </article>
+</aside>

@@ -133,4 +133,4 @@ A nova espinha dorsal Django já está criada e validada com:
 - bootstrap inicial
 - smoke tests básicos
 
-As pastas antigas `api/` e `web/` ainda permanecem no repositório como referência para a próxima fase de portabilidade de regras e telas. Elas ainda não foram removidas automaticamente nesta etapa.
+A stack anterior em FastAPI/Reflex foi removida do repositório. O desenvolvimento e a portabilidade seguem somente em `backend/`.

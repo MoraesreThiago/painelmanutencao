@@ -10,13 +10,50 @@ from django.views.generic import TemplateView
 from apps.access.mixins import SidebarContextMixin
 from apps.assistente.forms import ChatPromptForm
 from apps.assistente.services import (
-    get_assistant_allowed_areas,
     get_session_for_user,
     list_recent_sessions,
     resolve_assistant_area,
     submit_prompt,
 )
-from common.permissions import PermissionName, can_view_area_data, ensure_permission
+from common.permissions import PermissionName, ensure_permission
+
+
+SUGGESTED_PROMPTS = [
+    "Me fale os principais motivos das ocorrencias dos ultimos 3 meses.",
+    "Mostre as ocorrencias em aberto e os equipamentos mais afetados.",
+    "Resuma o tempo de parada registrado nos ultimos 90 dias.",
+]
+
+
+def build_chat_url(*, area=None, session=None) -> str:
+    query_items = []
+    if session is not None:
+        query_items.append(f"session={session.id}")
+    if area is not None:
+        query_items.append(f"area={area.code}")
+    base_url = reverse("assistente:chat")
+    if not query_items:
+        return base_url
+    return f"{base_url}?{'&'.join(query_items)}"
+
+
+def build_assistant_context(*, user, area, session, form, history_oob=False):
+    return {
+        "chat_form": form,
+        "chat_session": session,
+        "chat_messages": list(session.messages.all()) if session else [],
+        "current_area": area,
+        "recent_sessions": list_recent_sessions(user, area=area),
+        "suggested_prompts": SUGGESTED_PROMPTS,
+        "assistant_scope_label": area.name if area is not None else "Todas as areas permitidas",
+        "chat_submit_url": reverse("assistente:submit")
+        if area is None
+        else f"{reverse('assistente:submit')}?area={area.code}",
+        "chat_new_url": reverse("assistente:new")
+        if area is None
+        else f"{reverse('assistente:new')}?area={area.code}",
+        "history_oob": history_oob,
+    }
 
 
 class AssistantChatView(LoginRequiredMixin, SidebarContextMixin, TemplateView):
@@ -28,46 +65,34 @@ class AssistantChatView(LoginRequiredMixin, SidebarContextMixin, TemplateView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_sidebar_area(self):
-        explicit_area = resolve_assistant_area(self.request.user, self.request.GET.get("area"))
-        if explicit_area is not None:
-            return explicit_area
-        session = self.get_session()
-        if session is not None and session.area_id:
-            return session.area
-        return None
+        return resolve_assistant_area(self.request.user, self.request.GET.get("area"))
 
     def get_session(self):
-        return get_session_for_user(self.request.user, self.request.GET.get("session"))
+        return get_session_for_user(
+            self.request.user,
+            self.request.GET.get("session"),
+            area=self.get_sidebar_area(),
+        )
 
     def get_form(self):
         initial = {}
         session = self.get_session()
-        area = self.get_sidebar_area()
         if session is not None:
             initial["session_id"] = session.id
-            if session.area_id:
-                initial["area"] = str(session.area.code)
-        elif area is not None:
-            initial["area"] = str(area.code)
-        return ChatPromptForm(allowed_areas=get_assistant_allowed_areas(self.request.user), initial=initial)
+        return ChatPromptForm(initial=initial)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        session = self.get_session()
+        area = self.get_sidebar_area()
+        context["page_title"] = "Assistente IA"
+        context["page_eyebrow"] = area.name if area is not None else "Analise operacional"
         context.update(
-            {
-                "page_title": "Assistente IA",
-                "page_eyebrow": "Analise operacional",
-                "chat_form": self.get_form(),
-                "chat_session": session,
-                "chat_messages": list(session.messages.all()) if session else [],
-                "recent_sessions": list_recent_sessions(self.request.user),
-                "suggested_prompts": [
-                    "Me fale os principais motivos das ocorrencias dos ultimos 3 meses.",
-                    "Mostre as ocorrencias em aberto e os equipamentos mais afetados.",
-                    "Resuma o tempo de parada registrado nos ultimos 90 dias.",
-                ],
-            }
+            build_assistant_context(
+                user=self.request.user,
+                area=area,
+                session=self.get_session(),
+                form=self.get_form(),
+            )
         )
         return context
 
@@ -75,9 +100,9 @@ class AssistantChatView(LoginRequiredMixin, SidebarContextMixin, TemplateView):
 class AssistantSubmitView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         ensure_permission(request.user, PermissionName.VIEW_AREA_DATA)
-        form = ChatPromptForm(request.POST, allowed_areas=get_assistant_allowed_areas(request.user))
-        session = get_session_for_user(request.user, request.POST.get("session_id"))
-        area = resolve_assistant_area(request.user, request.POST.get("area"))
+        area = resolve_assistant_area(request.user, request.GET.get("area"))
+        form = ChatPromptForm(request.POST)
+        session = get_session_for_user(request.user, request.POST.get("session_id"), area=area)
 
         if form.is_valid():
             session = submit_prompt(
@@ -86,36 +111,25 @@ class AssistantSubmitView(LoginRequiredMixin, View):
                 area=area,
                 session=session,
             )
-            form = ChatPromptForm(
-                allowed_areas=get_assistant_allowed_areas(request.user),
-                initial={
-                    "session_id": session.id,
-                    "area": str(session.area.code) if session.area_id else "",
-                },
-            )
+            form = ChatPromptForm(initial={"session_id": session.id})
         else:
             form.fields["session_id"].initial = request.POST.get("session_id")
-            form.fields["area"].initial = request.POST.get("area")
 
-        context = {
-            "chat_form": form,
-            "chat_session": session,
-            "chat_messages": list(session.messages.all()) if session else [],
-        }
+        context = build_assistant_context(
+            user=request.user,
+            area=area,
+            session=session,
+            form=form,
+            history_oob=True,
+        )
         response = TemplateResponse(request, "assistente/partials/workspace.html", context)
         if session is not None:
-            query_items = [f"session={session.id}"]
-            if session.area_id:
-                query_items.append(f"area={session.area.code}")
-            response["HX-Push-Url"] = f"{reverse('assistente:chat')}?{'&'.join(query_items)}"
+            response["HX-Push-Url"] = build_chat_url(area=area or session.area, session=session)
         return response
 
 
 class AssistantNewChatView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         ensure_permission(request.user, PermissionName.VIEW_AREA_DATA)
-        area_code = request.GET.get("area")
-        target = reverse("assistente:chat")
-        if area_code:
-            target = f"{target}?area={area_code}"
-        return redirect(target)
+        area = resolve_assistant_area(request.user, request.GET.get("area"))
+        return redirect(build_chat_url(area=area))

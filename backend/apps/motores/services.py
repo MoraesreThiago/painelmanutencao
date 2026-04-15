@@ -12,13 +12,12 @@ from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
 
-from apps.motores.models import BurnedMotorCase, BurnedMotorCaseEvent, BurnedMotorProcess, ElectricMotor
+from apps.motores.models import BurnedMotorCase, BurnedMotorCaseEvent, ElectricMotor
 from apps.unidades.models import Area
 from apps.unidades.services import build_lookup_exact_q, build_user_unidade_scope_q
 from common.enums import (
     AreaCode,
     BurnedMotorCaseStatus,
-    MotorBurnoutFlowStatus,
     MotorDataOrigin,
     MotorStatus,
 )
@@ -256,40 +255,92 @@ def build_motor_catalog_map(area):
     return snapshot_map
 
 
-def _normalize_process_dates(process: BurnedMotorProcess):
+def _normalize_process_dates(process: BurnedMotorCase):
     now = timezone.now()
     if process.sent_to_pcm and not process.sent_to_pcm_at:
         process.sent_to_pcm_at = now
     if not process.sent_to_pcm:
         process.sent_to_pcm_at = None
 
-    if process.payment_approved and not process.approved_at:
+    if process.approved and not process.approved_at:
         process.approved_at = now
-    if not process.payment_approved:
+    if not process.approved:
         process.approved_at = None
 
-    if process.arrived and not process.arrived_at:
+    arrived_flag = getattr(process, "_legacy_arrived", None)
+    if arrived_flag is True and not process.arrived_at:
         process.arrived_at = now
-    if not process.arrived:
+    if arrived_flag is False:
         process.arrived_at = None
 
 
+def _populate_legacy_case_from_motor(case: BurnedMotorCase, *, motor, user):
+    case.area = motor.area
+    case.motor = motor
+    case.unidade = motor.unidade
+    case.data_origin = MotorDataOrigin.CATALOG
+    case.updated_by_user = user
+    if not case.pk:
+        case.opened_by_user = user
+        if not case.recorded_at:
+            case.recorded_at = timezone.now()
+
+    if not case.requester_name:
+        case.requester_name = user.full_name or user.email
+
+    snapshot = motor_snapshot_from_catalog(motor)
+    if not case.unidade_id and snapshot.get("unidade"):
+        case.unidade_id = snapshot["unidade"]
+    for field_name, field_value in snapshot.items():
+        if field_name == "unidade":
+            continue
+        if not getattr(case, field_name):
+            setattr(case, field_name, field_value)
+
+
 def create_burned_process_from_form(form, *, motor, user):
-    process = form.save(commit=False)
-    process.motor = motor
-    process.registered_by_user = user
-    process.updated_by_user = user
-    _normalize_process_dates(process)
-    process.save()
-    return process
+    with transaction.atomic():
+        case = form.save(commit=False)
+        _populate_legacy_case_from_motor(case, motor=motor, user=user)
+        _normalize_process_dates(case)
+        _apply_case_milestones_from_status(case)
+        case.save()
+        create_case_event(
+            case,
+            actor=user,
+            title="Processo aberto",
+            details=f"Processo vinculado ao motor cadastrado {motor.mo} pela rota legada.",
+            event_type="created",
+        )
+    return case
 
 
-def update_burned_process_from_form(form, *, user):
-    process = form.save(commit=False)
-    process.updated_by_user = user
-    _normalize_process_dates(process)
-    process.save()
-    return process
+def update_burned_process_from_form(form, *, motor, user):
+    with transaction.atomic():
+        case = form.save(commit=False)
+        previous_status = form.instance.status
+        _populate_legacy_case_from_motor(case, motor=motor, user=user)
+        _normalize_process_dates(case)
+        _apply_case_milestones_from_status(case)
+        case.save()
+
+        if case.status != previous_status:
+            create_case_event(
+                case,
+                actor=user,
+                title=f"Status alterado para {case.get_status_display()}",
+                details=case.progress_notes or "",
+                event_type="status",
+            )
+        else:
+            create_case_event(
+                case,
+                actor=user,
+                title="Processo atualizado",
+                details=case.progress_notes or "",
+                event_type="updated",
+            )
+    return case
 
 
 def build_motor_flow_summary(motor):

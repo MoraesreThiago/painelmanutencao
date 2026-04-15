@@ -4,14 +4,13 @@ from django import forms
 from django.db.models import Q
 from django.utils import timezone
 
-from apps.motores.models import BurnedMotorCase, BurnedMotorProcess, ElectricMotor
+from apps.motores.models import BurnedMotorCase, ElectricMotor
 from apps.motores.services import validate_burned_case_form_data
 from apps.unidades.models import UnidadeProdutiva
 from apps.unidades.services import get_fabricas_visiveis, get_unidades_visiveis
 from common.enums import (
     BurnedMotorCaseStatus,
     BurnedMotorPriority,
-    MotorBurnoutFlowStatus,
     MotorSolutionType,
     MotorStatus,
 )
@@ -111,55 +110,68 @@ class ElectricMotorFilterForm(forms.Form):
         self.fields["status"].choices = [("", "Todos os status")] + list(MotorStatus.choices)
 
 
-class BurnedMotorProcessForm(forms.ModelForm):
+class BurnedMotorLegacyFlowForm(forms.ModelForm):
+    arrived = forms.BooleanField(required=False, label="Chegou")
+
     class Meta:
-        model = BurnedMotorProcess
+        model = BurnedMotorCase
         fields = [
             "occurred_at",
             "problem_type",
-            "description",
+            "defect_description",
             "sent_to_pcm",
             "sent_to_pcm_at",
-            "in_quotation",
             "status",
-            "payment_approved",
+            "approved",
             "approved_at",
-            "arrived",
             "arrived_at",
-            "sent_for_rewinding",
+            "rewinding_required",
             "third_party_company",
-            "notes",
+            "progress_notes",
         ]
         widgets = {
             "occurred_at": forms.DateTimeInput(attrs={"type": "datetime-local"}),
             "sent_to_pcm_at": forms.DateTimeInput(attrs={"type": "datetime-local"}),
             "approved_at": forms.DateTimeInput(attrs={"type": "datetime-local"}),
             "arrived_at": forms.DateTimeInput(attrs={"type": "datetime-local"}),
-            "description": forms.Textarea(attrs={"rows": 4}),
-            "notes": forms.Textarea(attrs={"rows": 4}),
+            "defect_description": forms.Textarea(attrs={"rows": 4}),
+            "progress_notes": forms.Textarea(attrs={"rows": 4}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["occurred_at"].initial = self.instance.occurred_at if self.instance.pk else timezone.now()
-        self.fields["status"].choices = list(MotorBurnoutFlowStatus.choices)
+        self.fields["status"].choices = list(BurnedMotorCaseStatus.choices)
+        self.fields["defect_description"].label = "Descricao"
+        self.fields["approved"].label = "Pagamento aprovado"
+        self.fields["rewinding_required"].label = "Foi para rebobinamento"
+        self.fields["progress_notes"].label = "Observacoes"
+        self.fields["arrived"].initial = bool(self.instance.arrived_at)
 
     def clean(self):
         cleaned_data = super().clean()
         sent_to_pcm = cleaned_data.get("sent_to_pcm")
         sent_to_pcm_at = cleaned_data.get("sent_to_pcm_at")
-        payment_approved = cleaned_data.get("payment_approved")
+        approved = cleaned_data.get("approved")
         approved_at = cleaned_data.get("approved_at")
         arrived = cleaned_data.get("arrived")
         arrived_at = cleaned_data.get("arrived_at")
 
         if sent_to_pcm_at and not sent_to_pcm:
             self.add_error("sent_to_pcm", "Marque o envio para PCM quando houver data de envio.")
-        if approved_at and not payment_approved:
-            self.add_error("payment_approved", "Marque o pagamento aprovado quando houver data de aprovacao.")
+        if approved_at and not approved:
+            self.add_error("approved", "Marque o pagamento aprovado quando houver data de aprovacao.")
         if arrived_at and not arrived:
             self.add_error("arrived", "Marque a chegada quando houver data de chegada.")
         return cleaned_data
+
+    def save(self, commit=True):
+        case = super().save(commit=False)
+        case._legacy_arrived = self.cleaned_data.get("arrived")
+        if commit:
+            case.save()
+            self.save_m2m()
+        return case
 
 
 class BurnedMotorCaseFilterForm(forms.Form):

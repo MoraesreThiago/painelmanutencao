@@ -4,7 +4,7 @@ from django import forms
 from django.db.models import Q
 from django.utils import timezone
 
-from apps.equipamentos.models import Equipment
+from apps.equipamentos.models import Equipment, Motor
 from apps.unidades.models import Area, Location, UnidadeProdutiva
 from apps.unidades.services import get_fabricas_visiveis, get_unidades_visiveis
 from common.enums import EquipmentStatus, EquipmentType
@@ -163,3 +163,23 @@ class EquipmentFilterForm(forms.Form):
         ]
         self.fields["equipment_type"].choices = [("", "Todas as classificacoes")] + list(EquipmentType.choices)
         self.fields["status"].choices = [("", "Todos os status")] + list(EquipmentStatus.choices)
+
+
+class MotorForm(forms.ModelForm):
+    class Meta:
+        model = Motor
+        fields = ["unique_identifier", "current_status", "last_internal_service_at", "electric_motor"]
+        widgets = {
+            "last_internal_service_at": forms.DateInput(attrs={"type": "date"}),
+            "electric_motor": forms.Select(attrs={"class": "form-select"}),
+        }
+        labels = {
+            "electric_motor": "Motor elétrico do catálogo (opcional)",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from apps.motores.models import ElectricMotor
+
+        self.fields["electric_motor"].empty_label = "— nenhum (motor sem catálogo técnico)"
+        self.fields["electric_motor"].queryset = ElectricMotor.objects.order_by("mo")

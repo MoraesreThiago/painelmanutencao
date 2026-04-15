@@ -12,33 +12,42 @@ from apps.assistente.models import ChatMessage, ChatSession
 from apps.ocorrencias.models import Occurrence
 from apps.unidades.models import Area
 from common.enums import OccurrenceClassification, OccurrenceStatus
-from common.permissions import ensure_area_access, get_allowed_areas, is_global_user
-
-
-def get_assistant_allowed_areas(user):
-    if is_global_user(user):
-        return list(Area.objects.order_by("name"))
-    return get_allowed_areas(user)
+from common.permissions import ensure_area_access, get_allowed_areas
 
 
 def resolve_assistant_area(user, area_code: str | None):
-    if not area_code:
-        return None
-    area = Area.objects.filter(code=area_code).first()
-    if area is None:
-        return None
-    ensure_area_access(user, area)
-    return area
+    if area_code:
+        area = Area.objects.filter(code=area_code).first()
+        if area is None:
+            return None
+        ensure_area_access(user, area)
+        return area
+
+    default_area = getattr(user, "area", None)
+    if default_area is not None:
+        ensure_area_access(user, default_area)
+        return default_area
+
+    allowed_areas = get_allowed_areas(user)
+    if len(allowed_areas) == 1:
+        return allowed_areas[0]
+    return None
 
 
-def list_recent_sessions(user, *, limit: int = 6):
-    return ChatSession.objects.filter(user=user).select_related("area")[:limit]
+def list_recent_sessions(user, *, area=None, limit: int = 12):
+    queryset = ChatSession.objects.filter(user=user).select_related("area")
+    if area is not None:
+        queryset = queryset.filter(area=area)
+    return queryset[:limit]
 
 
-def get_session_for_user(user, session_id):
+def get_session_for_user(user, session_id, *, area=None):
     if not session_id:
         return None
-    return ChatSession.objects.filter(user=user, pk=session_id).select_related("area").first()
+    queryset = ChatSession.objects.filter(user=user, pk=session_id).select_related("area")
+    if area is not None:
+        queryset = queryset.filter(area=area)
+    return queryset.first()
 
 
 def _build_openai_client():
@@ -56,7 +65,7 @@ def _base_occurrence_queryset(user, area=None):
     queryset = Occurrence.objects.select_related("equipment", "area", "location").order_by("-occurred_at")
     if area is not None:
         return queryset.filter(area=area)
-    allowed_areas = get_assistant_allowed_areas(user)
+    allowed_areas = get_allowed_areas(user)
     if allowed_areas:
         return queryset.filter(area__in=allowed_areas)
     return queryset.none()

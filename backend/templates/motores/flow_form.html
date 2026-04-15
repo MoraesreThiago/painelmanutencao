@@ -7,7 +7,7 @@
     <div class="equipment-form-shell">
       <div class="equipment-form-intro">
         <h2>{{ page_title }}</h2>
-        <p>Atualize o fluxo do motor queimado desde o registro inicial ate aprovacao, chegada e rebobinamento.</p>
+        <p>Atualize o processo do motor queimado desde o registro inicial ate aprovacao, chegada e rebobinamento.</p>
       </div>
       <div class="summary-card">
         <span>Motor relacionado</span>
@@ -38,9 +38,9 @@
               {{ form.status.errors }}
             </div>
             <div class="field field--wide">
-              <span>{{ form.description.label }}</span>
-              {{ form.description }}
-              {{ form.description.errors }}
+              <span>{{ form.defect_description.label }}</span>
+              {{ form.defect_description }}
+              {{ form.defect_description.errors }}
             </div>
           </div>
         </section>
@@ -65,20 +65,12 @@
               {{ form.sent_to_pcm_at.errors }}
             </div>
             <div class="field">
-              <span>{{ form.in_quotation.label }}</span>
+              <span>{{ form.approved.label }}</span>
               <label class="motor-checkbox-field">
-                {{ form.in_quotation }}
-                <span>Motor em cotacao</span>
-              </label>
-              {{ form.in_quotation.errors }}
-            </div>
-            <div class="field">
-              <span>{{ form.payment_approved.label }}</span>
-              <label class="motor-checkbox-field">
-                {{ form.payment_approved }}
+                {{ form.approved }}
                 <span>Pagamento aprovado</span>
               </label>
-              {{ form.payment_approved.errors }}
+              {{ form.approved.errors }}
             </div>
             <div class="field">
               <span>{{ form.approved_at.label }}</span>
@@ -99,12 +91,12 @@
               {{ form.arrived_at.errors }}
             </div>
             <div class="field">
-              <span>{{ form.sent_for_rewinding.label }}</span>
+              <span>{{ form.rewinding_required.label }}</span>
               <label class="motor-checkbox-field">
-                {{ form.sent_for_rewinding }}
+                {{ form.rewinding_required }}
                 <span>Enviar para rebobinamento</span>
               </label>
-              {{ form.sent_for_rewinding.errors }}
+              {{ form.rewinding_required.errors }}
             </div>
             <div class="field">
               <span>{{ form.third_party_company.label }}</span>
@@ -120,9 +112,9 @@
             <p>Registre detalhes adicionais sobre analise, aprovacao, transporte ou rebobinamento.</p>
           </header>
           <div class="field">
-            <span>{{ form.notes.label }}</span>
-            {{ form.notes }}
-            {{ form.notes.errors }}
+            <span>{{ form.progress_notes.label }}</span>
+            {{ form.progress_notes }}
+            {{ form.progress_notes.errors }}
           </div>
         </section>
 

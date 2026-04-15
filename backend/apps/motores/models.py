@@ -75,6 +75,8 @@ class ElectricMotor(UUIDTimeStampedModel):
         return None
 
 
+# DEPRECIADO — não usar em código novo. Use BurnedMotorCase.
+# Mantido apenas para preservar dados históricos até migração definitiva.
 class BurnedMotorProcess(UUIDTimeStampedModel):
     motor = models.ForeignKey("motores.ElectricMotor", related_name="burned_processes", on_delete=models.CASCADE)
     occurred_at = models.DateTimeField(default=timezone.now, db_index=True, verbose_name="Data da ocorrencia")

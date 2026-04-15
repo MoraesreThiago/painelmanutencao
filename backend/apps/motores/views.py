@@ -12,12 +12,12 @@ from apps.access.mixins import AppPermissionRequiredMixin, SidebarContextMixin
 from apps.motores.forms import (
     BurnedMotorCaseFilterForm,
     BurnedMotorCaseForm,
+    BurnedMotorLegacyFlowForm,
     BurnedMotorCaseStatusForm,
-    BurnedMotorProcessForm,
     ElectricMotorFilterForm,
     ElectricMotorForm,
 )
-from apps.motores.models import BurnedMotorCase, BurnedMotorProcess, ElectricMotor
+from apps.motores.models import BurnedMotorCase, ElectricMotor
 from apps.motores.services import (
     PCMNotificationError,
     apply_burned_case_filters,
@@ -395,7 +395,7 @@ class BurnedMotorCaseSendPCMEmailView(AppPermissionRequiredMixin, BurnedMotorCas
 
 class BurnedMotorProcessCreateView(AppPermissionRequiredMixin, MotorAreaMixin, CreateView):
     template_name = "motores/flow_form.html"
-    form_class = BurnedMotorProcessForm
+    form_class = BurnedMotorLegacyFlowForm
     permission_required = PermissionName.MANAGE_AREA_DATA
 
     def dispatch(self, request, *args, **kwargs):
@@ -405,25 +405,25 @@ class BurnedMotorProcessCreateView(AppPermissionRequiredMixin, MotorAreaMixin, C
 
     def form_valid(self, form):
         self.object = create_burned_process_from_form(form, motor=self.motor, user=self.request.user)
-        messages.success(self.request, "Fluxo legado de motor queimado registrado com sucesso.")
+        messages.success(self.request, "Processo de motor queimado registrado com sucesso.")
         return redirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse("motores:detail", kwargs={"pk": self.motor.pk})
+        return reverse("motores:burned-case-detail", kwargs={"pk": self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["motor"] = self.motor
-        context["page_title"] = f"Novo fluxo legado - {self.motor.mo}"
-        context["submit_label"] = "Registrar fluxo"
+        context["page_title"] = f"Novo processo - {self.motor.mo}"
+        context["submit_label"] = "Abrir processo"
         return context
 
 
 class BurnedMotorProcessUpdateView(AppPermissionRequiredMixin, MotorAreaMixin, UpdateView):
     template_name = "motores/flow_form.html"
-    form_class = BurnedMotorProcessForm
-    model = BurnedMotorProcess
-    context_object_name = "process"
+    form_class = BurnedMotorLegacyFlowForm
+    model = BurnedMotorCase
+    context_object_name = "case"
     pk_url_kwarg = "process_pk"
     permission_required = PermissionName.MANAGE_AREA_DATA
 
@@ -433,19 +433,21 @@ class BurnedMotorProcessUpdateView(AppPermissionRequiredMixin, MotorAreaMixin, U
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return BurnedMotorProcess.objects.select_related("motor", "registered_by_user", "updated_by_user").filter(motor=self.motor)
+        return BurnedMotorCase.objects.select_related("motor", "opened_by_user", "updated_by_user", "area", "unidade").filter(
+            motor=self.motor
+        )
 
     def form_valid(self, form):
-        self.object = update_burned_process_from_form(form, user=self.request.user)
-        messages.success(self.request, "Fluxo legado de motor queimado atualizado com sucesso.")
+        self.object = update_burned_process_from_form(form, motor=self.motor, user=self.request.user)
+        messages.success(self.request, "Processo de motor queimado atualizado com sucesso.")
         return redirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse("motores:detail", kwargs={"pk": self.motor.pk})
+        return reverse("motores:burned-case-detail", kwargs={"pk": self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["motor"] = self.motor
-        context["page_title"] = f"Editar fluxo legado - {self.motor.mo}"
-        context["submit_label"] = "Salvar fluxo"
+        context["page_title"] = f"Editar processo - {self.motor.mo}"
+        context["submit_label"] = "Salvar processo"
         return context

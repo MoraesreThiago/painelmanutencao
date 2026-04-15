@@ -164,6 +164,7 @@ class EquipmentCreateView(AppPermissionRequiredMixin, EquipmentBaseMixin, Create
         return context
 
 
+# TODO: adicionar view de edição de Motor com MotorForm
 class EquipmentUpdateView(AppPermissionRequiredMixin, EquipmentBaseMixin, UpdateView):
     template_name = "equipamentos/form.html"
     form_class = EquipmentForm

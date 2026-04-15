@@ -65,6 +65,15 @@ class Motor(models.Model):
         on_delete=models.CASCADE,
         primary_key=True,
     )
+    electric_motor = models.ForeignKey(
+        "motores.ElectricMotor",
+        related_name="equipment_motors",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="Motor elétrico do catálogo",
+        help_text="Vínculo com o cadastro técnico em motores.ElectricMotor, quando existir.",
+    )
     unique_identifier = models.CharField(max_length=80, unique=True, db_index=True)
     current_status = models.CharField(
         max_length=32,
@@ -81,6 +90,15 @@ class Motor(models.Model):
 
     def __str__(self) -> str:
         return self.unique_identifier
+
+    @property
+    def burned_cases(self):
+        """Processos de motor queimado associados via catálogo elétrico."""
+        if self.electric_motor_id:
+            return self.electric_motor.burned_cases.all()
+        from apps.motores.models import BurnedMotorCase
+
+        return BurnedMotorCase.objects.none()
 
 
 class Instrument(models.Model):
